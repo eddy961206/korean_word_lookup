@@ -109,32 +109,4 @@ $(document).on('mousemove', async (e) => {
   }
 });
 
-// 더블 클릭 이벤트 핸들러
-$(document).on('dblclick', async (e) => {
-  const selection = window.getSelection().toString().trim();
-  
-  if (containsKorean(selection)) {
-    console.log('더블 클릭으로 선택된 단어:', selection);
-    
-    $tooltip
-      .text('번역 중...')
-      .css({
-        display: 'block',
-        left: `${e.pageX + 10}px`,
-        top: `${e.pageY + 10}px`
-      });
-    
-    const translation = await translateText(selection);
-    if (translation) {
-      $tooltip.text(`${selection}: ${translation}`);
-      
-      // 3초 후에 툴팁 숨기기
-      hideTooltipTimeout = setTimeout(() => {
-        $tooltip.hide();
-        hideTooltipTimeout = null;
-      }, 3000);
-    } else {
-      $tooltip.text(`${selection}: 번역할 수 없습니다.`);
-    }
-  }
-});
+
