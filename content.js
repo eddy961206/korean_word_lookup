@@ -1,4 +1,4 @@
-// jQuery를 사용하여 툴팁 요소 생성
+// 툴팁 요소 생성
 const $tooltip = $('<div>', {
   class: 'kr-tooltip'
 }).appendTo('body');
@@ -46,7 +46,7 @@ function getKoreanWordAtPoint(x, y) {
   return null;
 }
 
-// jQuery를 사용한 번역 함수
+// 번역 함수
 function translateText(text) {
   return $.ajax({
     url: 'https://translate.googleapis.com/translate_a/single',
@@ -70,7 +70,7 @@ function translateText(text) {
 let lastWord = '';
 let hideTooltipTimeout = null;
 
-// jQuery를 사용한 마우스 이동 이벤트 핸들러
+// 마우스 이동 이벤트 핸들러
 $(document).on('mousemove', async (e) => {
   const koreanWord = getKoreanWordAtPoint(e.clientX, e.clientY);
 
@@ -79,7 +79,7 @@ $(document).on('mousemove', async (e) => {
       lastWord = koreanWord;
       $tooltip.text('번역 중...');
       
-      // jQuery를 사용한 툴팁 위치 및 표시 설정
+      // 툴팁 위치 및 표시 설정
       $tooltip.css({
         display: 'block',
         left: `${e.pageX + 10}px`,
@@ -109,7 +109,7 @@ $(document).on('mousemove', async (e) => {
   }
 });
 
-// jQuery를 사용한 더블 클릭 이벤트 핸들러
+// 더블 클릭 이벤트 핸들러
 $(document).on('dblclick', async (e) => {
   const selection = window.getSelection().toString().trim();
   
