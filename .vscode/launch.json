@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Chrome against localhost",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost", // 익스텐션 테스트 시 특정 URL로 변경 가능
+        "webRoot": "${workspaceFolder}",
+        "preLaunchTask": "launch-chrome"
+      },
+      {
+        "name": "Attach to Chrome",
+        "type": "chrome",
+        "request": "attach",
+        "port": 9222,
+        "webRoot": "${workspaceFolder}"
+      }
+    ]
+  }
+  

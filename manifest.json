@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Korean Word Lookup",
-  "description": "Shows English meaning when hovering over Korean words",
+  "description": "한국어 단어에 마우스를 올리면 영어 뜻을 보여주는 크롬 익스텐션",
   "version": "1.0.0",
   "permissions": [
     "storage"
@@ -32,9 +32,5 @@
         "content.js"
       ]
     }
-  ],
-  "web_accessible_resources": [{
-    "resources": ["thirdParty/jquery-3.6.0.min.js"],
-    "matches": ["<all_urls>"]
-  }]
+  ]
 }

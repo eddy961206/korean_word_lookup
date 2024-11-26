@@ -1,8 +1,3 @@
-// This file can be used to add interactivity to the popup
-// Currently empty as the popup is static, but you can add features like:
-// - Toggle extension on/off
-// - Configure tooltip appearance
-// - Add custom words to the dictionary
 document.addEventListener('DOMContentLoaded', () => {
   const toggleSwitch = document.getElementById('translationToggle');
   const statusMessage = document.getElementById('statusMessage');
@@ -16,18 +11,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // 토글 상태 변경 이벤트
   toggleSwitch.addEventListener('change', (e) => {
     const isEnabled = e.target.checked;
-    
-    // 상태 저장
-    chrome.storage.sync.set({ translationEnabled: isEnabled });
-    
-    // 상태 메시지 업데이트
-    updateStatusMessage(isEnabled);
 
-    // 현재 활성화된 탭에 메시지 전송
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, { 
-        action: 'toggleTranslation', 
-        enabled: isEnabled 
+    // 상태 저장
+    chrome.storage.sync.set({ translationEnabled: isEnabled }, () => {
+      // 상태 메시지 업데이트
+      updateStatusMessage(isEnabled);
+
+      // 현재 활성화된 모든 탭에 메시지 전송
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length > 0) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            action: 'toggleTranslation',
+            enabled: isEnabled
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error('메시지 전송 실패:', chrome.runtime.lastError.message);
+              // 콘텐츠 스크립트가 없는 경우 (예: chrome:// 페이지), 오류를 무시합니다.
+            } else {
+              // 응답 처리 (필요시)
+            }
+          });
+        }
       });
     });
   });
