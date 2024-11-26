@@ -1,10 +1,10 @@
 /* Tooltip styles */
 .kr-tooltip {
   display: none;
-  position: fixed;
-  z-index: 9999;
+  position: absolute;
+  z-index: 2147483647;
   padding: 8px 12px;
-  background: #1a1a1a;
+  background: rgba(0, 0, 0, 0.8);
   color: white;
   border-radius: 6px;
   font-size: 14px;

@@ -1,7 +1,3 @@
-// 현재 페이지의 URL을 콘솔에 출력합니다.
-console.log('현재 페이지 URL:', window.location.href);
-
-
 // 번역 기능 활성화 여부를 저장하는 변수
 let isEnabled = true;
 
@@ -100,7 +96,6 @@ function translateText(text) {
 }
 
 let lastWord = '';
-let hideTooltipTimeout = null;
 
 // 마우스 이동 이벤트 핸들러
 $(document).on('mousemove', async (e) => {
@@ -114,12 +109,16 @@ $(document).on('mousemove', async (e) => {
       lastWord = koreanWord;
       $tooltip.text('번역 중...');
 
+      // 뷰포트 기준 위치 계산
+      const scrollX = window.scrollX || window.pageXOffset;
+      const scrollY = window.scrollY || window.pageYOffset;
+      
       // 툴팁 위치 설정 및 표시
       $tooltip.css({
         display: 'block',
-        left: `${e.pageX + 10}px`,
-        top: `${e.pageY + 10}px`,
-        zIndex: 1000000000
+        left: `${e.clientX + scrollX + 10}px`,  // 스크롤 위치 고려
+        top: `${e.clientY + scrollY + 10}px`,   // 스크롤 위치 고려
+        position: 'absolute'  // fixed 대신 absolute 사용
       });
 
       const translation = await translateText(koreanWord);
@@ -130,16 +129,13 @@ $(document).on('mousemove', async (e) => {
       }
     } else {
       // 단어가 동일하면 툴팁 위치만 업데이트
+      const scrollX = window.scrollX || window.pageXOffset;
+      const scrollY = window.scrollY || window.pageYOffset;
+      
       $tooltip.css({
-        left: `${e.pageX + 10}px`,
-        top: `${e.pageY + 10}px`
+        left: `${e.clientX + scrollX + 10}px`,
+        top: `${e.clientY + scrollY + 10}px`
       });
-    }
-
-    // 툴팁 자동 숨김 타이머 취소
-    if (hideTooltipTimeout) {
-      clearTimeout(hideTooltipTimeout);
-      hideTooltipTimeout = null;
     }
   } else {
     // 한국어 단어가 없으면 툴팁 숨기기
