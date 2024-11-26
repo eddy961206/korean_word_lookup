@@ -1,3 +1,17 @@
+// 기존 코드 최상단에 추가
+let isEnabled = true;
+
+// 팝업으로부터의 메시지 수신
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'toggleTranslation') {
+    isEnabled = request.enabled;
+    if (!isEnabled) {
+      $tooltip.hide();
+      lastWord = '';
+    }
+  }
+});
+
 // 툴팁 요소 생성
 const $tooltip = $('<div>', {
   class: 'kr-tooltip'
@@ -72,6 +86,8 @@ let hideTooltipTimeout = null;
 
 // 마우스 이동 이벤트 핸들러
 $(document).on('mousemove', async (e) => {
+  if (!isEnabled) return; // 비활성화 상태면 early return
+
   const koreanWord = getKoreanWordAtPoint(e.clientX, e.clientY);
 
   if (koreanWord && containsKorean(koreanWord)) {

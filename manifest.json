@@ -3,7 +3,9 @@
   "name": "Korean Word Lookup",
   "description": "Shows English meaning when hovering over Korean words",
   "version": "1.0.0",
-  "permissions": [],
+  "permissions": [
+    "storage"
+  ],
   "host_permissions": [
     "https://translate.googleapis.com/"
   ],
