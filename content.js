@@ -1,44 +1,98 @@
 // 번역 기능 활성화 여부를 저장하는 변수
 let isEnabled = true;
+let isInitialized = false; // 초기화 여부를 추적하는 변수
 
-// 크롬 스토리지에서 저장된 상태를 불러옵니다.
-chrome.storage.sync.get(['translationEnabled'], (result) => {
-  if (typeof result.translationEnabled !== 'undefined') {
-    isEnabled = result.translationEnabled;
-  } else {
-    // 저장된 값이 없으면 기본값을 true로 설정합니다.
-    isEnabled = true;
-  }
-});
+// 초기 상태를 Promise로 가져오는 함수
+async function initializeExtension() {
 
-// 팝업으로부터 상태 변경 메시지를 수신하여 번역 기능의 활성화 상태를 업데이트합니다.
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'toggleTranslation') {
-    isEnabled = request.enabled;
-    if (!isEnabled) {
-      $tooltip.hide(); // 툴팁 숨기기
-      lastWord = '';   // 마지막 단어 초기화
+  // 크롬 스토리지에서 저장된 상태를 불러옵니다.
+  const result = await new Promise(resolve => {
+    chrome.storage.sync.get(['translationEnabled'], resolve);
+  });
+
+  // 초기 상태 설정
+  isEnabled = result.translationEnabled !== false; // 기본값 true
+
+  // 툴팁 요소 생성 및 이벤트 리스너 설정
+  const $tooltip = $('<div>', {
+    class: 'kr-tooltip',
+    css: {
+      display: 'none',    // 초기 숨김 상태
+      position: 'absolute' // 위치 속성 명시적으로 설정
     }
-    // 응답을 보내어 메시지 포트가 닫히는 오류를 방지합니다.
-    sendResponse({ status: 'success' });
-  }
-});
+  }).appendTo('body');
 
-// 스토리지 변경 사항을 실시간으로 감지하여 상태를 업데이트합니다.
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync' && changes.translationEnabled) {
-    isEnabled = changes.translationEnabled.newValue;
-    if (!isEnabled) {
-      $tooltip.hide(); // 툴팁 숨기기
-      lastWord = '';   // 마지막 단어 초기화
+  // 팝업으로부터 상태 변경 메시지를 수신
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'toggleTranslation') {
+      isEnabled = request.enabled;
+      if (!isEnabled) {
+        $tooltip.hide();
+        lastWord = '';
+      }
+      sendResponse({ status: 'success' }); // 반드시 응답을 보내야 함
+      return true; // 비동기 응답을 허용
     }
-  }
-});
+  });
 
-// 툴팁 요소를 생성하여 문서에 추가합니다.
-const $tooltip = $('<div>', {
-  class: 'kr-tooltip'
-}).appendTo('body');
+  // 스토리지 변경 사항을 실시간으로 감지
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.translationEnabled) {
+      isEnabled = changes.translationEnabled.newValue;
+      if (!isEnabled) {
+        $tooltip.hide();
+        lastWord = '';
+      }
+    }
+  });
+
+  let lastWord = '';
+
+  isInitialized = true; // 초기화 완료 표시
+
+  // 마우스 이동 이벤트 핸들러
+  $(document).on('mousemove', async (e) => {
+    if (!isEnabled || !isInitialized) return; // 초기화 전에는 동작하지 않음
+
+    const koreanWord = getKoreanWordAtPoint(e.clientX, e.clientY);
+
+    if (koreanWord && containsKorean(koreanWord)) {
+      if (koreanWord !== lastWord) {
+        lastWord = koreanWord;
+        $tooltip.text('번역 중...');
+
+        const scrollX = window.scrollX || window.pageXOffset;
+        const scrollY = window.scrollY || window.pageYOffset;
+        
+        $tooltip.css({
+          display: 'block',
+          left: `${e.clientX + scrollX + 10}px`,
+          top: `${e.clientY + scrollY + 10}px`
+        });
+
+        const translation = await translateText(koreanWord);
+        if (translation) {
+          $tooltip.text(`${koreanWord}: ${translation}`);
+        } else {
+          $tooltip.text(`${koreanWord}: 번역할 수 없습니다.`);
+        }
+      } else {
+        const scrollX = window.scrollX || window.pageXOffset;
+        const scrollY = window.scrollY || window.pageYOffset;
+        
+        $tooltip.css({
+          left: `${e.clientX + scrollX + 10}px`,
+          top: `${e.clientY + scrollY + 10}px`
+        });
+      }
+    } else {
+      $tooltip.hide();
+      lastWord = '';
+    }
+  });
+
+  return $tooltip;
+}
 
 // 문자열에 한국어 문자가 포함되어 있는지 확인하는 함수
 function containsKorean(text) {
@@ -106,49 +160,7 @@ function translateText(text) {
   );
 }
 
-let lastWord = '';
-
-// 마우스 이동 이벤트 핸들러
-$(document).on('mousemove', async (e) => {
-  if (!isEnabled) return; // 번역 기능이 비활성화된 경우 함수 종료
-
-  const koreanWord = getKoreanWordAtPoint(e.clientX, e.clientY);
-
-  if (koreanWord && containsKorean(koreanWord)) {
-    if (koreanWord !== lastWord) {
-      lastWord = koreanWord;
-      $tooltip.text('번역 중...');
-
-      // 뷰포트 기준 위치 계산
-      const scrollX = window.scrollX || window.pageXOffset;
-      const scrollY = window.scrollY || window.pageYOffset;
-      
-      // 툴팁 위치 설정 및 표시
-      $tooltip.css({
-        display: 'block',
-        left: `${e.clientX + scrollX + 10}px`,  // 스크롤 위치 고려
-        top: `${e.clientY + scrollY + 10}px`    // 스크롤 위치 고려
-      });
-
-      const translation = await translateText(koreanWord);
-      if (translation) {
-        $tooltip.text(`${koreanWord}: ${translation}`);
-      } else {
-        $tooltip.text(`${koreanWord}: 번역할 수 없습니다.`);
-      }
-    } else {
-      // 단어가 동일하면 툴팁 위치만 업데이트
-      const scrollX = window.scrollX || window.pageXOffset;
-      const scrollY = window.scrollY || window.pageYOffset;
-      
-      $tooltip.css({
-        left: `${e.clientX + scrollX + 10}px`,
-        top: `${e.clientY + scrollY + 10}px`
-      });
-    }
-  } else {
-    // 한국어 단어가 없으면 툴팁 숨기기
-    $tooltip.hide();
-    lastWord = '';
-  }
+// 익스텐션 초기화 실행
+initializeExtension().catch(error => {
+  console.error('익스텐션 초기화 중 오류 발생:', error);
 });

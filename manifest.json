@@ -4,10 +4,14 @@
   "description": "한국어 단어에 마우스를 올리면 영어 뜻을 보여주는 크롬 익스텐션",
   "version": "1.0.0",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
-    "https://translate.googleapis.com/"
+    "https://translate.googleapis.com/",
+    "http://*/",
+    "https://*/"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -32,5 +36,8 @@
         "content.js"
       ]
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
 }

@@ -17,21 +17,23 @@ document.addEventListener('DOMContentLoaded', () => {
       // 상태 메시지 업데이트
       updateStatusMessage(isEnabled);
 
-      // 현재 활성화된 모든 탭에 메시지 전송
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs.length > 0) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            action: 'toggleTranslation',
-            enabled: isEnabled
-          }, (response) => {
-            if (chrome.runtime.lastError) {
-              console.error('메시지 전송 실패:', chrome.runtime.lastError.message);
-              // 콘텐츠 스크립트가 없는 경우 (예: chrome:// 페이지), 오류를 무시합니다.
-            } else {
-              // 응답 처리 (필요시)
-            }
-          });
-        }
+      // 모든 탭에 메시지 전송
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach((tab) => {
+          if (tab.id && !tab.url.startsWith('chrome://')) { // chrome:// 페이지 제외
+            chrome.tabs.sendMessage(tab.id, {
+              action: 'toggleTranslation',
+              enabled: isEnabled
+            }, (response) => {
+              if (chrome.runtime.lastError) {
+                console.error('메시지 전송 실패:', chrome.runtime.lastError.message);
+                // 필요에 따라 사용자에게 알림 추가 가능
+              } else {
+                // 응답 처리 (필요시)
+              }
+            });
+          }
+        });
       });
     });
   });
