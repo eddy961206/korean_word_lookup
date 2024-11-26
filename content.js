@@ -24,6 +24,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
+// 스토리지 변경 사항을 실시간으로 감지하여 상태를 업데이트합니다.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'sync' && changes.translationEnabled) {
+    isEnabled = changes.translationEnabled.newValue;
+    if (!isEnabled) {
+      $tooltip.hide(); // 툴팁 숨기기
+      lastWord = '';   // 마지막 단어 초기화
+    }
+  }
+});
+
 // 툴팁 요소를 생성하여 문서에 추가합니다.
 const $tooltip = $('<div>', {
   class: 'kr-tooltip'
@@ -105,7 +116,6 @@ $(document).on('mousemove', async (e) => {
 
   if (koreanWord && containsKorean(koreanWord)) {
     if (koreanWord !== lastWord) {
-      console.log(koreanWord);
       lastWord = koreanWord;
       $tooltip.text('번역 중...');
 
@@ -117,8 +127,7 @@ $(document).on('mousemove', async (e) => {
       $tooltip.css({
         display: 'block',
         left: `${e.clientX + scrollX + 10}px`,  // 스크롤 위치 고려
-        top: `${e.clientY + scrollY + 10}px`,   // 스크롤 위치 고려
-        position: 'absolute'  // fixed 대신 absolute 사용
+        top: `${e.clientY + scrollY + 10}px`    // 스크롤 위치 고려
       });
 
       const translation = await translateText(koreanWord);
