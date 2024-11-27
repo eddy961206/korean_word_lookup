@@ -54,6 +54,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
   
+// 아이콘 상태 업데이트 함수 (배지 텍스트 사용)
+function updateIcon(isEnabled) {
+  const badgeText = isEnabled ? "ON" : "OFF";
+  const badgeColor = isEnabled ? "#4CAF50" : "#F44336"; // 녹색 또는 빨간색
+  const title = isEnabled ? "Korean Word Lookup (Enabled)" : "Korean Word Lookup (Disabled)";
+
+  chrome.action.setBadgeText({ text: badgeText });
+  chrome.action.setBadgeBackgroundColor({ color: badgeColor });
+  chrome.action.setTitle({ title: title });
+}
+
+// 초기 상태 설정
+chrome.storage.sync.get(['translationEnabled'], (result) => {
+  updateIcon(result.translationEnabled !== false);
+});
+
 // 단축키 처리
 chrome.commands.onCommand.addListener((command) => {
   switch (command) {
@@ -61,6 +77,7 @@ chrome.commands.onCommand.addListener((command) => {
       chrome.storage.sync.get(['translationEnabled'], (result) => {
         const newStatus = !result.translationEnabled;
         chrome.storage.sync.set({ translationEnabled: newStatus }, () => {
+          updateIcon(newStatus);
           // 모든 탭에 상태 변경 메시지 전송
           chrome.tabs.query({}, (tabs) => {
             tabs.forEach((tab) => {
@@ -81,6 +98,13 @@ chrome.commands.onCommand.addListener((command) => {
     case 'toggle-korean-dict':
       chrome.storage.sync.set({ selectedApi: 'krdict' });
       break;
+  }
+});
+
+// 스토리지 변경 감지
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'sync' && changes.translationEnabled) {
+    updateIcon(changes.translationEnabled.newValue);
   }
 });
   
