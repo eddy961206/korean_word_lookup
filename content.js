@@ -59,24 +59,35 @@ async function initializeExtension() {
     if (koreanWord && containsKorean(koreanWord)) {
       if (koreanWord !== lastWord) {
         lastWord = koreanWord;
-        $tooltip.text('번역 중...');
-
+        
+        // 새로운 단어를 감지하면 먼저 툴팁을 숨김
+        $tooltip.hide();
+        
         const scrollX = window.scrollX || window.pageXOffset;
         const scrollY = window.scrollY || window.pageYOffset;
         
+        // 위치를 먼저 업데이트
         $tooltip.css({
-          display: 'block',
           left: `${e.clientX + scrollX + 10}px`,
           top: `${e.clientY + scrollY + 10}px`
         });
 
+        // 번역 중 표시
+        $tooltip.text('').show();
+
         const translation = await translateText(koreanWord);
         if (translation) {
-          $tooltip.text(`${koreanWord}: ${translation}`);
+          // 현재 단어가 여전히 lastWord와 같은 경우에만 툴팁 업데이트
+          if (koreanWord === lastWord) {
+            $tooltip.text(`${koreanWord}: ${translation}`);
+          }
         } else {
-          $tooltip.text(`${koreanWord}: 번역할 수 없습니다.`);
+          if (koreanWord === lastWord) {
+            $tooltip.text(`${koreanWord}: 번역할 수 없습니다.`);
+          }
         }
       } else {
+        // 같은 단어 위에 있을 때는 위치만 업데이트
         const scrollX = window.scrollX || window.pageXOffset;
         const scrollY = window.scrollY || window.pageYOffset;
         
