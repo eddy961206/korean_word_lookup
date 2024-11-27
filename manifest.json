@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Korean Word Lookup",
-  "description": "Show English definitions of Korean words when hovering over them. Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary (https://krdict.korean.go.kr)",
+  "description": "Show English definitions of Korean words when hovering over them.",
   "version": "1.0.0",
   "permissions": [
     "storage",
@@ -41,7 +41,11 @@
     "service_worker": "background.js"
   },
   "web_accessible_resources": [{
-    "resources": ["config.json"],
+    "resources": [
+      "config.json",
+      "welcome.html",
+      "icons/icon128.png"
+    ],
     "matches": ["<all_urls>"]
   }],
   "commands": {
