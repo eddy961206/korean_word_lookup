@@ -165,7 +165,7 @@ function translateText(text) {
   }).then(
     data => data[0][0][0],
     error => {
-      console.error('번역 오류:', error);
+      console.error('Translation error:', error);
       return null;
     }
   );
@@ -173,5 +173,5 @@ function translateText(text) {
 
 // 익스텐션 초기화 실행
 initializeExtension().catch(error => {
-  console.error('익스텐션 초기화 중 오류 발생:', error);
+  console.error('Extension initialization error:', error);
 });

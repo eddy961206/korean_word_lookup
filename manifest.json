@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Korean Word Lookup",
-  "description": "한국어 단어에 마우스를 올리면 영어 뜻을 보여주는 크롬 익스텐션",
+  "description": "Show English definitions of Korean words when hovering over them",
   "version": "1.0.0",
   "permissions": [
     "storage",

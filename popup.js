@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
               enabled: isEnabled
             }, (response) => {
               if (chrome.runtime.lastError) {
-                console.error('메시지 전송 실패:', chrome.runtime.lastError.message);
+                console.error('Message sending failed:', chrome.runtime.lastError.message);
                 // 필요에 따라 사용자에게 알림 추가 가능
               } else {
                 // 응답 처리 (필요시)
