@@ -90,6 +90,7 @@ async function initializeExtension() {
         const selectedApi = result.selectedApi || 'google';
         let translation;
         
+        // 구글 번역 API 사용
         if (selectedApi === 'google') {
           translation = await translateText(koreanWord);
           if (translation) {
@@ -98,6 +99,7 @@ async function initializeExtension() {
             $tooltip.text(`${koreanWord}: Unable to translate`);
           }
         } else {
+          // 국립국어원 사전 API 사용
           translation = await getDictionaryMeaning(koreanWord);
           if (translation) {
             $tooltip.text(translation);
@@ -124,12 +126,12 @@ async function initializeExtension() {
   return $tooltip;
 }
 
-// 문자열에 한국어 문자가 포함되어 있는지 확인하는 함수
+// 문자열에 한국어 문자가 포함되어 있는지 확인
 function containsKorean(text) {
   return /[\u3131-\u318E\uAC00-\uD7A3]/.test(text);
 }
 
-// 마우스 위치에서 한국어 단어를 추출하는 함수
+// 마우스 위치에서 한국어 단어를 추출
 function getKoreanWordAtPoint(x, y) {
   let range;
   if (document.caretRangeFromPoint) {
@@ -169,7 +171,7 @@ function getKoreanWordAtPoint(x, y) {
   return null;
 }
 
-// 구글 번역 API를 사용하여 텍스트를 번역하는 함수
+// 구글 번역 API 사용
 function translateText(text) {
   return $.ajax({
     url: 'https://translate.googleapis.com/translate_a/single',
@@ -190,7 +192,29 @@ function translateText(text) {
   );
 }
 
-// 국립국어원 API를 사용하여 단어의 사전적 의미를 가져오는 함수
+// 한국어 품사를 영어로 변환
+function translatePos(koreanPos) {
+  const posMap = {
+    '명사': 'n.',
+    '대명사': 'pron.',
+    '수사': 'num.',
+    '조사': 'part.',
+    '동사': 'v.',
+    '형용사': 'adj.',
+    '관형사': 'det.',
+    '부사': 'adv.',
+    '감탄사': 'interj.',
+    '접사': 'af.',
+    '의존 명사': 'dep. n.',
+    '보조 동사': 'aux. v.',
+    '보조 형용사': 'aux. adj.',
+    '어미': 'end.'
+  };
+
+  return posMap[koreanPos] || koreanPos; // 매핑이 없는 경우 원래 값 반환
+}
+
+// 국립국어원 사전 API 사용
 async function getDictionaryMeaning(word) {
   // background.js로부터 API 키 가져오기
   const response = await chrome.runtime.sendMessage({ action: 'getApiKey' });
@@ -209,11 +233,15 @@ async function getDictionaryMeaning(word) {
     
     if (items.length > 0) {
       const word = items.eq(0).find('word').text();
-      const pos = items.eq(0).find('pos').text();
-      const definition = items.eq(0).find('sense definition').text();
+      const koreanPos = items.eq(0).find('pos').text();
+      const pos = translatePos(koreanPos); // 품사 변환
+      const koreanDef = items.eq(0).find('sense definition').text();
       const translation = items.eq(0).find('translation trans_word').text();
+      const englishDef = items.eq(0).find('translation trans_dfn').text();
       
-      return `${word} (${pos}): ${definition}\nEnglish: ${translation}`;
+      return `${word} : ${translation} (${pos})\n\n` + 
+             `English Definition: ${englishDef || 'No English definition available.'}\n\n` +
+             `Korean Definition: ${koreanDef}`;
     }
     return null;
   } catch (error) {

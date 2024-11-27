@@ -13,6 +13,8 @@
   max-width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.2s ease-in-out;
+  white-space: pre-wrap;
+  line-height: 1.5;
 }
 
 @keyframes fadeIn {
