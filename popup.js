@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 토글 상태 변경 이벤트
+  // 토글 상태 변경 이벤트 수정
   toggleSwitch.addEventListener('change', (e) => {
     const isEnabled = e.target.checked;
 
@@ -34,17 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // 모든 탭에 메시지 전송
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) => {
-          if (tab.id && !tab.url.startsWith('chrome://')) { // chrome:// 페이지 제외
+          if (tab.id && !tab.url.startsWith('chrome://')) {
             chrome.tabs.sendMessage(tab.id, {
               action: 'toggleTranslation',
               enabled: isEnabled
-            }, (response) => {
-              if (chrome.runtime.lastError) {
-                console.error('Message sending failed:', chrome.runtime.lastError.message);
-                // 필요에 따라 사용자에게 알림 추가 가능
-              } else {
-                // 응답 처리 (필요시)
-              }
             });
           }
         });
@@ -54,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateStatusMessage(isEnabled) {
     if (isEnabled) {
+      document.querySelector('.api-selection-container').style.display = 'block';
       statusMessage.innerHTML = `
         Hover over Korean text to see English definitions<br>
         <small style="display: block; margin-top: 8px; color: #666;">
@@ -63,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statusMessage.style.background = '#f0f9ff';
       statusMessage.style.color = '#0369a1';
     } else {
+      document.querySelector('.api-selection-container').style.display = 'none';
       statusMessage.textContent = 'Translation is currently disabled';
       statusMessage.style.background = '#fee2e2';
       statusMessage.style.color = '#dc2626';
@@ -76,6 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
       apiRadios.forEach(radio => {
         radio.checked = radio.value === newApi;
       });
+    } else if (area === 'sync' && changes.translationEnabled) {
+      const newStatus = changes.translationEnabled.newValue;
+      toggleSwitch.checked = newStatus !== false;
+      updateStatusMessage(newStatus);
     }
   });
 });
