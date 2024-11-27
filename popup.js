@@ -54,7 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateStatusMessage(isEnabled) {
     if (isEnabled) {
-      statusMessage.textContent = 'Hover over Korean text to see English definitions';
+      statusMessage.innerHTML = `
+        Hover over Korean text to see English definitions<br>
+        <small style="display: block; margin-top: 8px; color: #666;">
+          Shortcuts: Alt+G (Google Translate) | Alt+K (Korean Dictionary)
+        </small>
+      `;
       statusMessage.style.background = '#f0f9ff';
       statusMessage.style.color = '#0369a1';
     } else {
@@ -63,4 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
       statusMessage.style.color = '#dc2626';
     }
   }
+
+  // 스토리지 변경 감지하여 라디오 버튼 상태 업데이트
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.selectedApi) {
+      const newApi = changes.selectedApi.newValue;
+      apiRadios.forEach(radio => {
+        radio.checked = radio.value === newApi;
+      });
+    }
+  });
 });

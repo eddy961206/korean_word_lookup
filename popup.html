@@ -113,6 +113,14 @@
       font-size: 14px;
       cursor: pointer;
     }
+    .shortcut-hint {
+      margin-left: 8px;
+      padding: 2px 6px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #4b5563;
+    }
   </style>
 </head>
 <body>
@@ -135,10 +143,12 @@
       <label class="radio-label">
         <input type="radio" name="apiChoice" value="google" checked>
         Google Translate
+        <span class="shortcut-hint">Alt+G</span>
       </label>
       <label class="radio-label">
         <input type="radio" name="apiChoice" value="krdict">
         Korean Dictionary
+        <span class="shortcut-hint">Alt+K</span>
       </label>
     </div>
   </div>

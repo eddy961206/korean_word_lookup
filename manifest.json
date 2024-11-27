@@ -43,5 +43,19 @@
   "web_accessible_resources": [{
     "resources": ["config.json"],
     "matches": ["<all_urls>"]
-  }]
+  }],
+  "commands": {
+    "toggle-google-translate": {
+      "suggested_key": {
+        "default": "Alt+G"
+      },
+      "description": "Switch to Google Translate"
+    },
+    "toggle-korean-dict": {
+      "suggested_key": {
+        "default": "Alt+K"
+      },
+      "description": "Switch to Korean Dictionary"
+    }
+  }
 }

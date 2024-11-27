@@ -54,3 +54,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
   
+// 단축키 처리
+chrome.commands.onCommand.addListener((command) => {
+  switch (command) {
+    case 'toggle-google-translate':
+      chrome.storage.sync.set({ selectedApi: 'google' });
+      break;
+    case 'toggle-korean-dict':
+      chrome.storage.sync.set({ selectedApi: 'krdict' });
+      break;
+  }
+});
+  
