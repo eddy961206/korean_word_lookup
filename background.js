@@ -57,6 +57,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // 단축키 처리
 chrome.commands.onCommand.addListener((command) => {
   switch (command) {
+    case 'toggle-translation':
+      chrome.storage.sync.get(['translationEnabled'], (result) => {
+        const newStatus = !result.translationEnabled;
+        chrome.storage.sync.set({ translationEnabled: newStatus }, () => {
+          // 모든 탭에 상태 변경 메시지 전송
+          chrome.tabs.query({}, (tabs) => {
+            tabs.forEach((tab) => {
+              if (tab.id && !tab.url.startsWith('chrome://')) {
+                chrome.tabs.sendMessage(tab.id, {
+                  action: 'toggleTranslation',
+                  enabled: newStatus
+                });
+              }
+            });
+          });
+        });
+      });
+      break;
     case 'toggle-google-translate':
       chrome.storage.sync.set({ selectedApi: 'google' });
       break;

@@ -45,6 +45,12 @@
     "matches": ["<all_urls>"]
   }],
   "commands": {
+    "toggle-translation": {
+      "suggested_key": {
+        "default": "Alt+T"
+      },
+      "description": "Toggle Translation On/Off"
+    },
     "toggle-google-translate": {
       "suggested_key": {
         "default": "Alt+G"

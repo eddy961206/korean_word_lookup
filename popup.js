@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statusMessage.innerHTML = `
         Hover over Korean text to see English definitions<br>
         <small style="display: block; margin-top: 8px; color: #666;">
-          Shortcuts: Alt+G (Google Translate) | Alt+K (Korean Dictionary)
+          Shortcuts: Alt+G (Google Translate) | Alt+K (Korean Dictionary) | Alt+T (Toggle Translation)
         </small>
       `;
       statusMessage.style.background = '#f0f9ff';
