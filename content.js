@@ -151,15 +151,31 @@ function getKoreanWordAtPoint(x, y) {
       const text = node.textContent;
       const offset = range.startOffset;
 
+      // 현재 커서가 정확히 한국어 문자 위에 있는지 확인
+      if (!containsKorean(text.charAt(offset))) {
+        return null;
+      }
+
       let start = offset;
       let end = offset;
 
-      // 왼쪽으로 한국어 문자가 아닐 때까지 이동
-      while (start > 0 && containsKorean(text.charAt(start - 1))) {
+      // 왼쪽으로 이동하면서 단어의 시작 찾기
+      while (start > 0) {
+        const prevChar = text.charAt(start - 1);
+        // 한국어가 아닌 문자(공백, 구두점 등)를 만나면 중단
+        if (!containsKorean(prevChar) || /\s/.test(prevChar)) {
+          break;
+        }
         start--;
       }
-      // 오른쪽으로 한국어 문자가 아닐 때까지 이동
-      while (end < text.length && containsKorean(text.charAt(end))) {
+
+      // 오른쪽으로 이동하면서 단어의 끝 찾기
+      while (end < text.length) {
+        const nextChar = text.charAt(end);
+        // 한국어가 아닌 문자(공백, 구두점 등)를 만나면 중단
+        if (!containsKorean(nextChar) || /\s/.test(nextChar)) {
+          break;
+        }
         end++;
       }
 
@@ -228,20 +244,40 @@ async function getDictionaryMeaning(word) {
       dataType: 'xml'
     });
     
-    const $xml = $(response);
+    const $xml = $(response); // 응답 형태는 dict_res_example.xml 참고
     const items = $xml.find('item');
     
     if (items.length > 0) {
       const word = items.eq(0).find('word').text();
       const koreanPos = items.eq(0).find('pos').text();
-      const pos = translatePos(koreanPos); // 품사 변환
-      const koreanDef = items.eq(0).find('sense definition').text();
-      const translation = items.eq(0).find('translation trans_word').text();
-      const englishDef = items.eq(0).find('translation trans_dfn').text();
+      const pos = translatePos(koreanPos);
+
+      // 모든 의미(sense)를 배열로 수집
+      const senses = items.eq(0).find('sense').map(function() {
+        const $sense = $(this);
+        return {
+          koreanDef: $sense.find('definition').text(),
+          translation: $sense.find('translation trans_word').text(),
+          englishDef: $sense.find('translation trans_dfn').text()
+        };
+      }).get();
+
+      // 첫 번째 의미의 번역어만 표시
+      const primaryTranslation = senses[0].translation.split(';')[0].trim();
       
-      return `${word} : ${translation} (${pos})\n\n` + 
-             `English Definition: ${englishDef || 'No English definition available.'}\n\n` +
-             `Korean Definition: ${koreanDef}`;
+      // 영어 정의들을 번호를 붙여 결합
+      const englishDefs = senses.map((sense, index) => 
+        `${index + 1}. ${sense.englishDef.trim()}`
+      ).join('\n');
+
+      // 한국어 정의들을 번호를 붙여 결합
+      const koreanDefs = senses.map((sense, index) => 
+        `${index + 1}. ${sense.koreanDef.trim()}`
+      ).join('\n');
+
+      return `${word} : ${primaryTranslation} (${pos})\n\n` + 
+             `English Definitions:\n${englishDefs}\n\n` +
+             `Korean Definitions:\n${koreanDefs}`;
     }
     return null;
   } catch (error) {

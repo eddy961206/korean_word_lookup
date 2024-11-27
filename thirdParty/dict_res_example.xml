@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<channel>
+    <title>한국어 기초사전 개발 지원(Open API) - 사전 검색</title>
+    <link>https://krdict.korean.go.kr</link>
+    <description>한국어 기초사전 개발 지원(Open API) - 사전 검색 결과</description>
+    <lastBuildDate>20241127161253</lastBuildDate>
+    <total>5</total>
+    <start>1</start>
+    <num>10</num>
+    <item>
+        <target_code>18694</target_code>
+        <word>공간</word>
+        <sup_no>0</sup_no>
+        <origin>空間</origin>
+        <pronunciation>공간</pronunciation>
+        <word_grade>중급</word_grade>
+        <pos>명사</pos>
+        <link>https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=18694</link>
+        <sense>
+            <sense_order>1</sense_order>
+            <definition>아무것도 없는 빈 곳이나 자리.</definition>
+            <translation>
+                <trans_lang>
+                    영어
+                </trans_lang>
+                <trans_word><![CDATA[space]]></trans_word>
+                <trans_dfn><![CDATA[An empty place or site. ]]></trans_dfn>
+            </translation>
+        </sense>
+        <sense>
+            <sense_order>2</sense_order>
+            <definition>널리 펼쳐 있는 빈 곳.</definition>
+            <translation>
+                <trans_lang>
+                    영어
+                </trans_lang>
+                <trans_word><![CDATA[space; expanse]]></trans_word>
+                <trans_dfn><![CDATA[An empty space that is wide and open. ]]></trans_dfn>
+            </translation>
+        </sense>
+        <sense>
+            <sense_order>3</sense_order>
+            <definition>어떤 일을 하기 위한 특정한 장소.</definition>
+            <translation>
+                <trans_lang>
+                    영어
+                </trans_lang>
+                <trans_word><![CDATA[space; place]]></trans_word>
+                <trans_dfn><![CDATA[A specific spot for doing something. ]]></trans_dfn>
+            </translation>
+        </sense>
+    </item>
+    
+    <item>
+        ...
+    </item>
+</channel>
