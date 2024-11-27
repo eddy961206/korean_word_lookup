@@ -1,3 +1,10 @@
+/**
+ * Korean Word Lookup Chrome Extension
+ * Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary
+ * (https://krdict.korean.go.kr)
+ * Licensed under CC BY-SA 2.0 KR
+ */
+
 // 번역 기능 활성화 여부를 저장하는 변수
 let isEnabled = true;
 let isInitialized = false; // 초기화 여부를 추적하는 변수
@@ -169,6 +176,38 @@ function translateText(text) {
       return null;
     }
   );
+}
+
+// 국립국어원 API를 사용하여 단어의 사전적 의미를 가져오는 함수
+async function getDictionaryMeaning(word) {
+  // background.js로부터 API 키 가져오기
+  const response = await chrome.runtime.sendMessage({ action: 'getApiKey' });
+  const API_KEY = response.apiKey;
+
+  const url = `https://krdict.korean.go.kr/api/search?key=${API_KEY}&q=${encodeURIComponent(word)}&translated=y&trans_lang=1`;
+
+  try {
+    const response = await $.ajax({
+      url: url,
+      dataType: 'xml'
+    });
+    
+    const $xml = $(response);
+    const items = $xml.find('item');
+    
+    if (items.length > 0) {
+      const word = items.eq(0).find('word').text();
+      const pos = items.eq(0).find('pos').text();
+      const definition = items.eq(0).find('sense definition').text();
+      const translation = items.eq(0).find('translation trans_word').text();
+      
+      return `${word} (${pos}): ${definition}\nEnglish: ${translation}`;
+    }
+    return null;
+  } catch (error) {
+    console.error('Dictionary lookup error:', error);
+    return null;
+  }
 }
 
 // 익스텐션 초기화 실행

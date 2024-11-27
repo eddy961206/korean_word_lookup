@@ -32,3 +32,25 @@ chrome.runtime.onInstalled.addListener(() => {
     });
   });
   
+  
+// API 키를 저장할 변수
+let API_KEY = '';
+
+// 환경 설정 로드
+fetch(chrome.runtime.getURL('config.json'))
+  .then(response => response.json())
+  .then(config => {
+    API_KEY = config.KRDICT_API_KEY;
+  })
+  .catch(error => {
+    console.error('Failed to load API key:', error);
+  });
+
+// content script로부터의 메시지 수신
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getApiKey') {
+    sendResponse({ apiKey: API_KEY });
+    return true;  // 비동기 응답을 위해 true 반환
+  }
+});
+  
