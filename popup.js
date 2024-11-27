@@ -1,11 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
   const toggleSwitch = document.getElementById('translationToggle');
   const statusMessage = document.getElementById('statusMessage');
+  const apiRadios = document.getElementsByName('apiChoice');
 
   // 저장된 상태 불러오기
-  chrome.storage.sync.get(['translationEnabled'], (result) => {
-    toggleSwitch.checked = result.translationEnabled !== false; // 기본값 true
+  chrome.storage.sync.get(['translationEnabled', 'selectedApi'], (result) => {
+    toggleSwitch.checked = result.translationEnabled !== false;
     updateStatusMessage(toggleSwitch.checked);
+    
+    // API 선택 상태 복원
+    const selectedApi = result.selectedApi || 'google';
+    apiRadios.forEach(radio => {
+      radio.checked = radio.value === selectedApi;
+    });
+  });
+
+  // API 선택 변경 이벤트
+  apiRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      chrome.storage.sync.set({ selectedApi: e.target.value });
+    });
   });
 
   // 토글 상태 변경 이벤트

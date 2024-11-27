@@ -82,15 +82,27 @@ async function initializeExtension() {
         // 번역 중 표시
         $tooltip.text('').show();
 
-        const translation = await translateText(koreanWord);
-        if (translation) {
-          // 현재 단어가 여전히 lastWord와 같은 경우에만 툴팁 업데이트
-          if (koreanWord === lastWord) {
+        // 저장된 API 선택 확인
+        const result = await new Promise(resolve => {
+          chrome.storage.sync.get(['selectedApi'], resolve);
+        });
+        
+        const selectedApi = result.selectedApi || 'google';
+        let translation;
+        
+        if (selectedApi === 'google') {
+          translation = await translateText(koreanWord);
+          if (translation) {
             $tooltip.text(`${koreanWord}: ${translation}`);
+          } else {
+            $tooltip.text(`${koreanWord}: Unable to translate`);
           }
         } else {
-          if (koreanWord === lastWord) {
-            $tooltip.text(`${koreanWord}: 번역할 수 없습니다.`);
+          translation = await getDictionaryMeaning(koreanWord);
+          if (translation) {
+            $tooltip.text(translation);
+          } else {
+            $tooltip.text(`${koreanWord}: Word not found in dictionary`);
           }
         }
       } else {
