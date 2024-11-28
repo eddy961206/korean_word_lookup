@@ -51,19 +51,31 @@
   "commands": {
     "toggle-translation": {
       "suggested_key": {
-        "default": "Alt+T"
+        "default": "Alt+T",
+        "windows": "Alt+T",
+        "mac": "Alt+T",
+        "chromeos": "Alt+T",
+        "linux": "Alt+T"
       },
       "description": "Toggle Translation On/Off"
     },
     "toggle-google-translate": {
       "suggested_key": {
-        "default": "Alt+G"
+        "default": "Alt+G",
+        "windows": "Alt+G",
+        "mac": "Alt+G",
+        "chromeos": "Alt+G",
+        "linux": "Alt+G"
       },
       "description": "Switch to Google Translate"
     },
     "toggle-korean-dict": {
       "suggested_key": {
-        "default": "Alt+K"
+        "default": "Alt+K",
+        "windows": "Alt+K",
+        "mac": "Alt+K",
+        "chromeos": "Alt+K",
+        "linux": "Alt+K"
       },
       "description": "Switch to Korean Dictionary"
     }
