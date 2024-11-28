@@ -5,13 +5,11 @@
   "version": "1.0.0",
   "permissions": [
     "storage",
-    "tabs",
+    "activeTab",
     "scripting"
   ],
   "host_permissions": [
-    "https://translate.googleapis.com/",
-    "http://*/",
-    "https://*/"
+    "https://translate.googleapis.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
