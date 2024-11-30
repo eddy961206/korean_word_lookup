@@ -5,8 +5,7 @@
   "version": "1.0.0",
   "permissions": [
     "storage",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "host_permissions": [
     "https://translate.googleapis.com/*"
