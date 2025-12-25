@@ -4,11 +4,11 @@
   "description": "Show English definitions of Korean words when hovering over them.",
   "version": "1.0.0",
   "permissions": [
-    "storage",
-    "activeTab"
+    "storage"
   ],
   "host_permissions": [
-    "https://translate.googleapis.com/*"
+    "https://translate.googleapis.com/*",
+    "https://krdict.korean.go.kr/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -37,14 +37,6 @@
   "background": {
     "service_worker": "background.js"
   },
-  "web_accessible_resources": [{
-    "resources": [
-      "config.json",
-      "welcome.html",
-      "icons/icon128.png"
-    ],
-    "matches": ["<all_urls>"]
-  }],
   "commands": {
     "toggle-translation": {
       "suggested_key": {

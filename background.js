@@ -7,23 +7,43 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
-// API 키를 저장할 변수
-let API_KEY = '';
+let configApiKey = '';
+let userApiKey = '';
 
-// 환경 설정 로드
-fetch(chrome.runtime.getURL('config.json'))
+const configApiKeyPromise = fetch(chrome.runtime.getURL('config.json'))
   .then(response => response.json())
-  .then(config => {
-    API_KEY = config.KRDICT_API_KEY;
-  })
+  .then(config => (config.KRDICT_API_KEY || '').trim())
   .catch(error => {
     console.error('Failed to load API key:', error);
+    return '';
   });
+
+configApiKeyPromise.then((key) => {
+  configApiKey = key;
+});
+
+chrome.storage.sync.get(['krdictApiKey'], (result) => {
+  userApiKey = (result.krdictApiKey || '').trim();
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'sync' && changes.krdictApiKey) {
+    userApiKey = (changes.krdictApiKey.newValue || '').trim();
+  }
+});
+
+async function getApiKey() {
+  if (userApiKey) return userApiKey;
+  if (configApiKey) return configApiKey;
+  return configApiKeyPromise;
+}
 
 // content script로부터의 메시지 수신
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getApiKey') {
-    sendResponse({ apiKey: API_KEY });
+    getApiKey().then((apiKey) => {
+      sendResponse({ apiKey });
+    });
     return true;  // 비동기 응답을 위해 true 반환
   }
 });
@@ -52,12 +72,16 @@ chrome.commands.onCommand.addListener((command) => {
         const newStatus = !result.translationEnabled;
         chrome.storage.sync.set({ translationEnabled: newStatus }, () => {
           updateIcon(newStatus);
-          // activeTab을 사용하므로 현재 활성 탭에만 메시지 전송
+          // 현재 활성 탭에만 메시지 전송
           chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            if (tabs[0] && !tabs[0].url.startsWith('chrome://')) {
+            if (tabs[0] && tabs[0].id) {
               chrome.tabs.sendMessage(tabs[0].id, {
                 action: 'toggleTranslation',
                 enabled: newStatus
+              }, () => {
+                if (chrome.runtime.lastError) {
+                  return;
+                }
               });
             }
           });

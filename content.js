@@ -5,37 +5,63 @@
  * Licensed under CC BY-SA 2.0 KR
  */
 
+const DEFAULT_SETTINGS = {
+  translationEnabled: true,
+  selectedApi: 'google',
+  hoverDelayMs: 150,
+  maxDefinitions: 3,
+  showKoreanDefinitions: true,
+  compactTooltip: false
+};
+
+const CACHE_LIMIT = 200;
+const CACHE_TTL_MS = 1000 * 60 * 60 * 24;
+const ERROR_TTL_MS = 1000 * 60 * 2;
+
 // 번역 기능 활성화 여부를 저장하는 변수
 let isEnabled = true;
 let isInitialized = false; // 초기화 여부를 추적하는 변수
+let selectedApi = DEFAULT_SETTINGS.selectedApi;
+let hoverDelayMs = DEFAULT_SETTINGS.hoverDelayMs;
+let maxDefinitions = DEFAULT_SETTINGS.maxDefinitions;
+let showKoreanDefinitions = DEFAULT_SETTINGS.showKoreanDefinitions;
+let compactTooltip = DEFAULT_SETTINGS.compactTooltip;
+
+let lastWord = '';
+let tooltipElements = null;
+let hoverTimer = null;
+let lastHoverPoint = null;
+let positionFrame = null;
+let activeRequestId = 0;
+const translationCache = new Map();
+const pendingRequests = new Map();
 
 // 초기 상태를 Promise로 가져오는 함수
 async function initializeExtension() {
+  const result = await storageGet([
+    'translationEnabled',
+    'selectedApi',
+    'hoverDelayMs',
+    'maxDefinitions',
+    'showKoreanDefinitions',
+    'compactTooltip'
+  ]);
 
-  // 크롬 스토리지에서 저장된 상태를 불러옵니다.
-  const result = await new Promise(resolve => {
-    chrome.storage.sync.get(['translationEnabled'], resolve);
-  });
-
-  // 초기 상태 설정
-  isEnabled = result.translationEnabled !== false; // 기본값 true
+  applySettings(result);
 
   // 툴팁 요소 생성 및 이벤트 리스너 설정
-  const $tooltip = $('<div>', {
-    class: 'kr-tooltip',
-    css: {
-      display: 'none',    // 초기 숨김 상태
-      position: 'absolute' // 위치 속성 명시적으로 설정
-    }
-  }).appendTo('body');
+  tooltipElements = createTooltip();
 
   // 팝업으로부터 상태 변경 메시지를 수신
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'toggleTranslation') {
       isEnabled = request.enabled;
       if (!isEnabled) {
-        $tooltip.hide();
+        hideTooltip();
         lastWord = '';
+        activeRequestId += 1;
+        clearHoverTimer();
+        lastHoverPoint = null;
       }
       sendResponse({ status: 'success' }); // 반드시 응답을 보내야 함
       return true; // 비동기 응답을 허용
@@ -44,86 +70,405 @@ async function initializeExtension() {
 
   // 스토리지 변경 사항을 실시간으로 감지
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes.translationEnabled) {
-      isEnabled = changes.translationEnabled.newValue;
+    if (area !== 'sync') return;
+
+    if (changes.translationEnabled) {
+      isEnabled = changes.translationEnabled.newValue !== false;
       if (!isEnabled) {
-        $tooltip.hide();
+        hideTooltip();
         lastWord = '';
+        activeRequestId += 1;
+        clearHoverTimer();
+        lastHoverPoint = null;
       }
     }
-  });
 
-  let lastWord = '';
+    if (changes.selectedApi) {
+      selectedApi = changes.selectedApi.newValue || DEFAULT_SETTINGS.selectedApi;
+      activeRequestId += 1;
+      lastWord = '';
+    }
+
+    if (changes.hoverDelayMs) {
+      hoverDelayMs = Number.isFinite(changes.hoverDelayMs.newValue)
+        ? changes.hoverDelayMs.newValue
+        : DEFAULT_SETTINGS.hoverDelayMs;
+    }
+
+    if (changes.maxDefinitions) {
+      maxDefinitions = Number.isFinite(changes.maxDefinitions.newValue)
+        ? changes.maxDefinitions.newValue
+        : DEFAULT_SETTINGS.maxDefinitions;
+    }
+
+    if (changes.showKoreanDefinitions) {
+      showKoreanDefinitions = changes.showKoreanDefinitions.newValue !== false;
+    }
+
+    if (changes.compactTooltip) {
+      compactTooltip = changes.compactTooltip.newValue === true;
+    }
+  });
 
   isInitialized = true; // 초기화 완료 표시
 
   // 마우스 이동 이벤트 핸들러
-  $(document).on('mousemove', async (e) => {
+  $(document).on('mousemove', (e) => {
     if (!isEnabled || !isInitialized) return; // 초기화 전에는 동작하지 않음
-
-    const koreanWord = getKoreanWordAtPoint(e.clientX, e.clientY);
-
-    if (koreanWord && containsKorean(koreanWord)) {
-      if (koreanWord !== lastWord) {
-        lastWord = koreanWord;
-        
-        // 새로운 단어를 감지하면 먼저 툴팁을 숨김
-        $tooltip.hide();
-        
-        const scrollX = window.scrollX || window.pageXOffset;
-        const scrollY = window.scrollY || window.pageYOffset;
-        
-        // 위치를 먼저 업데이트
-        $tooltip.css({
-          left: `${e.clientX + scrollX + 10}px`,
-          top: `${e.clientY + scrollY + 10}px`
-        });
-
-        // 번역 중 표시
-        $tooltip.text('').show();
-
-        // 저장된 API 선택 확인
-        const result = await new Promise(resolve => {
-          chrome.storage.sync.get(['selectedApi'], resolve);
-        });
-        
-        const selectedApi = result.selectedApi || 'google';
-        let translation;
-        
-        // 구글 번역 API 사용
-        if (selectedApi === 'google') {
-          translation = await translateText(koreanWord);
-          if (translation) {
-            $tooltip.text(`${koreanWord}: ${translation}`);
-          } else {
-            $tooltip.text(`${koreanWord}: Unable to translate`);
-          }
-        } else {
-          // 국립국어원 사전 API 사용
-          translation = await getDictionaryMeaning(koreanWord);
-          if (translation) {
-            $tooltip.text(translation);
-          } else {
-            $tooltip.text(`${koreanWord}: Word not found in dictionary`);
-          }
-        }
-      } else {
-        // 같은 단어 위에 있을 때는 위치만 업데이트
-        const scrollX = window.scrollX || window.pageXOffset;
-        const scrollY = window.scrollY || window.pageYOffset;
-        
-        $tooltip.css({
-          left: `${e.clientX + scrollX + 10}px`,
-          top: `${e.clientY + scrollY + 10}px`
-        });
-      }
-    } else {
-      $tooltip.hide();
-      lastWord = '';
-    }
+    schedulePositionUpdate(e);
+    scheduleLookup(e);
   });
 
-  return $tooltip;
+  return tooltipElements.tooltip;
+}
+
+function storageGet(keys) {
+  return new Promise(resolve => {
+    chrome.storage.sync.get(keys, resolve);
+  });
+}
+
+function applySettings(result) {
+  isEnabled = result.translationEnabled !== false;
+  selectedApi = result.selectedApi || DEFAULT_SETTINGS.selectedApi;
+  hoverDelayMs = Number.isFinite(result.hoverDelayMs)
+    ? result.hoverDelayMs
+    : DEFAULT_SETTINGS.hoverDelayMs;
+  maxDefinitions = Number.isFinite(result.maxDefinitions)
+    ? result.maxDefinitions
+    : DEFAULT_SETTINGS.maxDefinitions;
+  showKoreanDefinitions = result.showKoreanDefinitions !== false;
+  compactTooltip = result.compactTooltip === true;
+}
+
+function createTooltip() {
+  const tooltip = document.createElement('div');
+  tooltip.className = 'kr-tooltip';
+
+  const header = document.createElement('div');
+  header.className = 'kr-tooltip__header';
+
+  const word = document.createElement('span');
+  word.className = 'kr-tooltip__word';
+
+  const meta = document.createElement('span');
+  meta.className = 'kr-tooltip__meta';
+
+  header.appendChild(word);
+  header.appendChild(meta);
+
+  const body = document.createElement('div');
+  body.className = 'kr-tooltip__body';
+
+  tooltip.appendChild(header);
+  tooltip.appendChild(body);
+
+  document.body.appendChild(tooltip);
+
+  return { tooltip, word, meta, body };
+}
+
+function clearHoverTimer() {
+  if (!hoverTimer) return;
+  clearTimeout(hoverTimer);
+  hoverTimer = null;
+}
+
+function scheduleLookup(event) {
+  lastHoverPoint = { clientX: event.clientX, clientY: event.clientY };
+  clearHoverTimer();
+
+  const delay = Math.max(0, hoverDelayMs);
+  hoverTimer = setTimeout(() => {
+    if (!lastHoverPoint) return;
+    handleHover(lastHoverPoint).catch(error => {
+      console.error('Hover handling error:', error);
+    });
+  }, delay);
+}
+
+function schedulePositionUpdate(event) {
+  if (!tooltipElements || tooltipElements.tooltip.style.display !== 'block') {
+    return;
+  }
+
+  lastHoverPoint = { clientX: event.clientX, clientY: event.clientY };
+
+  if (positionFrame) return;
+  positionFrame = requestAnimationFrame(() => {
+    positionFrame = null;
+    if (!lastHoverPoint) return;
+    updateTooltipPosition(lastHoverPoint);
+  });
+}
+
+async function handleHover(point) {
+  const koreanWord = getKoreanWordAtPoint(point.clientX, point.clientY);
+
+  if (!koreanWord || !containsKorean(koreanWord)) {
+    hideTooltip();
+    lastWord = '';
+    activeRequestId += 1;
+    return;
+  }
+
+  if (koreanWord === lastWord) {
+    return;
+  }
+
+  lastWord = koreanWord;
+  const requestId = ++activeRequestId;
+
+  renderLoadingState(koreanWord);
+  updateTooltipPosition(point);
+
+  const result = await lookupWord(koreanWord);
+
+  if (requestId !== activeRequestId) {
+    return;
+  }
+
+  renderLookupResult(koreanWord, result);
+  if (lastHoverPoint) {
+    updateTooltipPosition(lastHoverPoint);
+  }
+}
+
+async function lookupWord(word) {
+  const cacheKey = `${selectedApi}:${word}`;
+  const cached = getCacheEntry(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const pending = pendingRequests.get(cacheKey);
+  if (pending) {
+    return pending;
+  }
+
+  const requestPromise = (async () => {
+    if (selectedApi === 'google') {
+      const translation = await translateText(word);
+      if (translation) {
+        return { type: 'google', translation };
+      }
+      return buildErrorResult('Unable to translate');
+    }
+
+    const data = await getDictionaryMeaning(word);
+    if (data && data.error === 'missing_key') {
+      return buildErrorResult('Dictionary API key missing. Set it in the popup.');
+    }
+    if (data) {
+      return { type: 'dict', data };
+    }
+    return buildErrorResult('Word not found in dictionary');
+  })();
+
+  pendingRequests.set(cacheKey, requestPromise);
+
+  try {
+    const result = await requestPromise;
+    cacheResult(cacheKey, result);
+    return result;
+  } finally {
+    pendingRequests.delete(cacheKey);
+  }
+}
+
+function renderLookupResult(word, result) {
+  if (result.type === 'google') {
+    renderGoogleResult(word, result.translation);
+  } else if (result.type === 'dict') {
+    renderDictionaryResult(result.data);
+  } else {
+    renderErrorState(word, result.message);
+  }
+}
+
+function buildErrorResult(message) {
+  return { type: 'error', message };
+}
+
+function cacheResult(key, result) {
+  const ttl = result.type === 'error' ? ERROR_TTL_MS : CACHE_TTL_MS;
+  setCacheEntry(key, result, ttl);
+}
+
+function getCacheEntry(key) {
+  const entry = translationCache.get(key);
+  if (!entry) {
+    return null;
+  }
+  if (Date.now() > entry.expiresAt) {
+    translationCache.delete(key);
+    return null;
+  }
+  translationCache.delete(key);
+  translationCache.set(key, entry);
+  return entry.value;
+}
+
+function setCacheEntry(key, value, ttlMs) {
+  const expiresAt = Date.now() + ttlMs;
+  if (translationCache.has(key)) {
+    translationCache.delete(key);
+  }
+  translationCache.set(key, { value, expiresAt });
+
+  if (translationCache.size > CACHE_LIMIT) {
+    const oldestKey = translationCache.keys().next().value;
+    translationCache.delete(oldestKey);
+  }
+}
+
+function showTooltip() {
+  if (!tooltipElements) return;
+  tooltipElements.tooltip.style.display = 'block';
+}
+
+function hideTooltip() {
+  if (!tooltipElements) return;
+  tooltipElements.tooltip.style.display = 'none';
+}
+
+function updateTooltipPosition(event) {
+  if (!tooltipElements) return;
+
+  const tooltip = tooltipElements.tooltip;
+  const scrollX = window.scrollX || window.pageXOffset;
+  const scrollY = window.scrollY || window.pageYOffset;
+  const padding = 12;
+
+  let left = event.clientX + scrollX + padding;
+  let top = event.clientY + scrollY + padding;
+
+  const tooltipWidth = tooltip.offsetWidth || 0;
+  const tooltipHeight = tooltip.offsetHeight || 0;
+  const maxLeft = scrollX + window.innerWidth - tooltipWidth - padding;
+  const maxTop = scrollY + window.innerHeight - tooltipHeight - padding;
+
+  if (tooltipWidth) {
+    left = Math.min(left, maxLeft);
+  }
+
+  if (tooltipHeight) {
+    top = Math.min(top, maxTop);
+  }
+
+  tooltip.style.left = `${Math.max(scrollX + padding, left)}px`;
+  tooltip.style.top = `${Math.max(scrollY + padding, top)}px`;
+}
+
+function setTooltipState(state) {
+  const tooltip = tooltipElements.tooltip;
+  tooltip.classList.toggle('kr-tooltip--loading', state === 'loading');
+  tooltip.classList.toggle('kr-tooltip--error', state === 'error');
+  tooltip.classList.toggle('kr-tooltip--compact', compactTooltip);
+}
+
+function setTooltipHeader(wordText, metaText) {
+  tooltipElements.word.textContent = wordText || '';
+  tooltipElements.meta.textContent = metaText || '';
+}
+
+function setTooltipBody(text) {
+  tooltipElements.body.textContent = text || '';
+}
+
+function clearTooltipBody() {
+  tooltipElements.body.textContent = '';
+  while (tooltipElements.body.firstChild) {
+    tooltipElements.body.removeChild(tooltipElements.body.firstChild);
+  }
+}
+
+function appendSection(title, lines) {
+  if (!lines.length) return;
+  const section = document.createElement('div');
+  section.className = 'kr-tooltip__section';
+
+  const sectionTitle = document.createElement('div');
+  sectionTitle.className = 'kr-tooltip__section-title';
+  sectionTitle.textContent = title;
+
+  const sectionBody = document.createElement('div');
+  sectionBody.className = 'kr-tooltip__section-body';
+  sectionBody.textContent = lines.join('\n');
+
+  section.appendChild(sectionTitle);
+  section.appendChild(sectionBody);
+  tooltipElements.body.appendChild(section);
+}
+
+function renderLoadingState(word) {
+  setTooltipState('loading');
+  setTooltipHeader(word, selectedApi === 'google' ? 'Google Translate' : 'Korean Dictionary');
+  clearTooltipBody();
+  setTooltipBody('Translating...');
+  showTooltip();
+}
+
+function renderErrorState(word, message) {
+  setTooltipState('error');
+  setTooltipHeader(word, selectedApi === 'google' ? 'Google Translate' : 'Korean Dictionary');
+  clearTooltipBody();
+  setTooltipBody(message);
+  showTooltip();
+}
+
+function renderGoogleResult(word, translation) {
+  setTooltipState('idle');
+  setTooltipHeader(word, 'Google Translate');
+  clearTooltipBody();
+  setTooltipBody(translation);
+  showTooltip();
+}
+
+function renderDictionaryResult(result) {
+  setTooltipState('idle');
+
+  const metaParts = [];
+  if (result.primaryTranslation) {
+    metaParts.push(result.primaryTranslation);
+  }
+  if (result.pos) {
+    metaParts.push(result.pos);
+  }
+
+  setTooltipHeader(result.word, metaParts.join(' • '));
+  clearTooltipBody();
+
+  if (compactTooltip) {
+    const compactLine = result.englishDefs[0] || result.koreanDefs[0] || 'No definition available';
+    setTooltipBody(compactLine);
+    showTooltip();
+    return;
+  }
+
+  const englishDefs = limitDefinitions(result.englishDefs, maxDefinitions);
+  appendSection('English definitions', englishDefs);
+
+  if (showKoreanDefinitions) {
+    const koreanDefs = limitDefinitions(result.koreanDefs, maxDefinitions);
+    appendSection('Korean definitions', koreanDefs);
+  }
+
+  showTooltip();
+}
+
+function limitDefinitions(definitions, limit) {
+  if (!definitions.length) return [];
+  const safeLimit = Number.isFinite(limit) && limit > 0
+    ? limit
+    : DEFAULT_SETTINGS.maxDefinitions;
+  const trimmed = definitions.slice(0, safeLimit);
+  const numbered = trimmed.map((definition, index) => `${index + 1}. ${definition}`);
+  const remaining = definitions.length - trimmed.length;
+  if (remaining > 0) {
+    numbered.push(`...and ${remaining} more`);
+  }
+  return numbered;
 }
 
 // 문자열에 한국어 문자가 포함되어 있는지 확인
@@ -234,7 +579,10 @@ function translatePos(koreanPos) {
 async function getDictionaryMeaning(word) {
   // background.js로부터 API 키 가져오기
   const response = await chrome.runtime.sendMessage({ action: 'getApiKey' });
-  const API_KEY = response.apiKey;
+  const API_KEY = (response.apiKey || '').trim();
+  if (!API_KEY) {
+    return { error: 'missing_key' };
+  }
 
   const url = `https://krdict.korean.go.kr/api/search?key=${API_KEY}&q=${encodeURIComponent(word)}&translated=y&trans_lang=1`;
 
@@ -243,12 +591,12 @@ async function getDictionaryMeaning(word) {
       url: url,
       dataType: 'xml'
     });
-    
+
     const $xml = $(response); // 응답 형태는 dict_res_example.xml 참고
     const items = $xml.find('item');
-    
+
     if (items.length > 0) {
-      const word = items.eq(0).find('word').text();
+      const matchedWord = items.eq(0).find('word').text();
       const koreanPos = items.eq(0).find('pos').text();
       const pos = translatePos(koreanPos);
 
@@ -262,22 +610,23 @@ async function getDictionaryMeaning(word) {
         };
       }).get();
 
-      // 첫 번째 의미의 번역어만 표시
-      const primaryTranslation = senses[0].translation.split(';')[0].trim();
-      
-      // 영어 정의들을 번호를 붙여 결합
-      const englishDefs = senses.map((sense, index) => 
-        `${index + 1}. ${sense.englishDef.trim()}`
-      ).join('\n');
+      const primaryTranslation = senses[0]?.translation?.split(';')[0]?.trim() || '';
 
-      // 한국어 정의들을 번호를 붙여 결합
-      const koreanDefs = senses.map((sense, index) => 
-        `${index + 1}. ${sense.koreanDef.trim()}`
-      ).join('\n');
+      const englishDefs = senses
+        .map((sense) => sense.englishDef.trim())
+        .filter(Boolean);
 
-      return `${word} : ${primaryTranslation} (${pos})\n\n` + 
-             `English Definitions:\n${englishDefs}\n\n` +
-             `Korean Definitions:\n${koreanDefs}`;
+      const koreanDefs = senses
+        .map((sense) => sense.koreanDef.trim())
+        .filter(Boolean);
+
+      return {
+        word: matchedWord,
+        pos,
+        primaryTranslation,
+        englishDefs,
+        koreanDefs
+      };
     }
     return null;
   } catch (error) {

@@ -3,18 +3,67 @@
   display: none;
   position: absolute;
   z-index: 2147483647;
-  padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: 10px 12px;
+  background: #0f172a;
+  color: #f8fafc;
+  border-radius: 8px;
+  font-size: 13px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   pointer-events: none;
-  max-width: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.2s ease-in-out;
-  white-space: pre-wrap;
+  max-width: 360px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25), 0 2px 6px rgba(15, 23, 42, 0.15);
+  animation: fadeIn 0.15s ease-out;
   line-height: 1.5;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.kr-tooltip__header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.kr-tooltip__word {
+  font-weight: 700;
+  font-size: 14px;
+  color: #f8fafc;
+}
+
+.kr-tooltip__meta {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.kr-tooltip__body {
+  color: #e2e8f0;
+  white-space: pre-wrap;
+}
+
+.kr-tooltip__section {
+  margin-top: 6px;
+}
+
+.kr-tooltip__section-title {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.kr-tooltip__section-body {
+  white-space: pre-wrap;
+}
+
+.kr-tooltip--loading .kr-tooltip__body {
+  color: #cbd5f5;
+}
+
+.kr-tooltip--error .kr-tooltip__body {
+  color: #fecaca;
 }
 
 @keyframes fadeIn {
