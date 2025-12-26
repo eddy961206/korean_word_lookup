@@ -28,6 +28,7 @@
   font-weight: 700;
   font-size: 14px;
   color: #f8fafc;
+  word-break: break-word;
 }
 
 .kr-tooltip__meta {

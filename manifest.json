@@ -67,6 +67,16 @@
         "linux": "Alt+K"
       },
       "description": "Switch to Korean Dictionary"
+    },
+    "toggle-selection-translation": {
+      "suggested_key": {
+        "default": "Alt+S",
+        "windows": "Alt+S",
+        "mac": "Alt+S",
+        "chromeos": "Alt+S",
+        "linux": "Alt+S"
+      },
+      "description": "Toggle Selection Translation On/Off"
     }
   }
 }

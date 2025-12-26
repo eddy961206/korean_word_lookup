@@ -94,6 +94,12 @@ chrome.commands.onCommand.addListener((command) => {
     case 'toggle-korean-dict':
       chrome.storage.sync.set({ selectedApi: 'krdict' });
       break;
+    case 'toggle-selection-translation':
+      chrome.storage.sync.get(['selectionTranslationEnabled'], (result) => {
+        const current = result.selectionTranslationEnabled === true;
+        chrome.storage.sync.set({ selectionTranslationEnabled: !current });
+      });
+      break;
   }
 });
 

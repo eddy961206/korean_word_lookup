@@ -11,12 +11,15 @@ const DEFAULT_SETTINGS = {
   hoverDelayMs: 150,
   maxDefinitions: 3,
   showKoreanDefinitions: true,
-  compactTooltip: false
+  compactTooltip: false,
+  selectionTranslationEnabled: false
 };
 
 const CACHE_LIMIT = 200;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24;
 const ERROR_TTL_MS = 1000 * 60 * 2;
+const MAX_SELECTION_CHARS = 500;
+const SELECTION_HEADER_CHARS = 60;
 
 // 번역 기능 활성화 여부를 저장하는 변수
 let isEnabled = true;
@@ -26,6 +29,7 @@ let hoverDelayMs = DEFAULT_SETTINGS.hoverDelayMs;
 let maxDefinitions = DEFAULT_SETTINGS.maxDefinitions;
 let showKoreanDefinitions = DEFAULT_SETTINGS.showKoreanDefinitions;
 let compactTooltip = DEFAULT_SETTINGS.compactTooltip;
+let selectionTranslationEnabled = DEFAULT_SETTINGS.selectionTranslationEnabled;
 
 let lastWord = '';
 let tooltipElements = null;
@@ -35,6 +39,11 @@ let positionFrame = null;
 let activeRequestId = 0;
 const translationCache = new Map();
 const pendingRequests = new Map();
+let selectionText = '';
+let selectionTimer = null;
+let selectionRequestId = 0;
+let isSelecting = false;
+let tooltipMode = null;
 
 // 초기 상태를 Promise로 가져오는 함수
 async function initializeExtension() {
@@ -44,7 +53,8 @@ async function initializeExtension() {
     'hoverDelayMs',
     'maxDefinitions',
     'showKoreanDefinitions',
-    'compactTooltip'
+    'compactTooltip',
+    'selectionTranslationEnabled'
   ]);
 
   applySettings(result);
@@ -62,6 +72,7 @@ async function initializeExtension() {
         activeRequestId += 1;
         clearHoverTimer();
         lastHoverPoint = null;
+        clearSelectionTranslation();
       }
       sendResponse({ status: 'success' }); // 반드시 응답을 보내야 함
       return true; // 비동기 응답을 허용
@@ -80,6 +91,7 @@ async function initializeExtension() {
         activeRequestId += 1;
         clearHoverTimer();
         lastHoverPoint = null;
+        clearSelectionTranslation();
       }
     }
 
@@ -108,9 +120,35 @@ async function initializeExtension() {
     if (changes.compactTooltip) {
       compactTooltip = changes.compactTooltip.newValue === true;
     }
+
+    if (changes.selectionTranslationEnabled) {
+      selectionTranslationEnabled = changes.selectionTranslationEnabled.newValue === true;
+      if (selectionTranslationEnabled) {
+        handleSelectionChange();
+      } else {
+        clearSelectionTranslation();
+      }
+    }
   });
 
   isInitialized = true; // 초기화 완료 표시
+
+  document.addEventListener('mousedown', () => {
+    if (!selectionTranslationEnabled) return;
+    isSelecting = true;
+    clearHoverTimer();
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!selectionTranslationEnabled) return;
+    isSelecting = false;
+    handleSelectionChange();
+  });
+
+  document.addEventListener('keyup', () => {
+    if (!selectionTranslationEnabled) return;
+    handleSelectionChange();
+  });
 
   // 마우스 이동 이벤트 핸들러
   $(document).on('mousemove', (e) => {
@@ -139,6 +177,7 @@ function applySettings(result) {
     : DEFAULT_SETTINGS.maxDefinitions;
   showKoreanDefinitions = result.showKoreanDefinitions !== false;
   compactTooltip = result.compactTooltip === true;
+  selectionTranslationEnabled = result.selectionTranslationEnabled === true;
 }
 
 function createTooltip() {
@@ -175,6 +214,9 @@ function clearHoverTimer() {
 }
 
 function scheduleLookup(event) {
+  if (selectionTranslationEnabled && (isSelecting || selectionText)) {
+    return;
+  }
   lastHoverPoint = { clientX: event.clientX, clientY: event.clientY };
   clearHoverTimer();
 
@@ -191,6 +233,9 @@ function schedulePositionUpdate(event) {
   if (!tooltipElements || tooltipElements.tooltip.style.display !== 'block') {
     return;
   }
+  if (tooltipMode === 'selection') {
+    return;
+  }
 
   lastHoverPoint = { clientX: event.clientX, clientY: event.clientY };
 
@@ -202,7 +247,179 @@ function schedulePositionUpdate(event) {
   });
 }
 
+function clearSelectionTimer() {
+  if (!selectionTimer) return;
+  clearTimeout(selectionTimer);
+  selectionTimer = null;
+}
+
+function clearSelectionTranslation() {
+  clearSelectionTimer();
+  selectionText = '';
+  selectionRequestId += 1;
+  isSelecting = false;
+  lastWord = '';
+  if (tooltipMode === 'selection') {
+    hideTooltip();
+  }
+}
+
+function handleSelectionChange() {
+  if (!isEnabled || !selectionTranslationEnabled) {
+    clearSelectionTranslation();
+    return;
+  }
+
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed) {
+    clearSelectionTranslation();
+    return;
+  }
+
+  if (isEditableSelection(selection)) {
+    clearSelectionTranslation();
+    return;
+  }
+
+  const normalized = normalizeSelectionText(selection.toString());
+  if (!normalized) {
+    clearSelectionTranslation();
+    return;
+  }
+
+  if (!containsKorean(normalized)) {
+    clearSelectionTranslation();
+    return;
+  }
+
+  if (normalized.length > MAX_SELECTION_CHARS) {
+    selectionText = normalized;
+    selectionRequestId += 1;
+    renderSelectionError(selectionText, `Selection too long (max ${MAX_SELECTION_CHARS} characters).`);
+    const selectionRect = getSelectionRect(selection);
+    if (selectionRect) {
+      updateTooltipPositionFromRect(selectionRect);
+    } else if (lastHoverPoint) {
+      updateTooltipPosition(lastHoverPoint);
+    }
+    return;
+  }
+
+  if (normalized === selectionText) {
+    return;
+  }
+
+  selectionText = normalized;
+  lastWord = '';
+  const requestId = ++selectionRequestId;
+  clearSelectionTimer();
+
+  const delay = Math.max(0, hoverDelayMs);
+  selectionTimer = setTimeout(() => {
+    translateSelection(selectionText, requestId).catch(error => {
+      console.error('Selection translation error:', error);
+    });
+  }, delay);
+}
+
+function isEditableSelection(selection) {
+  const anchorNode = selection.anchorNode;
+  if (!anchorNode) return false;
+  const element = anchorNode.nodeType === Node.ELEMENT_NODE
+    ? anchorNode
+    : anchorNode.parentElement;
+  if (!element) return false;
+  if (element.isContentEditable) return true;
+  return Boolean(element.closest('input, textarea, [contenteditable="true"]'));
+}
+
+function normalizeSelectionText(text) {
+  return text.replace(/\s+/g, ' ').trim();
+}
+
+function getSelectionRect(selection) {
+  if (!selection || selection.rangeCount === 0) return null;
+  const range = selection.getRangeAt(0);
+  if (!range) return null;
+  const rect = range.getBoundingClientRect();
+  if (rect && (rect.width || rect.height)) {
+    return rect;
+  }
+  const rects = range.getClientRects();
+  if (rects.length) {
+    return rects[rects.length - 1];
+  }
+  return rect;
+}
+
+function updateTooltipPositionFromRect(rect) {
+  if (!tooltipElements || !rect) return;
+
+  const tooltip = tooltipElements.tooltip;
+  const scrollX = window.scrollX || window.pageXOffset;
+  const scrollY = window.scrollY || window.pageYOffset;
+  const padding = 12;
+
+  let left = rect.left + scrollX;
+  let top = rect.bottom + scrollY + padding;
+
+  const tooltipWidth = tooltip.offsetWidth || 0;
+  const tooltipHeight = tooltip.offsetHeight || 0;
+  const maxLeft = scrollX + window.innerWidth - tooltipWidth - padding;
+  const maxTop = scrollY + window.innerHeight - tooltipHeight - padding;
+
+  if (tooltipWidth) {
+    left = Math.min(left, maxLeft);
+  }
+
+  if (tooltipHeight) {
+    top = Math.min(top, maxTop);
+  }
+
+  tooltip.style.left = `${Math.max(scrollX + padding, left)}px`;
+  tooltip.style.top = `${Math.max(scrollY + padding, top)}px`;
+}
+
+async function translateSelection(text, requestId) {
+  if (requestId !== selectionRequestId) return;
+
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed) {
+    clearSelectionTranslation();
+    return;
+  }
+
+  const normalized = normalizeSelectionText(selection.toString());
+  if (normalized !== text) {
+    return;
+  }
+
+  activeRequestId += 1;
+  const selectionRect = getSelectionRect(selection);
+
+  renderSelectionLoading(text);
+  if (selectionRect) {
+    updateTooltipPositionFromRect(selectionRect);
+  } else if (lastHoverPoint) {
+    updateTooltipPosition(lastHoverPoint);
+  }
+
+  const result = await lookupSelection(text);
+
+  if (requestId !== selectionRequestId) {
+    return;
+  }
+
+  renderSelectionResult(text, result);
+  if (selectionRect) {
+    updateTooltipPositionFromRect(selectionRect);
+  }
+}
+
 async function handleHover(point) {
+  if (selectionTranslationEnabled && selectionText) {
+    return;
+  }
   const koreanWord = getKoreanWordAtPoint(point.clientX, point.clientY);
 
   if (!koreanWord || !containsKorean(koreanWord)) {
@@ -276,6 +493,37 @@ async function lookupWord(word) {
   }
 }
 
+async function lookupSelection(text) {
+  const cacheKey = `selection:${text}`;
+  const cached = getCacheEntry(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const pending = pendingRequests.get(cacheKey);
+  if (pending) {
+    return pending;
+  }
+
+  const requestPromise = (async () => {
+    const translation = await translateText(text);
+    if (translation) {
+      return { type: 'selection', translation };
+    }
+    return buildErrorResult('Unable to translate selection');
+  })();
+
+  pendingRequests.set(cacheKey, requestPromise);
+
+  try {
+    const result = await requestPromise;
+    cacheResult(cacheKey, result);
+    return result;
+  } finally {
+    pendingRequests.delete(cacheKey);
+  }
+}
+
 function renderLookupResult(word, result) {
   if (result.type === 'google') {
     renderGoogleResult(word, result.translation);
@@ -283,6 +531,14 @@ function renderLookupResult(word, result) {
     renderDictionaryResult(result.data);
   } else {
     renderErrorState(word, result.message);
+  }
+}
+
+function renderSelectionResult(text, result) {
+  if (result.type === 'selection') {
+    renderSelectionSuccess(text, result.translation);
+  } else {
+    renderSelectionError(text, result.message);
   }
 }
 
@@ -330,6 +586,7 @@ function showTooltip() {
 function hideTooltip() {
   if (!tooltipElements) return;
   tooltipElements.tooltip.style.display = 'none';
+  tooltipMode = null;
 }
 
 function updateTooltipPosition(event) {
@@ -358,6 +615,10 @@ function updateTooltipPosition(event) {
 
   tooltip.style.left = `${Math.max(scrollX + padding, left)}px`;
   tooltip.style.top = `${Math.max(scrollY + padding, top)}px`;
+}
+
+function setTooltipMode(mode) {
+  tooltipMode = mode;
 }
 
 function setTooltipState(state) {
@@ -401,7 +662,44 @@ function appendSection(title, lines) {
   tooltipElements.body.appendChild(section);
 }
 
+function renderSelectionLoading(text) {
+  setTooltipMode('selection');
+  setTooltipState('loading');
+  setTooltipHeader(formatSelectionHeader(text), 'Selection • Google Translate');
+  clearTooltipBody();
+  setTooltipBody('Translating selection...');
+  showTooltip();
+}
+
+function renderSelectionSuccess(text, translation) {
+  setTooltipMode('selection');
+  setTooltipState('idle');
+  setTooltipHeader(formatSelectionHeader(text), 'Selection • Google Translate');
+  clearTooltipBody();
+  setTooltipBody(translation);
+  showTooltip();
+}
+
+function renderSelectionError(text, message) {
+  setTooltipMode('selection');
+  setTooltipState('error');
+  setTooltipHeader(formatSelectionHeader(text), 'Selection • Google Translate');
+  clearTooltipBody();
+  setTooltipBody(message);
+  showTooltip();
+}
+
+function formatSelectionHeader(text) {
+  const normalized = normalizeSelectionText(text);
+  if (normalized.length <= SELECTION_HEADER_CHARS) {
+    return normalized;
+  }
+  const sliceLength = Math.max(0, SELECTION_HEADER_CHARS - 3);
+  return `${normalized.slice(0, sliceLength)}...`;
+}
+
 function renderLoadingState(word) {
+  setTooltipMode('word');
   setTooltipState('loading');
   setTooltipHeader(word, selectedApi === 'google' ? 'Google Translate' : 'Korean Dictionary');
   clearTooltipBody();
@@ -410,6 +708,7 @@ function renderLoadingState(word) {
 }
 
 function renderErrorState(word, message) {
+  setTooltipMode('word');
   setTooltipState('error');
   setTooltipHeader(word, selectedApi === 'google' ? 'Google Translate' : 'Korean Dictionary');
   clearTooltipBody();
@@ -418,6 +717,7 @@ function renderErrorState(word, message) {
 }
 
 function renderGoogleResult(word, translation) {
+  setTooltipMode('word');
   setTooltipState('idle');
   setTooltipHeader(word, 'Google Translate');
   clearTooltipBody();
@@ -426,6 +726,7 @@ function renderGoogleResult(word, translation) {
 }
 
 function renderDictionaryResult(result) {
+  setTooltipMode('word');
   setTooltipState('idle');
 
   const metaParts = [];

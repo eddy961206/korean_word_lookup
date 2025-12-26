@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const maxDefinitionsSelect = document.getElementById('maxDefinitions');
   const showKoreanDefinitionsToggle = document.getElementById('showKoreanDefinitions');
   const compactTooltipToggle = document.getElementById('compactTooltip');
+  const selectionTranslationToggle = document.getElementById('selectionTranslationToggle');
   const krdictApiKeyInput = document.getElementById('krdictApiKey');
   const clearApiKeyButton = document.getElementById('clearApiKey');
 
@@ -13,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     hoverDelayMs: 150,
     maxDefinitions: 3,
     showKoreanDefinitions: true,
-    compactTooltip: false
+    compactTooltip: false,
+    selectionTranslationEnabled: false
   };
 
   // 저장된 상태 불러오기
@@ -24,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'maxDefinitions',
     'showKoreanDefinitions',
     'compactTooltip',
+    'selectionTranslationEnabled',
     'krdictApiKey'
   ], (result) => {
     toggleSwitch.checked = result.translationEnabled !== false;
@@ -43,12 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
       : defaultSettings.maxDefinitions;
     const showKoreanDefinitionsValue = result.showKoreanDefinitions !== false;
     const compactTooltipValue = result.compactTooltip === true;
+    const selectionTranslationValue = result.selectionTranslationEnabled === true;
     const apiKeyValue = (result.krdictApiKey || '').trim();
 
     hoverDelaySelect.value = String(hoverDelayValue);
     maxDefinitionsSelect.value = String(maxDefinitionsValue);
     showKoreanDefinitionsToggle.checked = showKoreanDefinitionsValue;
     compactTooltipToggle.checked = compactTooltipValue;
+    selectionTranslationToggle.checked = selectionTranslationValue;
     krdictApiKeyInput.value = apiKeyValue;
   });
 
@@ -73,6 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   compactTooltipToggle.addEventListener('change', (e) => {
     chrome.storage.sync.set({ compactTooltip: e.target.checked });
+  });
+
+  selectionTranslationToggle.addEventListener('change', (e) => {
+    chrome.storage.sync.set({ selectionTranslationEnabled: e.target.checked });
   });
 
   krdictApiKeyInput.addEventListener('input', (e) => {
@@ -119,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statusMessage.innerHTML = `
         Hover over Korean text to see English definitions<br>
         <small style="display: block; margin-top: 8px; color: #666;">
-          Shortcuts: Alt+G (Google Translate) | Alt+K (Korean Dictionary) | Alt+T (Toggle Translation)
+          Shortcuts: Alt+G (Google Translate) | Alt+K (Korean Dictionary) | Alt+T (Toggle Translation) | Alt+S (Selection Translate)
         </small>
       `;
       statusMessage.style.background = '#f0f9ff';
@@ -155,6 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
       showKoreanDefinitionsToggle.checked = changes.showKoreanDefinitions.newValue !== false;
     } else if (area === 'sync' && changes.compactTooltip) {
       compactTooltipToggle.checked = changes.compactTooltip.newValue === true;
+    } else if (area === 'sync' && changes.selectionTranslationEnabled) {
+      selectionTranslationToggle.checked = changes.selectionTranslationEnabled.newValue === true;
     } else if (area === 'sync' && changes.krdictApiKey) {
       krdictApiKeyInput.value = (changes.krdictApiKey.newValue || '').trim();
     } else if (area === 'sync' && changes.translationEnabled) {
