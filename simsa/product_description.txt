@@ -1,0 +1,50 @@
+Korean Word Lookup - Instant Korean Word and Selection Translation
+
+Korean Word Lookup is a Chrome extension that helps you learn Korean by translating words on hover and sentences on selection.
+
+Key Features and Benefits:
+
+Instant word lookup
+- Hover over Korean words to see English translations.
+- Choose Google Translate for speed or Korean Dictionary for detailed definitions.
+- Display English and (optional) Korean definitions in a clean tooltip.
+
+Selection translation
+- Select multiple words or sentences to translate them at once.
+- Toggle selection translation in the popup or with Alt+S.
+- Selection translation uses Google Translate for fluent sentence output.
+
+User-friendly controls
+- One-click toggle for enabling or disabling translation.
+- Keyboard shortcuts: Alt+T (toggle), Alt+G (Google Translate), Alt+K (Korean Dictionary), Alt+S (selection translate).
+- Customize hover delay, compact tooltip, and max definitions.
+
+Personalization
+- Saves your preferred settings across sessions via Chrome sync storage.
+- Optional KRDICT API key override in the popup.
+
+Technical Features:
+- Uses Google Translate and the National Institute of Korean Language dictionary API.
+- Lightweight content script with caching for faster responses.
+- Works on any page you visit.
+
+FAQ:
+Q: How do I enable selection translation?
+A: Turn it on in the popup or press Alt+S.
+
+Q: Which services receive the text I look up?
+A: Hovered or selected text is sent only to Google Translate or the Korean Dictionary API to fetch translations.
+
+Q: Can I use my own Korean Dictionary API key?
+A: Yes. Paste your key in the popup to override the default.
+
+Q: Are settings saved between sessions?
+A: Yes, settings are stored with Chrome sync and automatically restored.
+
+Planned Future Updates:
+- Additional target languages.
+- Better sentence context handling.
+- UI refinements and theme options.
+
+Contact:
+For suggestions, feedback, or issues, please contact: skykum2004@gmail.com

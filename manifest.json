@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Korean Word Lookup",
   "description": "Show English definitions of Korean words when hovering over them.",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "permissions": [
     "storage"
   ],
@@ -26,8 +26,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "css": ["tooltip.css"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": [
+        "tooltip.css"
+      ],
       "js": [
         "thirdParty/jquery-3.6.0.min.js",
         "content.js"
