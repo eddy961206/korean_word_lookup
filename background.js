@@ -1,4 +1,10 @@
 chrome.runtime.onInstalled.addListener((details) => {
+  chrome.storage.local.get(['installTimestamp'], (result) => {
+    if (!Number.isFinite(result.installTimestamp)) {
+      chrome.storage.local.set({ installTimestamp: Date.now() });
+    }
+  });
+
   if (details.reason === 'install') {
     // 웰컴 페이지 열기
     chrome.tabs.create({
@@ -45,6 +51,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ apiKey });
     });
     return true;  // 비동기 응답을 위해 true 반환
+  }
+
+  if (request.action === 'trackUsage') {
+    trackUsage(request.kind).then(() => {
+      sendResponse({ ok: true });
+    });
+    return true;
+  }
+
+  if (request.action === 'openReviewPage') {
+    chrome.tabs.create({ url: getReviewUrl() }, () => {
+      sendResponse({ ok: !chrome.runtime.lastError });
+    });
+    return true;
   }
 });
   
@@ -109,4 +129,45 @@ chrome.storage.onChanged.addListener((changes, area) => {
     updateIcon(changes.translationEnabled.newValue);
   }
 });
+
+function getReviewUrl() {
+  const extensionId = chrome.runtime.id;
+  return `https://chromewebstore.google.com/detail/${extensionId}/reviews`;
+}
+
+function getLocal(keys) {
+  return new Promise(resolve => {
+    chrome.storage.local.get(keys, resolve);
+  });
+}
+
+function setLocal(values) {
+  return new Promise(resolve => {
+    chrome.storage.local.set(values, resolve);
+  });
+}
+
+async function trackUsage(kind) {
+  const result = await getLocal([
+    'usageCount',
+    'wordLookupCount',
+    'selectionTranslateCount'
+  ]);
+
+  const usageCount = Number.isFinite(result.usageCount) ? result.usageCount : 0;
+  const wordLookupCount = Number.isFinite(result.wordLookupCount) ? result.wordLookupCount : 0;
+  const selectionTranslateCount = Number.isFinite(result.selectionTranslateCount) ? result.selectionTranslateCount : 0;
+
+  const next = {
+    usageCount: usageCount + 1
+  };
+
+  if (kind === 'selection') {
+    next.selectionTranslateCount = selectionTranslateCount + 1;
+  } else {
+    next.wordLookupCount = wordLookupCount + 1;
+  }
+
+  await setLocal(next);
+}
   

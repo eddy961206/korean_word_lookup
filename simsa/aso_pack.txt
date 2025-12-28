@@ -1,0 +1,36 @@
+ASO Pack (Chrome Web Store)
+
+1) Title (current suggestion)
+- Korean Word Lookup - Hover & Select Translate
+
+2) Short description (manifest suggestion)
+- Korean translator & dictionary: hover words for definitions, or select sentences to translate instantly.
+
+3) First 2–3 sentences (snippet-optimized)
+- Korean Word Lookup is a Korean translator + Korean dictionary extension for Chrome.
+- Hover Hangul (Korean) words for instant English meaning, or select a sentence to translate it in one shot.
+
+4) Keyword ideas (mix & match, avoid stuffing)
+- korean translator
+- korean dictionary
+- hangul translator
+- korean hover translate
+- selection translate
+- translate korean on hover
+- korean learning
+- korean vocabulary
+- krdict
+
+5) Screenshot plan (5 images)
+- 1: Hover translate (word → meaning) on a real website
+- 2: Switch source (Google ↔ KRDICT) + show definitions
+- 3: Selection translate (sentence selection → translation)
+- 4: Keyboard shortcuts (Alt+T/G/K/S) + quick workflow
+- 5: Tooltip settings (hover delay / compact / max definitions)
+
+6) 15s demo video script
+- 0–3s: “Hover a Korean word → instant meaning”
+- 3–7s: “Switch to dictionary → detailed definitions”
+- 7–12s: “Select a sentence → translate instantly”
+- 12–15s: “Shortcuts + settings” + store CTA
+

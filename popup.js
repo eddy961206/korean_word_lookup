@@ -9,6 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectionTranslationToggle = document.getElementById('selectionTranslationToggle');
   const krdictApiKeyInput = document.getElementById('krdictApiKey');
   const clearApiKeyButton = document.getElementById('clearApiKey');
+  const reviewPrompt = document.getElementById('reviewPrompt');
+  const rateButton = document.getElementById('rateButton');
+  const rateLaterButton = document.getElementById('rateLaterButton');
+  const dismissRateButton = document.getElementById('dismissRateButton');
+
+  const REVIEW_PROMPT_MIN_DAYS = 3;
+  const REVIEW_PROMPT_MIN_USAGE = 20;
+  const REVIEW_SNOOZE_DAYS = 7;
 
   const defaultSettings = {
     hoverDelayMs: 150,
@@ -55,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     compactTooltipToggle.checked = compactTooltipValue;
     selectionTranslationToggle.checked = selectionTranslationValue;
     krdictApiKeyInput.value = apiKeyValue;
+    maybeShowReviewPrompt().catch(() => {});
   });
 
   // API 선택 변경 이벤트
@@ -91,6 +100,28 @@ document.addEventListener('DOMContentLoaded', () => {
   clearApiKeyButton.addEventListener('click', () => {
     chrome.storage.sync.set({ krdictApiKey: '' }, () => {
       krdictApiKeyInput.value = '';
+    });
+  });
+
+  rateButton.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ action: 'openReviewPage' }, () => {
+      chrome.storage.local.set({ reviewPromptDismissed: true }, () => {
+        reviewPrompt.style.display = 'none';
+      });
+      window.close();
+    });
+  });
+
+  rateLaterButton.addEventListener('click', () => {
+    const snoozeUntil = Date.now() + REVIEW_SNOOZE_DAYS * 24 * 60 * 60 * 1000;
+    chrome.storage.local.set({ reviewPromptSnoozedUntil: snoozeUntil }, () => {
+      reviewPrompt.style.display = 'none';
+    });
+  });
+
+  dismissRateButton.addEventListener('click', () => {
+    chrome.storage.local.set({ reviewPromptDismissed: true }, () => {
+      reviewPrompt.style.display = 'none';
     });
   });
 
@@ -141,6 +172,40 @@ document.addEventListener('DOMContentLoaded', () => {
       statusMessage.style.background = '#fee2e2';
       statusMessage.style.color = '#dc2626';
     }
+  }
+
+  function getLocal(keys) {
+    return new Promise(resolve => {
+      chrome.storage.local.get(keys, resolve);
+    });
+  }
+
+  async function maybeShowReviewPrompt() {
+    const result = await getLocal([
+      'installTimestamp',
+      'usageCount',
+      'reviewPromptDismissed',
+      'reviewPromptSnoozedUntil'
+    ]);
+
+    if (!reviewPrompt) return;
+    if (result.reviewPromptDismissed === true) return;
+
+    const snoozedUntil = Number.isFinite(result.reviewPromptSnoozedUntil)
+      ? result.reviewPromptSnoozedUntil
+      : 0;
+    if (Date.now() < snoozedUntil) return;
+
+    const installTimestamp = Number.isFinite(result.installTimestamp)
+      ? result.installTimestamp
+      : Date.now();
+    const usageCount = Number.isFinite(result.usageCount) ? result.usageCount : 0;
+    const daysSinceInstall = Math.floor((Date.now() - installTimestamp) / (24 * 60 * 60 * 1000));
+
+    if (usageCount < REVIEW_PROMPT_MIN_USAGE) return;
+    if (daysSinceInstall < REVIEW_PROMPT_MIN_DAYS) return;
+
+    reviewPrompt.style.display = 'block';
   }
 
   // 스토리지 변경 감지하여 라디오 버튼 상태 업데이트

@@ -166,6 +166,14 @@ function storageGet(keys) {
   });
 }
 
+function trackUsage(kind) {
+  chrome.runtime.sendMessage({ action: 'trackUsage', kind }, () => {
+    if (chrome.runtime.lastError) {
+      return;
+    }
+  });
+}
+
 function applySettings(result) {
   isEnabled = result.translationEnabled !== false;
   selectedApi = result.selectedApi || DEFAULT_SETTINGS.selectedApi;
@@ -678,6 +686,7 @@ function renderSelectionSuccess(text, translation) {
   clearTooltipBody();
   setTooltipBody(translation);
   showTooltip();
+  trackUsage('selection');
 }
 
 function renderSelectionError(text, message) {
@@ -723,6 +732,7 @@ function renderGoogleResult(word, translation) {
   clearTooltipBody();
   setTooltipBody(translation);
   showTooltip();
+  trackUsage('word');
 }
 
 function renderDictionaryResult(result) {
@@ -756,6 +766,7 @@ function renderDictionaryResult(result) {
   }
 
   showTooltip();
+  trackUsage('word');
 }
 
 function limitDefinitions(definitions, limit) {
