@@ -153,6 +153,9 @@
     "feat2": {
         "message": "Choose between Google Translate and Korean Dictionary"
     },
+    "featAutoFallback": {
+        "message": "Auto-Fallback: Automatically switches to Google Translate if dictionary lookup fails"
+    },
     "feat3": {
         "message": "Google Translate - Quick word-to-word translations"
     },
