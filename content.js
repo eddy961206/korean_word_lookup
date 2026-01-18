@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS = {
   maxDefinitions: 3,
   showKoreanDefinitions: true,
   compactTooltip: false,
+  autoFallbackEnabled: true,
   selectionTranslationEnabled: false
 };
 
@@ -29,6 +30,7 @@ let hoverDelayMs = DEFAULT_SETTINGS.hoverDelayMs;
 let maxDefinitions = DEFAULT_SETTINGS.maxDefinitions;
 let showKoreanDefinitions = DEFAULT_SETTINGS.showKoreanDefinitions;
 let compactTooltip = DEFAULT_SETTINGS.compactTooltip;
+let autoFallbackEnabled = DEFAULT_SETTINGS.autoFallbackEnabled;
 let selectionTranslationEnabled = DEFAULT_SETTINGS.selectionTranslationEnabled;
 
 let lastWord = '';
@@ -121,6 +123,10 @@ async function initializeExtension() {
       compactTooltip = changes.compactTooltip.newValue === true;
     }
 
+    if (changes.autoFallbackEnabled) {
+      autoFallbackEnabled = changes.autoFallbackEnabled.newValue !== false;
+    }
+
     if (changes.selectionTranslationEnabled) {
       selectionTranslationEnabled = changes.selectionTranslationEnabled.newValue === true;
       if (selectionTranslationEnabled) {
@@ -186,6 +192,7 @@ function applySettings(result) {
     : DEFAULT_SETTINGS.maxDefinitions;
   showKoreanDefinitions = result.showKoreanDefinitions !== false;
   compactTooltip = result.compactTooltip === true;
+  autoFallbackEnabled = result.autoFallbackEnabled !== false; // Default true
   selectionTranslationEnabled = result.selectionTranslationEnabled === true;
 }
 
@@ -449,6 +456,7 @@ async function handleHover(point) {
   renderLoadingState(koreanWord);
   updateTooltipPosition(point);
 
+  // Auto-fallback logic inside lookupWord
   const result = await lookupWord(koreanWord);
 
   if (requestId !== activeRequestId) {
@@ -462,7 +470,7 @@ async function handleHover(point) {
 }
 
 async function lookupWord(word) {
-  const cacheKey = `${selectedApi}:${word}`;
+  const cacheKey = `${selectedApi}:${word}:${autoFallbackEnabled}`;
   const cached = getCacheEntry(cacheKey);
   if (cached) {
     return cached;
@@ -474,7 +482,34 @@ async function lookupWord(word) {
   }
 
   const requestPromise = (async () => {
-    if (selectedApi === 'google') {
+    let result = await performLookup(word, selectedApi);
+    
+    // Fallback Logic
+    if (autoFallbackEnabled && result.type === 'error') {
+       const fallbackApi = selectedApi === 'google' ? 'krdict' : 'google';
+       const fallbackResult = await performLookup(word, fallbackApi);
+       if (fallbackResult.type !== 'error') {
+         // Mark as fallback for UI
+         fallbackResult.isFallback = true;
+         return fallbackResult;
+       }
+    }
+    return result;
+  })();
+
+  pendingRequests.set(cacheKey, requestPromise);
+
+  try {
+    const result = await requestPromise;
+    cacheResult(cacheKey, result);
+    return result;
+  } finally {
+    pendingRequests.delete(cacheKey);
+  }
+}
+
+async function performLookup(word, api) {
+    if (api === 'google') {
       const translation = await translateText(word);
       if (translation) {
         return { type: 'google', translation };
@@ -490,17 +525,6 @@ async function lookupWord(word) {
       return { type: 'dict', data };
     }
     return buildErrorResult(chrome.i18n.getMessage('errorNotFound') || 'Word not found in dictionary');
-  })();
-
-  pendingRequests.set(cacheKey, requestPromise);
-
-  try {
-    const result = await requestPromise;
-    cacheResult(cacheKey, result);
-    return result;
-  } finally {
-    pendingRequests.delete(cacheKey);
-  }
 }
 
 async function lookupSelection(text) {
@@ -535,10 +559,12 @@ async function lookupSelection(text) {
 }
 
 function renderLookupResult(word, result) {
+  const fallbackPrefix = result.isFallback ? (chrome.i18n.getMessage('fallbackPrefix') || '(Auto)') + ' ' : '';
+  
   if (result.type === 'google') {
-    renderGoogleResult(word, result.translation);
+    renderGoogleResult(word, result.translation, fallbackPrefix);
   } else if (result.type === 'dict') {
-    renderDictionaryResult(result.data);
+    renderDictionaryResult(result.data, fallbackPrefix);
   } else {
     renderErrorState(word, result.message);
   }
@@ -727,21 +753,24 @@ function renderErrorState(word, message) {
   showTooltip();
 }
 
-function renderGoogleResult(word, translation) {
+function renderGoogleResult(word, translation, prefix = '') {
   setTooltipMode('word');
   setTooltipState('idle');
-  setTooltipHeader(word, chrome.i18n.getMessage('googleTrans'));
+  setTooltipHeader(word, prefix + chrome.i18n.getMessage('googleTrans'));
   clearTooltipBody();
   setTooltipBody(translation);
   showTooltip();
   trackUsage('word');
 }
 
-function renderDictionaryResult(result) {
+function renderDictionaryResult(result, prefix = '') {
   setTooltipMode('word');
   setTooltipState('idle');
 
   const metaParts = [];
+  if (prefix) {
+      metaParts.push(prefix.trim()); // e.g. (Auto)
+  }
   if (result.primaryTranslation) {
     metaParts.push(result.primaryTranslation);
   }

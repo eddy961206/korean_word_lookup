@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const maxDefinitionsSelect = document.getElementById('maxDefinitions');
   const showKoreanDefinitionsToggle = document.getElementById('showKoreanDefinitions');
   const compactTooltipToggle = document.getElementById('compactTooltip');
+  const autoFallbackToggle = document.getElementById('autoFallbackToggle');
   const selectionTranslationToggle = document.getElementById('selectionTranslationToggle');
   const krdictApiKeyInput = document.getElementById('krdictApiKey');
   const clearApiKeyButton = document.getElementById('clearApiKey');
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     maxDefinitions: 3,
     showKoreanDefinitions: true,
     compactTooltip: false,
+    autoFallbackEnabled: true,
     selectionTranslationEnabled: false
   };
 
@@ -50,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'maxDefinitions',
     'showKoreanDefinitions',
     'compactTooltip',
+    'autoFallbackEnabled',
     'selectionTranslationEnabled',
     'krdictApiKey'
   ], (result) => {
@@ -70,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
       : defaultSettings.maxDefinitions;
     const showKoreanDefinitionsValue = result.showKoreanDefinitions !== false;
     const compactTooltipValue = result.compactTooltip === true;
+    const autoFallbackValue = result.autoFallbackEnabled !== false; // Default true
     const selectionTranslationValue = result.selectionTranslationEnabled === true;
     const apiKeyValue = (result.krdictApiKey || '').trim();
 
@@ -77,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     maxDefinitionsSelect.value = String(maxDefinitionsValue);
     showKoreanDefinitionsToggle.checked = showKoreanDefinitionsValue;
     compactTooltipToggle.checked = compactTooltipValue;
+    autoFallbackToggle.checked = autoFallbackValue;
     selectionTranslationToggle.checked = selectionTranslationValue;
     krdictApiKeyInput.value = apiKeyValue;
     maybeShowReviewPrompt().catch(() => {});
@@ -103,6 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   compactTooltipToggle.addEventListener('change', (e) => {
     chrome.storage.sync.set({ compactTooltip: e.target.checked });
+  });
+
+  autoFallbackToggle.addEventListener('change', (e) => {
+    chrome.storage.sync.set({ autoFallbackEnabled: e.target.checked });
   });
 
   selectionTranslationToggle.addEventListener('change', (e) => {
@@ -245,6 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
       showKoreanDefinitionsToggle.checked = changes.showKoreanDefinitions.newValue !== false;
     } else if (area === 'sync' && changes.compactTooltip) {
       compactTooltipToggle.checked = changes.compactTooltip.newValue === true;
+    } else if (area === 'sync' && changes.autoFallbackEnabled) {
+      autoFallbackToggle.checked = changes.autoFallbackEnabled.newValue !== false;
     } else if (area === 'sync' && changes.selectionTranslationEnabled) {
       selectionTranslationToggle.checked = changes.selectionTranslationEnabled.newValue === true;
     } else if (area === 'sync' && changes.krdictApiKey) {

@@ -96,7 +96,16 @@
         "message": "Translating..."
     },
     "msgSelection": {
-        "message": "Selection • Google Translate"
+        "message": "Selection"
+    },
+    "optAutoFallback": {
+        "message": "Use Auto-Fallback"
+    },
+    "optAutoFallbackDesc": {
+        "message": "Automatically try another source if not found"
+    },
+    "fallbackPrefix": {
+        "message": "(Auto)"
     },
     "msgTranslatingSel": {
         "message": "Translating selection..."
