@@ -1,37 +1,41 @@
-Korean Word Lookup - Korean Translator (Hover + Selection)
+🇰🇷 Korean Word Lookup - Korean Translator (Hover + Selection)
 
 Korean Word Lookup is a Korean translator + Korean dictionary extension for Chrome.
 Hover Hangul (Korean) words for instant English meaning, or select a sentence to translate it in one shot.
 
-Key Features and Benefits:
+🌟 Key Features and Benefits:
 
-Hover translate (Korean word lookup)
-- Hover over Korean words to see English translations.
-- Choose Google Translate for speed or Korean Dictionary for detailed definitions.
-- Display English and (optional) Korean definitions in a clean tooltip.
+👆 Hover translate (Korean word lookup)
+- 🖱️ Hover over Korean words to see English translations.
+- ⚡ Choose Google Translate for speed or 📚 Korean Dictionary for detailed definitions.
+- 🔄 Smart Auto-Fallback: Automatically tries the other service if the selected one fails (e.g., if Dictionary has no result, it falls back to Google Translate).
+- 📝 Display English and (optional) Korean definitions in a clean tooltip.
 
-Selection translate (sentence translation)
-- Select multiple words or Korean sentences to translate them at once.
-- Toggle selection translation in the popup or with Alt+S.
-- Selection translation uses Google Translate for fluent sentence output.
+✨ Selection translate (sentence translation)
+- 🟦 Select multiple words or Korean sentences to translate them at once.
+- ⌨️ Toggle selection translation in the popup or with `Alt+S`.
+- 🧠 Selection translation uses Google Translate for fluent sentence output.
 
-User-friendly controls
-- One-click toggle for enabling or disabling translation.
-- Keyboard shortcuts: Alt+T (toggle), Alt+G (Google Translate), Alt+K (Korean Dictionary), Alt+S (selection translate).
-- Customize hover delay, compact tooltip, and max definitions.
+🎛️ User-friendly controls
+- 🔛 One-click toggle for enabling or disabling translation.
+- ⌨️ Keyboard shortcuts: `Alt+T` (toggle), `Alt+G` (Google Translate), `Alt+K` (Korean Dictionary), `Alt+S` (selection translate).
+- 🛠️ Manage Shortcuts: Easily customize keyboard shortcuts directly from the popup.
+- ⚙️ Customize hover delay, compact tooltip, and max definitions.
 
-Personalization
-- Saves your preferred settings across sessions via Chrome sync storage.
-- Optional KRDICT API key override in the popup.
+👤 Personalization
+- 💾 Saves your preferred settings across sessions via Chrome sync storage.
+- 🔑 Optional KRDICT API key override in the popup.
+- 🔄 Auto-Fallback Toggle: Option to enable/disable automatic service switching.
 
-Technical Features:
-- Uses Google Translate and the National Institute of Korean Language (KRDICT) dictionary API.
-- Lightweight content script with caching for faster responses.
-- Works on any page you visit.
+🛠️ Technical Features:
+- 🌐 Uses Google Translate and the National Institute of Korean Language (KRDICT) dictionary API.
+- 🛡️ Manifest V3 Compliant: Built with the latest Chrome Extension standards for enhanced security and performance.
+- ⚡ Lightweight content script with caching for faster responses.
+- 🌍 Works on any page you visit.
 
-FAQ:
+❓ FAQ:
 Q: How do I enable selection translation?
-A: Turn it on in the popup or press Alt+S.
+A: Turn it on in the popup or press `Alt+S`.
 
 Q: Which services receive the text I look up?
 A: Hovered or selected text is sent to Google Translate or the Korean Dictionary API only to fetch translations/definitions.
@@ -42,10 +46,10 @@ A: Yes. Paste your key in the popup to override the default.
 Q: Are settings saved between sessions?
 A: Yes, settings are stored with Chrome sync and automatically restored.
 
-Planned Future Updates:
-- Additional target languages.
-- Better sentence context handling.
-- UI refinements and theme options.
+🚀 Planned Future Updates:
+- 🏳️ Additional target languages.
+- 🤖 Better sentence context handling.
+- 🎨 UI refinements and theme options.
 
-Contact:
+📧 Contact:
 For suggestions, feedback, or issues, please contact: skykum2004@gmail.com
