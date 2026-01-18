@@ -81,7 +81,10 @@
         "message": "Later"
     },
     "btnNo": {
-        "message": "No thanks"
+        "message": "괜찮습니다"
+    },
+    "btnManageShortcuts": {
+        "message": "단축키 관리"
     },
     "footerData": {
         "message": "Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary"

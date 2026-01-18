@@ -83,6 +83,9 @@
     "btnNo": {
         "message": "괜찮습니다"
     },
+    "btnManageShortcuts": {
+        "message": "단축키 관리"
+    },
     "footerData": {
         "message": "사전 데이터 제공: 국립국어원 한국어기초사전"
     },

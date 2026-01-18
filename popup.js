@@ -150,6 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const manageShortcutsLink = document.getElementById('manageShortcutsLink');
+  if (manageShortcutsLink) {
+    manageShortcutsLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+    });
+  }
+
   // 토글 상태 변경 이벤트 수정
   toggleSwitch.addEventListener('change', (e) => {
     const isEnabled = e.target.checked;
