@@ -1,3 +1,5 @@
+const CONFIG_URL = chrome.runtime.getURL('config.json');
+
 chrome.runtime.onInstalled.addListener((details) => {
   chrome.storage.local.get(['installTimestamp'], (result) => {
     if (!Number.isFinite(result.installTimestamp)) {
@@ -13,35 +15,27 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
-let configApiKey = '';
-let userApiKey = '';
-
-const configApiKeyPromise = fetch(chrome.runtime.getURL('config.json'))
-  .then(response => response.json())
-  .then(config => (config.KRDICT_API_KEY || '').trim())
-  .catch(error => {
+// Helper to get config API key
+async function fetchConfigApiKey() {
+  try {
+    const response = await fetch(CONFIG_URL);
+    const config = await response.json();
+    return (config.KRDICT_API_KEY || '').trim();
+  } catch (error) {
     console.error('Failed to load API key:', error);
     return '';
-  });
-
-configApiKeyPromise.then((key) => {
-  configApiKey = key;
-});
-
-chrome.storage.sync.get(['krdictApiKey'], (result) => {
-  userApiKey = (result.krdictApiKey || '').trim();
-});
-
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync' && changes.krdictApiKey) {
-    userApiKey = (changes.krdictApiKey.newValue || '').trim();
   }
-});
+}
 
+// Helper to get effective API key (User > Config)
 async function getApiKey() {
-  if (userApiKey) return userApiKey;
-  if (configApiKey) return configApiKey;
-  return configApiKeyPromise;
+  // Try User Key first (Sync storage)
+  const syncData = await new Promise(resolve => chrome.storage.sync.get(['krdictApiKey'], resolve));
+  const userKey = (syncData.krdictApiKey || '').trim();
+  if (userKey) return userKey;
+
+  // Fallback to Config Key
+  return fetchConfigApiKey();
 }
 
 // content script로부터의 메시지 수신

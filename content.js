@@ -151,11 +151,12 @@ async function initializeExtension() {
   });
 
   // 마우스 이동 이벤트 핸들러
-  $(document).on('mousemove', (e) => {
+  // Optimized for performance: passive listener where possible, but mousemove position is needed.
+  document.addEventListener('mousemove', (e) => {
     if (!isEnabled || !isInitialized) return; // 초기화 전에는 동작하지 않음
     schedulePositionUpdate(e);
     scheduleLookup(e);
-  });
+  }, { passive: true });
 
   return tooltipElements.tooltip;
 }
@@ -303,7 +304,8 @@ function handleSelectionChange() {
   if (normalized.length > MAX_SELECTION_CHARS) {
     selectionText = normalized;
     selectionRequestId += 1;
-    renderSelectionError(selectionText, `Selection too long (max ${MAX_SELECTION_CHARS} characters).`);
+    const msg = chrome.i18n.getMessage('msgTooLong', [String(MAX_SELECTION_CHARS)]);
+    renderSelectionError(selectionText, msg);
     const selectionRect = getSelectionRect(selection);
     if (selectionRect) {
       updateTooltipPositionFromRect(selectionRect);
@@ -477,17 +479,17 @@ async function lookupWord(word) {
       if (translation) {
         return { type: 'google', translation };
       }
-      return buildErrorResult('Unable to translate');
+      return buildErrorResult(chrome.i18n.getMessage('error') || 'Unable to translate');
     }
 
     const data = await getDictionaryMeaning(word);
     if (data && data.error === 'missing_key') {
-      return buildErrorResult('Dictionary API key missing. Set it in the popup.');
+      return buildErrorResult(chrome.i18n.getMessage('errorMissingKey') || 'Dictionary API key missing. Set it in the popup.');
     }
     if (data) {
       return { type: 'dict', data };
     }
-    return buildErrorResult('Word not found in dictionary');
+    return buildErrorResult(chrome.i18n.getMessage('errorNotFound') || 'Word not found in dictionary');
   })();
 
   pendingRequests.set(cacheKey, requestPromise);
@@ -518,7 +520,7 @@ async function lookupSelection(text) {
     if (translation) {
       return { type: 'selection', translation };
     }
-    return buildErrorResult('Unable to translate selection');
+    return buildErrorResult(chrome.i18n.getMessage('error') || 'Unable to translate selection');
   })();
 
   pendingRequests.set(cacheKey, requestPromise);
@@ -673,16 +675,16 @@ function appendSection(title, lines) {
 function renderSelectionLoading(text) {
   setTooltipMode('selection');
   setTooltipState('loading');
-  setTooltipHeader(formatSelectionHeader(text), 'Selection • Google Translate');
+  setTooltipHeader(formatSelectionHeader(text), chrome.i18n.getMessage('msgSelection'));
   clearTooltipBody();
-  setTooltipBody('Translating selection...');
+  setTooltipBody(chrome.i18n.getMessage('msgTranslatingSel'));
   showTooltip();
 }
 
 function renderSelectionSuccess(text, translation) {
   setTooltipMode('selection');
   setTooltipState('idle');
-  setTooltipHeader(formatSelectionHeader(text), 'Selection • Google Translate');
+  setTooltipHeader(formatSelectionHeader(text), chrome.i18n.getMessage('msgSelection'));
   clearTooltipBody();
   setTooltipBody(translation);
   showTooltip();
@@ -692,7 +694,7 @@ function renderSelectionSuccess(text, translation) {
 function renderSelectionError(text, message) {
   setTooltipMode('selection');
   setTooltipState('error');
-  setTooltipHeader(formatSelectionHeader(text), 'Selection • Google Translate');
+  setTooltipHeader(formatSelectionHeader(text), chrome.i18n.getMessage('msgSelection'));
   clearTooltipBody();
   setTooltipBody(message);
   showTooltip();
@@ -710,16 +712,16 @@ function formatSelectionHeader(text) {
 function renderLoadingState(word) {
   setTooltipMode('word');
   setTooltipState('loading');
-  setTooltipHeader(word, selectedApi === 'google' ? 'Google Translate' : 'Korean Dictionary');
+  setTooltipHeader(word, selectedApi === 'google' ? chrome.i18n.getMessage('googleTrans') : chrome.i18n.getMessage('koreanDict'));
   clearTooltipBody();
-  setTooltipBody('Translating...');
+  setTooltipBody(chrome.i18n.getMessage('msgTranslating'));
   showTooltip();
 }
 
 function renderErrorState(word, message) {
   setTooltipMode('word');
   setTooltipState('error');
-  setTooltipHeader(word, selectedApi === 'google' ? 'Google Translate' : 'Korean Dictionary');
+  setTooltipHeader(word, selectedApi === 'google' ? chrome.i18n.getMessage('googleTrans') : chrome.i18n.getMessage('koreanDict'));
   clearTooltipBody();
   setTooltipBody(message);
   showTooltip();
@@ -728,7 +730,7 @@ function renderErrorState(word, message) {
 function renderGoogleResult(word, translation) {
   setTooltipMode('word');
   setTooltipState('idle');
-  setTooltipHeader(word, 'Google Translate');
+  setTooltipHeader(word, chrome.i18n.getMessage('googleTrans'));
   clearTooltipBody();
   setTooltipBody(translation);
   showTooltip();
@@ -751,18 +753,18 @@ function renderDictionaryResult(result) {
   clearTooltipBody();
 
   if (compactTooltip) {
-    const compactLine = result.englishDefs[0] || result.koreanDefs[0] || 'No definition available';
+    const compactLine = result.englishDefs[0] || result.koreanDefs[0] || chrome.i18n.getMessage('noDef');
     setTooltipBody(compactLine);
     showTooltip();
     return;
   }
 
   const englishDefs = limitDefinitions(result.englishDefs, maxDefinitions);
-  appendSection('English definitions', englishDefs);
+  appendSection(chrome.i18n.getMessage('headerEng'), englishDefs);
 
   if (showKoreanDefinitions) {
     const koreanDefs = limitDefinitions(result.koreanDefs, maxDefinitions);
-    appendSection('Korean definitions', koreanDefs);
+    appendSection(chrome.i18n.getMessage('headerKor'), koreanDefs);
   }
 
   showTooltip();
@@ -778,7 +780,7 @@ function limitDefinitions(definitions, limit) {
   const numbered = trimmed.map((definition, index) => `${index + 1}. ${definition}`);
   const remaining = definitions.length - trimmed.length;
   if (remaining > 0) {
-    numbered.push(`...and ${remaining} more`);
+    numbered.push(chrome.i18n.getMessage('moreDefs', [String(remaining)]));
   }
   return numbered;
 }
@@ -846,23 +848,29 @@ function getKoreanWordAtPoint(x, y) {
 
 // 구글 번역 API 사용
 function translateText(text) {
-  return $.ajax({
-    url: 'https://translate.googleapis.com/translate_a/single',
-    data: {
-      client: 'gtx',
-      sl: 'ko',
-      tl: 'en',
-      dt: 't',
-      q: text
-    },
-    dataType: 'json'
-  }).then(
-    data => data[0][0][0],
-    error => {
+  const params = new URLSearchParams({
+    client: 'gtx',
+    sl: 'ko',
+    tl: 'en',
+    dt: 't',
+    q: text
+  });
+
+  return fetch(`https://translate.googleapis.com/translate_a/single?${params.toString()}`)
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(data => {
+      if (data && data[0] && data[0][0] && data[0][0][0]) {
+        return data[0][0][0];
+      }
+      return null;
+    })
+    .catch(error => {
       console.error('Translation error:', error);
       return null;
-    }
-  );
+    });
 }
 
 // 한국어 품사를 영어로 변환
@@ -899,28 +907,43 @@ async function getDictionaryMeaning(word) {
   const url = `https://krdict.korean.go.kr/api/search?key=${API_KEY}&q=${encodeURIComponent(word)}&translated=y&trans_lang=1`;
 
   try {
-    const response = await $.ajax({
-      url: url,
-      dataType: 'xml'
-    });
-
-    const $xml = $(response); // 응답 형태는 dict_res_example.xml 참고
-    const items = $xml.find('item');
+    const fetchResponse = await fetch(url);
+    if (!fetchResponse.ok) throw new Error('Network response was not ok');
+    
+    const xmlText = await fetchResponse.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    
+    const items = xmlDoc.getElementsByTagName('item');
 
     if (items.length > 0) {
-      const matchedWord = items.eq(0).find('word').text();
-      const koreanPos = items.eq(0).find('pos').text();
+      const item = items[0];
+      const matchedWordNode = item.getElementsByTagName('word')[0];
+      const matchedWord = matchedWordNode ? matchedWordNode.textContent : '';
+      
+      const posNode = item.getElementsByTagName('pos')[0];
+      const koreanPos = posNode ? posNode.textContent : '';
       const pos = translatePos(koreanPos);
 
       // 모든 의미(sense)를 배열로 수집
-      const senses = items.eq(0).find('sense').map(function() {
-        const $sense = $(this);
+      const senses = Array.from(item.getElementsByTagName('sense')).map(sense => {
+        const definitionNode = sense.getElementsByTagName('definition')[0];
+        const koreanDef = definitionNode ? definitionNode.textContent : '';
+        
+        let translation = '';
+        const transWordNode = sense.getElementsByTagName('trans_word')[0];
+        if (transWordNode) translation = transWordNode.textContent;
+
+        let englishDef = '';
+        const transDfnNode = sense.getElementsByTagName('trans_dfn')[0];
+        if (transDfnNode) englishDef = transDfnNode.textContent;
+        
         return {
-          koreanDef: $sense.find('definition').text(),
-          translation: $sense.find('translation trans_word').text(),
-          englishDef: $sense.find('translation trans_dfn').text()
+          koreanDef,
+          translation,
+          englishDef
         };
-      }).get();
+      });
 
       const primaryTranslation = senses[0]?.translation?.split(';')[0]?.trim() || '';
 

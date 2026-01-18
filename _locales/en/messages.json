@@ -1,0 +1,198 @@
+{
+    "appName": {
+        "message": "Korean Word Lookup - Hover & Select Translate"
+    },
+    "appDesc": {
+        "message": "Korean translator & dictionary: hover words for definitions, or select sentences to translate instantly."
+    },
+    "cmdToggleTrans": {
+        "message": "Toggle Translation On/Off"
+    },
+    "cmdToggleGoogle": {
+        "message": "Switch to Google Translate"
+    },
+    "cmdToggleDict": {
+        "message": "Switch to Korean Dictionary"
+    },
+    "cmdToggleSelect": {
+        "message": "Toggle Selection Translation On/Off"
+    },
+    "popupEnable": {
+        "message": "Enable word translate"
+    },
+    "transSource": {
+        "message": "Translation Source:"
+    },
+    "googleTrans": {
+        "message": "Google Translate"
+    },
+    "koreanDict": {
+        "message": "Korean Dictionary"
+    },
+    "tooltipSettings": {
+        "message": "Tooltip Settings"
+    },
+    "hoverDelay": {
+        "message": "Hover delay"
+    },
+    "instant": {
+        "message": "Instant"
+    },
+    "maxDefs": {
+        "message": "Max definitions"
+    },
+    "showKrDefs": {
+        "message": "Show Korean definitions (dictionary)"
+    },
+    "compactMode": {
+        "message": "Compact tooltip"
+    },
+    "enableSelect": {
+        "message": "Enable selection translate"
+    },
+    "apiKeyTitle": {
+        "message": "Korean Dictionary API Key (Optional)"
+    },
+    "apiKeyPlaceholder": {
+        "message": "Paste your key to override the default"
+    },
+    "apiKeyHelper": {
+        "message": "Stored in Chrome sync storage."
+    },
+    "btnUseDefault": {
+        "message": "Use default key"
+    },
+    "statusHover": {
+        "message": "Hover over Korean text to see English definitions"
+    },
+    "statusDisabled": {
+        "message": "Translation is currently disabled"
+    },
+    "reviewTitle": {
+        "message": "Enjoying Korean Word Lookup?"
+    },
+    "reviewText": {
+        "message": "A quick rating helps more Korean learners find this extension."
+    },
+    "btnRate": {
+        "message": "Rate ★★★★★"
+    },
+    "btnLater": {
+        "message": "Later"
+    },
+    "btnNo": {
+        "message": "No thanks"
+    },
+    "footerData": {
+        "message": "Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary"
+    },
+    "footerLicense": {
+        "message": "This extension is distributed under CC BY-SA 2.0 KR License"
+    },
+    "footerContact": {
+        "message": "If you have any suggestions or problems, please contact:"
+    },
+    "msgTranslating": {
+        "message": "Translating..."
+    },
+    "msgSelection": {
+        "message": "Selection • Google Translate"
+    },
+    "msgTranslatingSel": {
+        "message": "Translating selection..."
+    },
+    "msgTooLong": {
+        "message": "Selection too long (max $LIMIT$ characters).",
+        "placeholders": {
+            "limit": {
+                "content": "$1"
+            }
+        }
+    },
+    "headerEng": {
+        "message": "English definitions"
+    },
+    "headerKor": {
+        "message": "Korean definitions"
+    },
+    "moreDefs": {
+        "message": "...and $COUNT$ more",
+        "placeholders": {
+            "count": {
+                "content": "$1"
+            }
+        }
+    },
+    "noDef": {
+        "message": "No definition available"
+    },
+    "welcomeTitle": {
+        "message": "Welcome to Korean Word Lookup!"
+    },
+    "welcomeSubtitle": {
+        "message": "Thank you for installing Korean Word Lookup. Here's how to get started."
+    },
+    "refreshNotice": {
+        "message": "⚠️ If the extension is not working properly, please press F5 to refresh the page!"
+    },
+    "featMain": {
+        "message": "🔍 Main Features"
+    },
+    "feat1": {
+        "message": "Hover over Korean words to see their English translations or definitions"
+    },
+    "feat2": {
+        "message": "Choose between Google Translate and Korean Dictionary"
+    },
+    "feat3": {
+        "message": "Google Translate - Quick word-to-word translations"
+    },
+    "feat4": {
+        "message": "Korean Dictionary - Detailed word definitions"
+    },
+    "feat5": {
+        "message": "Use keyboard shortcuts for quick access to features"
+    },
+    "feat6": {
+        "message": "Customize hover delay, tooltip size, and definition depth from the popup"
+    },
+    "feat7": {
+        "message": "Select Korean sentences to translate them instantly"
+    },
+    "shortcutTitle": {
+        "message": "⌨️ Keyboard Shortcuts"
+    },
+    "startTitle": {
+        "message": "🚀 Getting Started"
+    },
+    "start1": {
+        "message": "Click the extension icon in your browser toolbar"
+    },
+    "start2": {
+        "message": "Pin the extension to see whether extension is enabled"
+    },
+    "start3": {
+        "message": "Make sure translation is enabled (toggle switch is on)"
+    },
+    "start4": {
+        "message": "Choose your preferred translation source"
+    },
+    "start5": {
+        "message": "Hover over any Korean text to see its translation!"
+    },
+    "creditsTitle": {
+        "message": "🔖 API Credits"
+    },
+    "credits1": {
+        "message": "This extension uses two translation sources:"
+    },
+    "credits2": {
+        "message": "Provides quick word-to-word translations"
+    },
+    "credits3": {
+        "message": "Provided by National Institute of Korean Language's Basic Korean Dictionary"
+    },
+    "credits4": {
+        "message": "Offers detailed word definitions and examples"
+    }
+}

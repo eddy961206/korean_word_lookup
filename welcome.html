@@ -104,67 +104,74 @@
 <body>
   <div class="header">
     <img src="icons/icon128.png" alt="Logo" class="logo">
-    <h1>Welcome to Korean Word Lookup!</h1>
-    <p>Thank you for installing Korean Word Lookup. Here's how to get started.</p>
+    <h1 data-i18n="welcomeTitle">Welcome to Korean Word Lookup!</h1>
+    <p data-i18n="welcomeSubtitle">Thank you for installing Korean Word Lookup. Here's how to get started.</p>
   </div>
 
-  <div class="refresh-notice">
+  <div class="refresh-notice" data-i18n="refreshNotice">
     ⚠️ If the extension is not working properly, please press F5 to refresh the page!
   </div>
 
   <div class="feature">
-    <h2>🔍 Main Features</h2>
+    <h2 data-i18n="featMain">🔍 Main Features</h2>
     <ul>
-      <li>Hover over Korean words to see their English translations or definitions</li>
-      <li>Choose between Google Translate and Korean Dictionary</li>
-      <li>Google Translate - Quick word-to-word translations</li>
-      <li>Korean Dictionary - Detailed word definitions</li>
-      <li>Use keyboard shortcuts for quick access to features</li>
-      <li>Customize hover delay, tooltip size, and definition depth from the popup</li>
-      <li>Select Korean sentences to translate them instantly</li>
+      <li data-i18n="feat1">Hover over Korean words to see their English translations or definitions</li>
+      <li data-i18n="feat2">Choose between Google Translate and Korean Dictionary</li>
+      <li data-i18n="feat3">Google Translate - Quick word-to-word translations</li>
+      <li data-i18n="feat4">Korean Dictionary - Detailed word definitions</li>
+      <li data-i18n="feat5">Use keyboard shortcuts for quick access to features</li>
+      <li data-i18n="feat6">Customize hover delay, tooltip size, and definition depth from the popup</li>
+      <li data-i18n="feat7">Select Korean sentences to translate them instantly</li>
     </ul>
   </div>
 
   <div class="shortcuts">
-    <h2>⌨️ Keyboard Shortcuts</h2>
+    <h2 data-i18n="shortcutTitle">⌨️ Keyboard Shortcuts</h2>
     <ul>
-      <li><span class="shortcut-key">Alt+T</span> - Toggle translation on/off</li>
-      <li><span class="shortcut-key">Alt+G</span> - Switch to Google Translate</li>
-      <li><span class="shortcut-key">Alt+K</span> - Switch to Korean Dictionary</li>
-      <li><span class="shortcut-key">Alt+S</span> - Toggle selection translation</li>
+      <li><span class="shortcut-key">Alt+T</span> - <span data-i18n="cmdToggleTrans">Toggle translation on/off</span></li>
+      <li><span class="shortcut-key">Alt+G</span> - <span data-i18n="cmdToggleGoogle">Switch to Google Translate</span></li>
+      <li><span class="shortcut-key">Alt+K</span> - <span data-i18n="cmdToggleDict">Switch to Korean Dictionary</span></li>
+      <li><span class="shortcut-key">Alt+S</span> - <span data-i18n="cmdToggleSelect">Toggle selection translation</span></li>
     </ul>
   </div>
 
   <div class="feature">
-    <h2>🚀 Getting Started</h2>
+    <h2 data-i18n="startTitle">🚀 Getting Started</h2>
     <ol>
-      <li>Click the extension icon in your browser toolbar</li>
-      <li>Pin the extension to see whether extension is enabled</li>
-      <li>Make sure translation is enabled (toggle switch is on)</li>
-      <li>Choose your preferred translation source</li>
-      <li>Hover over any Korean text to see its translation!</li>
+      <li data-i18n="start1">Click the extension icon in your browser toolbar</li>
+      <li data-i18n="start2">Pin the extension to see whether extension is enabled</li>
+      <li data-i18n="start3">Make sure translation is enabled (toggle switch is on)</li>
+      <li data-i18n="start4">Choose your preferred translation source</li>
+      <li data-i18n="start5">Hover over any Korean text to see its translation!</li>
     </ol>
   </div>
 
   <div class="credits">
-    <h2>🔖 API Credits</h2>
-    <p>This extension uses two translation sources:</p>
-    <p>1. <strong>Google Translate API</strong><br>
-       Provides quick word-to-word translations<br>
+    <h2 data-i18n="creditsTitle">🔖 API Credits</h2>
+    <p data-i18n="credits1">This extension uses two translation sources:</p>
+    <p>1. <strong data-i18n="googleTrans">Google Translate API</strong><br>
+       <span data-i18n="credits2">Provides quick word-to-word translations</span><br>
        <a href="https://cloud.google.com/translate" target="_blank">https://cloud.google.com/translate</a>
     </p>
-    <p>2. <strong>Korean Dictionary API</strong><br>
-       Provided by National Institute of Korean Language's Basic Korean Dictionary<br>
-       Offers detailed word definitions and examples<br>
+    <p>2. <strong data-i18n="koreanDict">Korean Dictionary API</strong><br>
+       <span data-i18n="credits3">Provided by National Institute of Korean Language's Basic Korean Dictionary</span><br>
+       <span data-i18n="credits4">Offers detailed word definitions and examples</span><br>
        <a href="https://krdict.korean.go.kr" target="_blank">https://krdict.korean.go.kr</a>
     </p>
   </div>
 
   <div class="footer">
-    <p>This extension is distributed under CC BY-SA 2.0 KR License</p>
-    <p>If you have any questions or suggestions, please contact:<br>
+    <p data-i18n="footerLicense">This extension is distributed under CC BY-SA 2.0 KR License</p>
+    <p><span data-i18n="footerContact">If you have any questions or suggestions, please contact:</span><br>
        <a href="mailto:skykum2004@gmail.com">skykum2004@gmail.com</a>
     </p>
   </div>
+  <script>
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      const message = chrome.i18n.getMessage(key);
+      if (message) element.textContent = message;
+    });
+  </script>
 </body>
-</html> 
+</html>

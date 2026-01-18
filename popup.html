@@ -244,12 +244,12 @@
 <body>
   <div class="header">
     <img src="icons/icon48.png" alt="Logo" class="logo">
-    <h1>Korean Word Lookup</h1>
+    <h1 data-i18n="appName">Korean Word Lookup</h1>
   </div>
   
   <div class="toggle-container">
     <span class="toggle-label">
-      Enable word translate
+      <span data-i18n="popupEnable">Enable word translate</span>
       <span class="shortcut-hint">Alt+T</span>
     </span>
     <label class="toggle-switch">
@@ -259,34 +259,34 @@
   </div>
 
   <div class="api-selection-container">
-    <span class="section-label">Translation Source:</span>
+    <span class="section-label" data-i18n="transSource">Translation Source:</span>
     <div class="radio-group">
       <label class="radio-label">
         <input type="radio" name="apiChoice" value="google" checked>
-        Google Translate
+        <span data-i18n="googleTrans">Google Translate</span>
         <span class="shortcut-hint">Alt+G</span>
       </label>
       <label class="radio-label">
         <input type="radio" name="apiChoice" value="krdict">
-        Korean Dictionary
+        <span data-i18n="koreanDict">Korean Dictionary</span>
         <span class="shortcut-hint">Alt+K</span>
       </label>
     </div>
   </div>
 
   <div class="tooltip-settings-container">
-    <span class="section-label">Tooltip Settings</span>
+    <span class="section-label" data-i18n="tooltipSettings">Tooltip Settings</span>
     <label class="setting-row" for="hoverDelay">
-      <span>Hover delay</span>
+      <span data-i18n="hoverDelay">Hover delay</span>
       <select id="hoverDelay" class="setting-select">
-        <option value="0">Instant</option>
-        <option value="150" selected>150ms</option>
+        <option value="0" data-i18n="instant">Instant</option>
+        <option value="150" selected>150ms (Default)</option>
         <option value="300">300ms</option>
         <option value="500">500ms</option>
       </select>
     </label>
     <label class="setting-row" for="maxDefinitions">
-      <span>Max definitions</span>
+      <span data-i18n="maxDefs">Max definitions</span>
       <select id="maxDefinitions" class="setting-select">
         <option value="1">1</option>
         <option value="3" selected>3</option>
@@ -295,50 +295,49 @@
     </label>
     <label class="checkbox-row">
       <input type="checkbox" id="showKoreanDefinitions" checked>
-      Show Korean definitions (dictionary)
+      <span data-i18n="showKrDefs">Show Korean definitions (dictionary)</span>
     </label>
     <label class="checkbox-row">
       <input type="checkbox" id="compactTooltip">
-      Compact tooltip
+      <span data-i18n="compactMode">Compact tooltip</span>
     </label>
     <label class="checkbox-row">
       <input type="checkbox" id="selectionTranslationToggle">
-      Enable selection translate
+      <span data-i18n="enableSelect">Enable selection translate</span>
       <span class="shortcut-hint">Alt+S</span>
     </label>
   </div>
 
   <div class="api-key-container">
-    <span class="section-label">Korean Dictionary API Key (Optional)</span>
-    <input type="text" id="krdictApiKey" class="api-key-input" placeholder="Paste your key to override the default">
+    <span class="section-label" data-i18n="apiKeyTitle">Korean Dictionary API Key (Optional)</span>
+    <input type="text" id="krdictApiKey" class="api-key-input" placeholder="Paste your key to override the default" data-i18n-placeholder="apiKeyPlaceholder">
     <div class="api-key-actions">
-      <span class="helper-text">Stored in Chrome sync storage.</span>
-      <button class="api-key-button" id="clearApiKey" type="button">Use default key</button>
+      <span class="helper-text" data-i18n="apiKeyHelper">Stored in Chrome sync storage.</span>
+      <button class="api-key-button" id="clearApiKey" type="button" data-i18n="btnUseDefault">Use default key</button>
     </div>
   </div>
 
-  <div class="status" id="statusMessage">
+  <div class="status" id="statusMessage" data-i18n="statusHover">
     Hover over Korean text to see English definitions
   </div>
 
   <div class="review-container" id="reviewPrompt">
-    <div class="review-title">Enjoying Korean Word Lookup?</div>
-    <div class="review-text">A quick rating helps more Korean learners find this extension.</div>
+    <div class="review-title" data-i18n="reviewTitle">Enjoying Korean Word Lookup?</div>
+    <div class="review-text" data-i18n="reviewText">A quick rating helps more Korean learners find this extension.</div>
     <div class="review-buttons">
-      <button class="review-button-primary" id="rateButton" type="button">Rate ★★★★★</button>
-      <button class="review-button-secondary" id="rateLaterButton" type="button">Later</button>
-      <button class="review-button-secondary" id="dismissRateButton" type="button">No thanks</button>
+      <button class="review-button-primary" id="rateButton" type="button" data-i18n="btnRate">Rate ★★★★★</button>
+      <button class="review-button-secondary" id="rateLaterButton" type="button" data-i18n="btnLater">Later</button>
+      <button class="review-button-secondary" id="dismissRateButton" type="button" data-i18n="btnNo">No thanks</button>
     </div>
   </div>
   <br/><hr>
   <div class="footer">
-    <p>Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary</p>
+    <p data-i18n="footerData">Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary</p>
     <p><a href="https://krdict.korean.go.kr" target="_blank">https://krdict.korean.go.kr</a></p>
-    <p>This extension is distributed under CC BY-SA 2.0 KR License</p>
-    <p>If you have any suggestions or problems, please contact: <a href="mailto:skykum2004@gmail.com">skykum2004@gmail.com</a></p>
+    <p data-i18n="footerLicense">This extension is distributed under CC BY-SA 2.0 KR License</p>
+    <p><span data-i18n="footerContact">If you have any suggestions or problems, please contact:</span> <a href="mailto:skykum2004@gmail.com">skykum2004@gmail.com</a></p>
   </div>
   
-  <script src="thirdParty/jquery-3.6.0.min.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

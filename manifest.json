@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Korean Word Lookup - Hover & Select Translate",
-  "description": "Korean translator & dictionary: hover words for definitions, or select sentences to translate instantly.",
+  "default_locale": "en",
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDesc__",
   "version": "2.0.1",
   "homepage_url": "https://github.com/eddy961206/korean_word_lookup",
   "permissions": [
@@ -34,7 +35,6 @@
         "tooltip.css"
       ],
       "js": [
-        "thirdParty/jquery-3.6.0.min.js",
         "content.js"
       ]
     }
@@ -51,7 +51,7 @@
         "chromeos": "Alt+T",
         "linux": "Alt+T"
       },
-      "description": "Toggle Translation On/Off"
+      "description": "__MSG_cmdToggleTrans__"
     },
     "toggle-google-translate": {
       "suggested_key": {
@@ -61,7 +61,7 @@
         "chromeos": "Alt+G",
         "linux": "Alt+G"
       },
-      "description": "Switch to Google Translate"
+      "description": "__MSG_cmdToggleGoogle__"
     },
     "toggle-korean-dict": {
       "suggested_key": {
@@ -71,7 +71,7 @@
         "chromeos": "Alt+K",
         "linux": "Alt+K"
       },
-      "description": "Switch to Korean Dictionary"
+      "description": "__MSG_cmdToggleDict__"
     },
     "toggle-selection-translation": {
       "suggested_key": {
@@ -81,7 +81,7 @@
         "chromeos": "Alt+S",
         "linux": "Alt+S"
       },
-      "description": "Toggle Selection Translation On/Off"
+      "description": "__MSG_cmdToggleSelect__"
     }
   }
 }

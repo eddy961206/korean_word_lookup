@@ -1,4 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // i18n initialization
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    const message = chrome.i18n.getMessage(key);
+    if (message) {
+      element.textContent = message;
+    }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+    const key = element.getAttribute('data-i18n-placeholder');
+    const message = chrome.i18n.getMessage(key);
+    if (message) {
+      element.placeholder = message;
+    }
+  });
+
   const toggleSwitch = document.getElementById('translationToggle');
   const statusMessage = document.getElementById('statusMessage');
   const apiRadios = document.getElementsByName('apiChoice');
