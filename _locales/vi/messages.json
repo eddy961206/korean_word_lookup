@@ -1,0 +1,216 @@
+{
+  "appName": {
+    "message": "Tra từ tiếng Hàn - Di chuột & Dịch khi chọn"
+  },
+  "appDesc": {
+    "message": "Công cụ dịch & từ điển tiếng Hàn: di chuột lên từ để xem nghĩa, hoặc bôi đen câu để dịch ngay."
+  },
+  "cmdToggleTrans": {
+    "message": "Bật/Tắt dịch"
+  },
+  "cmdToggleGoogle": {
+    "message": "Chuyển sang Google Dịch"
+  },
+  "cmdToggleDict": {
+    "message": "Chuyển sang từ điển tiếng Hàn"
+  },
+  "cmdToggleSelect": {
+    "message": "Bật/Tắt dịch đoạn được chọn"
+  },
+  "popupEnable": {
+    "message": "Bật dịch từ"
+  },
+  "transSource": {
+    "message": "Nguồn dịch:"
+  },
+  "googleTrans": {
+    "message": "Google Dịch"
+  },
+  "koreanDict": {
+    "message": "Từ điển tiếng Hàn"
+  },
+  "tooltipSettings": {
+    "message": "Cài đặt tooltip"
+  },
+  "hoverDelay": {
+    "message": "Độ trễ khi di chuột"
+  },
+  "instant": {
+    "message": "Ngay lập tức"
+  },
+  "maxDefs": {
+    "message": "Số định nghĩa tối đa"
+  },
+  "showKrDefs": {
+    "message": "Hiển thị định nghĩa tiếng Hàn (từ điển)"
+  },
+  "compactMode": {
+    "message": "Tooltip gọn"
+  },
+  "enableSelect": {
+    "message": "Bật dịch đoạn được chọn"
+  },
+  "apiKeyTitle": {
+    "message": "Khóa API từ điển tiếng Hàn (tùy chọn)"
+  },
+  "apiKeyPlaceholder": {
+    "message": "Dán khóa để ghi đè khóa mặc định"
+  },
+  "apiKeyHelper": {
+    "message": "Lưu trong bộ nhớ đồng bộ của Chrome."
+  },
+  "btnUseDefault": {
+    "message": "Dùng khóa mặc định"
+  },
+  "statusHover": {
+    "message": "Di chuột lên văn bản tiếng Hàn để xem nghĩa tiếng Anh"
+  },
+  "statusDisabled": {
+    "message": "Tính năng dịch hiện đang tắt"
+  },
+  "reviewTitle": {
+    "message": "Bạn thấy Korean Word Lookup hữu ích không?"
+  },
+  "reviewText": {
+    "message": "Một đánh giá nhanh sẽ giúp nhiều người học tiếng Hàn tìm thấy tiện ích này hơn."
+  },
+  "btnRate": {
+    "message": "Đánh giá ★★★★★"
+  },
+  "btnLater": {
+    "message": "Để sau"
+  },
+  "btnNo": {
+    "message": "Không, cảm ơn"
+  },
+  "btnFeedback": {
+    "message": "Gửi phản hồi"
+  },
+  "btnManageShortcuts": {
+    "message": "Quản lý phím tắt"
+  },
+  "footerData": {
+    "message": "Dữ liệu từ điển được cung cấp bởi Từ điển tiếng Hàn cơ bản của Viện Quốc ngữ Quốc gia Hàn Quốc"
+  },
+  "footerLicense": {
+    "message": "Tiện ích này được phát hành theo giấy phép CC BY-SA 2.0 KR"
+  },
+  "footerContact": {
+    "message": "Nếu bạn có góp ý hoặc gặp vấn đề, vui lòng liên hệ:"
+  },
+  "msgTranslating": {
+    "message": "Đang dịch..."
+  },
+  "msgSelection": {
+    "message": "Đoạn đã chọn"
+  },
+  "optAutoFallback": {
+    "message": "Dùng tự động chuyển nguồn"
+  },
+  "optAutoFallbackDesc": {
+    "message": "Tự động thử nguồn khác nếu không tìm thấy"
+  },
+  "fallbackPrefix": {
+    "message": "(Tự động)"
+  },
+  "msgTranslatingSel": {
+    "message": "Đang dịch đoạn đã chọn..."
+  },
+  "msgTooLong": {
+    "message": "Đoạn chọn quá dài (tối đa $LIMIT$ ký tự).",
+    "placeholders": {
+      "limit": {
+        "content": "$1"
+      }
+    }
+  },
+  "headerEng": {
+    "message": "Định nghĩa tiếng Anh"
+  },
+  "headerKor": {
+    "message": "Định nghĩa tiếng Hàn"
+  },
+  "moreDefs": {
+    "message": "...và còn $COUNT$ mục",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "noDef": {
+    "message": "Không có định nghĩa"
+  },
+  "welcomeTitle": {
+    "message": "Chào mừng đến với Korean Word Lookup!"
+  },
+  "welcomeSubtitle": {
+    "message": "Cảm ơn bạn đã cài đặt. Bắt đầu nhanh như sau."
+  },
+  "refreshNotice": {
+    "message": "⚠️ Nếu tiện ích không hoạt động đúng, hãy nhấn F5 để tải lại trang!"
+  },
+  "featMain": {
+    "message": "🔍 Tính năng chính"
+  },
+  "feat1": {
+    "message": "Di chuột lên từ tiếng Hàn để xem bản dịch hoặc định nghĩa tiếng Anh"
+  },
+  "feat2": {
+    "message": "Chọn giữa Google Dịch và Từ điển tiếng Hàn"
+  },
+  "featAutoFallback": {
+    "message": "Tự động chuyển nguồn: tự động đổi sang Google Dịch nếu tra từ điển thất bại"
+  },
+  "feat3": {
+    "message": "Google Dịch - dịch từ nhanh"
+  },
+  "feat4": {
+    "message": "Từ điển tiếng Hàn - định nghĩa chi tiết"
+  },
+  "feat5": {
+    "message": "Dùng phím tắt để thao tác nhanh"
+  },
+  "feat6": {
+    "message": "Tùy chỉnh độ trễ hover, kích thước tooltip và số định nghĩa"
+  },
+  "feat7": {
+    "message": "Bôi đen câu tiếng Hàn để dịch ngay"
+  },
+  "shortcutTitle": {
+    "message": "⌨️ Phím tắt"
+  },
+  "startTitle": {
+    "message": "🚀 Bắt đầu"
+  },
+  "start1": {
+    "message": "Nhấn biểu tượng tiện ích trên thanh công cụ"
+  },
+  "start2": {
+    "message": "Ghim tiện ích để dễ thấy trạng thái bật/tắt"
+  },
+  "start3": {
+    "message": "Đảm bảo công tắc dịch đang bật"
+  },
+  "start4": {
+    "message": "Chọn nguồn dịch bạn muốn"
+  },
+  "start5": {
+    "message": "Di chuột lên bất kỳ văn bản tiếng Hàn nào để xem bản dịch!"
+  },
+  "creditsTitle": {
+    "message": "🔖 Nguồn API"
+  },
+  "credits1": {
+    "message": "Tiện ích này dùng hai nguồn dịch:"
+  },
+  "credits2": {
+    "message": "Cung cấp dịch từ nhanh"
+  },
+  "credits3": {
+    "message": "Được cung cấp bởi Từ điển tiếng Hàn cơ bản của Viện Quốc ngữ Quốc gia Hàn Quốc"
+  },
+  "credits4": {
+    "message": "Cung cấp định nghĩa và ví dụ chi tiết"
+  }
+}

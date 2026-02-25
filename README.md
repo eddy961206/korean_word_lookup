@@ -6,6 +6,7 @@ Korean translator & dictionary for Chrome: hover Hangul (Korean) words for insta
 - **Hover translate**: hover Korean words to see English translations/definitions
 - **Selection translate**: select multiple words or sentences to translate (toggle with `Alt+S`)
 - **Two sources**: Google Translate (fast) or KRDICT Korean Dictionary (detailed)
+- **Localized UI**: English, Korean, and Vietnamese
 - **Customizable tooltip**: hover delay, compact mode, max definitions
 - **Keyboard shortcuts**:
   - Windows/Linux/ChromeOS: `Alt+T`, `Alt+G`, `Alt+K`, `Alt+S`
