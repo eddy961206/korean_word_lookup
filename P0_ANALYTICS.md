@@ -12,6 +12,9 @@
 - `feature_use` (`word`/`selection`, source)
 - `first_success`
 - `lookup_error`
+- `onboarding_nudge_show`
+- `onboarding_nudge_accept`
+- `onboarding_nudge_dismiss`
 
 ## Local storage keys
 - `analyticsEventCounts:YYYY-MM-DD` (daily counters)

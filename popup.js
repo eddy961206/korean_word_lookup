@@ -30,10 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const rateButton = document.getElementById('rateButton');
   const rateLaterButton = document.getElementById('rateLaterButton');
   const dismissRateButton = document.getElementById('dismissRateButton');
+  const onboardingNudge = document.getElementById('onboardingNudge');
+  const enableSelectionNudge = document.getElementById('enableSelectionNudge');
+  const dismissSelectionNudge = document.getElementById('dismissSelectionNudge');
 
   const REVIEW_PROMPT_MIN_DAYS = 3;
   const REVIEW_PROMPT_MIN_USAGE = 20;
   const REVIEW_SNOOZE_DAYS = 7;
+  const NUDGE_MIN_DAYS = 2;
+  const NUDGE_MAX_USAGE = 15;
   const isMac = /Mac/i.test(navigator.platform);
   const shortcutMap = isMac
     ? {
@@ -100,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     krdictApiKeyInput.value = apiKeyValue;
     applyShortcutHints();
     maybeShowReviewPrompt().catch(() => {});
+    maybeShowOnboardingNudge(result).catch(() => {});
   });
 
   // API 선택 변경 이벤트
@@ -164,6 +170,27 @@ document.addEventListener('DOMContentLoaded', () => {
       reviewPrompt.style.display = 'none';
     });
   });
+
+  if (enableSelectionNudge) {
+    enableSelectionNudge.addEventListener('click', () => {
+      chrome.storage.sync.set({ selectionTranslationEnabled: true }, () => {
+        if (selectionTranslationToggle) selectionTranslationToggle.checked = true;
+        chrome.storage.local.set({ onboardingNudgeDismissed: true }, () => {
+          onboardingNudge.style.display = 'none';
+          trackEvent('onboarding_nudge_accept', { action: 'enable_selection' });
+        });
+      });
+    });
+  }
+
+  if (dismissSelectionNudge) {
+    dismissSelectionNudge.addEventListener('click', () => {
+      chrome.storage.local.set({ onboardingNudgeDismissed: true }, () => {
+        onboardingNudge.style.display = 'none';
+        trackEvent('onboarding_nudge_dismiss');
+      });
+    });
+  }
 
   const macTip = document.getElementById('macTip');
   if (macTip && isMac) {
@@ -282,6 +309,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (daysSinceInstall < REVIEW_PROMPT_MIN_DAYS) return;
 
     reviewPrompt.style.display = 'block';
+  }
+
+  async function maybeShowOnboardingNudge(syncState = {}) {
+    if (!onboardingNudge) return;
+
+    const local = await getLocal([
+      'installTimestamp',
+      'usageCount',
+      'onboardingNudgeDismissed'
+    ]);
+
+    if (local.onboardingNudgeDismissed === true) return;
+
+    const selectionEnabled = syncState.selectionTranslationEnabled === true;
+    if (selectionEnabled) return;
+
+    const installTimestamp = Number.isFinite(local.installTimestamp)
+      ? local.installTimestamp
+      : Date.now();
+    const usageCount = Number.isFinite(local.usageCount) ? local.usageCount : 0;
+    const daysSinceInstall = Math.floor((Date.now() - installTimestamp) / (24 * 60 * 60 * 1000));
+
+    if (daysSinceInstall < NUDGE_MIN_DAYS) return;
+    if (usageCount > NUDGE_MAX_USAGE) return;
+
+    onboardingNudge.style.display = 'block';
+    trackEvent('onboarding_nudge_show', {
+      daysSinceInstall,
+      usageCount
+    });
   }
 
   // 스토리지 변경 감지하여 라디오 버튼 상태 업데이트
