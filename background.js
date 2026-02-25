@@ -1,6 +1,9 @@
 const CONFIG_URL = chrome.runtime.getURL('config.json');
+const REPO_ISSUE_URL = 'https://github.com/eddy961206/korean_word_lookup/issues/new';
 
 chrome.runtime.onInstalled.addListener((details) => {
+  setUninstallFeedbackUrl();
+
   chrome.storage.local.get(['installTimestamp'], (result) => {
     if (!Number.isFinite(result.installTimestamp)) {
       chrome.storage.local.set({ installTimestamp: Date.now() });
@@ -148,6 +151,25 @@ function getReviewUrl() {
   return `https://chromewebstore.google.com/detail/${extensionId}/reviews`;
 }
 
+function setUninstallFeedbackUrl() {
+  const extensionId = chrome.runtime.id;
+  const title = encodeURIComponent('[Uninstall Feedback] Korean Word Lookup');
+  const body = encodeURIComponent(
+    [
+      'Why are you uninstalling?',
+      '',
+      '- Platform: (Windows/Mac/ChromeOS/Linux)',
+      '- Issue: (shortcut conflict / wrong translation / too slow / other)',
+      '- URL where issue happened:',
+      '- Repro steps:',
+      '',
+      `Extension ID: ${extensionId}`
+    ].join('\n')
+  );
+
+  chrome.runtime.setUninstallURL(`${REPO_ISSUE_URL}?title=${title}&body=${body}`);
+}
+
 function getLocal(keys) {
   return new Promise(resolve => {
     chrome.storage.local.get(keys, resolve);
@@ -224,4 +246,6 @@ async function trackEvent(eventName, payload = {}) {
     analyticsLastEventAt: now
   });
 }
-  
+
+setUninstallFeedbackUrl();
+

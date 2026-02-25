@@ -165,6 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const macTip = document.getElementById('macTip');
+  if (macTip && isMac) {
+    macTip.style.display = 'block';
+  }
+
+  trackEvent('popup_open', { platform: isMac ? 'mac' : 'other' });
+
   const manageShortcutsLink = document.getElementById('manageShortcutsLink');
   if (manageShortcutsLink) {
     manageShortcutsLink.addEventListener('click', (e) => {
