@@ -15,6 +15,11 @@
 - `onboarding_nudge_show`
 - `onboarding_nudge_accept`
 - `onboarding_nudge_dismiss`
+- `review_prompt_show`
+- `review_prompt_rate_click`
+- `review_prompt_feedback_click`
+- `review_prompt_later`
+- `review_prompt_dismiss`
 
 ## Local storage keys
 - `analyticsEventCounts:YYYY-MM-DD` (daily counters)

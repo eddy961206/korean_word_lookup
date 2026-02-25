@@ -81,7 +81,10 @@
         "message": "Later"
     },
     "btnNo": {
-        "message": "괜찮습니다"
+        "message": "No thanks"
+    },
+    "btnFeedback": {
+        "message": "Send feedback"
     },
     "btnManageShortcuts": {
         "message": "단축키 관리"

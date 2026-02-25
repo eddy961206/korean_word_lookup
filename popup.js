@@ -29,13 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const reviewPrompt = document.getElementById('reviewPrompt');
   const rateButton = document.getElementById('rateButton');
   const rateLaterButton = document.getElementById('rateLaterButton');
+  const feedbackButton = document.getElementById('feedbackButton');
   const dismissRateButton = document.getElementById('dismissRateButton');
   const onboardingNudge = document.getElementById('onboardingNudge');
   const enableSelectionNudge = document.getElementById('enableSelectionNudge');
   const dismissSelectionNudge = document.getElementById('dismissSelectionNudge');
 
   const REVIEW_PROMPT_MIN_DAYS = 3;
-  const REVIEW_PROMPT_MIN_USAGE = 20;
+  const REVIEW_PROMPT_MIN_USAGE = 12;
+  const REVIEW_PROMPT_MIN_SUCCESS_DAYS = 1;
   const REVIEW_SNOOZE_DAYS = 7;
   const NUDGE_MIN_DAYS = 2;
   const NUDGE_MAX_USAGE = 15;
@@ -150,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   rateButton.addEventListener('click', () => {
+    trackEvent('review_prompt_rate_click');
     chrome.runtime.sendMessage({ action: 'openReviewPage' }, () => {
       chrome.storage.local.set({ reviewPromptDismissed: true }, () => {
         reviewPrompt.style.display = 'none';
@@ -162,12 +165,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const snoozeUntil = Date.now() + REVIEW_SNOOZE_DAYS * 24 * 60 * 60 * 1000;
     chrome.storage.local.set({ reviewPromptSnoozedUntil: snoozeUntil }, () => {
       reviewPrompt.style.display = 'none';
+      trackEvent('review_prompt_later');
     });
   });
+
+  if (feedbackButton) {
+    feedbackButton.addEventListener('click', () => {
+      trackEvent('review_prompt_feedback_click');
+      chrome.runtime.sendMessage({ action: 'openFeedbackPage' }, () => {
+        chrome.storage.local.set({ reviewPromptDismissed: true }, () => {
+          reviewPrompt.style.display = 'none';
+        });
+      });
+    });
+  }
 
   dismissRateButton.addEventListener('click', () => {
     chrome.storage.local.set({ reviewPromptDismissed: true }, () => {
       reviewPrompt.style.display = 'none';
+      trackEvent('review_prompt_dismiss');
     });
   });
 
@@ -287,8 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const result = await getLocal([
       'installTimestamp',
       'usageCount',
+      'firstSuccessAt',
       'reviewPromptDismissed',
-      'reviewPromptSnoozedUntil'
+      'reviewPromptSnoozedUntil',
+      'reviewPromptLastShownAt'
     ]);
 
     if (!reviewPrompt) return;
@@ -302,13 +320,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const installTimestamp = Number.isFinite(result.installTimestamp)
       ? result.installTimestamp
       : Date.now();
+    const firstSuccessAt = Number.isFinite(result.firstSuccessAt) ? result.firstSuccessAt : 0;
     const usageCount = Number.isFinite(result.usageCount) ? result.usageCount : 0;
+    const lastShownAt = Number.isFinite(result.reviewPromptLastShownAt)
+      ? result.reviewPromptLastShownAt
+      : 0;
+
     const daysSinceInstall = Math.floor((Date.now() - installTimestamp) / (24 * 60 * 60 * 1000));
+    const daysSinceFirstSuccess = firstSuccessAt > 0
+      ? Math.floor((Date.now() - firstSuccessAt) / (24 * 60 * 60 * 1000))
+      : 0;
 
     if (usageCount < REVIEW_PROMPT_MIN_USAGE) return;
     if (daysSinceInstall < REVIEW_PROMPT_MIN_DAYS) return;
+    if (!firstSuccessAt || daysSinceFirstSuccess < REVIEW_PROMPT_MIN_SUCCESS_DAYS) return;
+    if (lastShownAt && (Date.now() - lastShownAt) < 24 * 60 * 60 * 1000) return;
 
     reviewPrompt.style.display = 'block';
+    chrome.storage.local.set({ reviewPromptLastShownAt: Date.now() });
+    trackEvent('review_prompt_show', {
+      usageCount,
+      daysSinceInstall,
+      daysSinceFirstSuccess
+    });
   }
 
   async function maybeShowOnboardingNudge(syncState = {}) {

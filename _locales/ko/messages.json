@@ -83,6 +83,9 @@
     "btnNo": {
         "message": "괜찮습니다"
     },
+    "btnFeedback": {
+        "message": "의견 보내기"
+    },
     "btnManageShortcuts": {
         "message": "단축키 관리"
     },

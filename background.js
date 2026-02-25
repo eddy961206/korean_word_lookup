@@ -82,6 +82,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true;
   }
+
+  if (request.action === 'openFeedbackPage') {
+    chrome.tabs.create({ url: getFeedbackUrl() }, () => {
+      sendResponse({ ok: !chrome.runtime.lastError });
+    });
+    return true;
+  }
 });
   
 // 아이콘 상태 업데이트 함수 (배지 텍스트 사용)
@@ -151,23 +158,28 @@ function getReviewUrl() {
   return `https://chromewebstore.google.com/detail/${extensionId}/reviews`;
 }
 
-function setUninstallFeedbackUrl() {
+function getFeedbackUrl(kind = 'general') {
   const extensionId = chrome.runtime.id;
-  const title = encodeURIComponent('[Uninstall Feedback] Korean Word Lookup');
+  const title = encodeURIComponent(`[${kind === 'uninstall' ? 'Uninstall' : 'Feedback'}] Korean Word Lookup`);
   const body = encodeURIComponent(
     [
-      'Why are you uninstalling?',
+      'Tell us what we should improve:',
       '',
       '- Platform: (Windows/Mac/ChromeOS/Linux)',
-      '- Issue: (shortcut conflict / wrong translation / too slow / other)',
+      '- What happened?',
       '- URL where issue happened:',
       '- Repro steps:',
+      '- Expected behavior:',
       '',
       `Extension ID: ${extensionId}`
     ].join('\n')
   );
 
-  chrome.runtime.setUninstallURL(`${REPO_ISSUE_URL}?title=${title}&body=${body}`);
+  return `${REPO_ISSUE_URL}?title=${title}&body=${body}`;
+}
+
+function setUninstallFeedbackUrl() {
+  chrome.runtime.setUninstallURL(getFeedbackUrl('uninstall'));
 }
 
 function getLocal(keys) {
