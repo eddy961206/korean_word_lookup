@@ -8,10 +8,22 @@ chrome.runtime.onInstalled.addListener((details) => {
   });
 
   if (details.reason === 'install') {
+    trackEvent('install', {
+      reason: details.reason,
+      platform: getPlatformLabel()
+    }).catch(() => {});
+
     // 웰컴 페이지 열기
     chrome.tabs.create({
       url: 'welcome.html'
     });
+  }
+
+  if (details.reason === 'update') {
+    trackEvent('update', {
+      reason: details.reason,
+      platform: getPlatformLabel()
+    }).catch(() => {});
   }
 });
 
@@ -49,6 +61,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.action === 'trackUsage') {
     trackUsage(request.kind).then(() => {
+      sendResponse({ ok: true });
+    });
+    return true;
+  }
+
+  if (request.action === 'trackEvent') {
+    trackEvent(request.eventName, request.payload || {}).then(() => {
       sendResponse({ ok: true });
     });
     return true;
@@ -163,5 +182,46 @@ async function trackUsage(kind) {
   }
 
   await setLocal(next);
+}
+
+function getPlatformLabel() {
+  return 'chrome-extension';
+}
+
+async function trackEvent(eventName, payload = {}) {
+  if (!eventName || typeof eventName !== 'string') return;
+
+  const now = Date.now();
+  const dayKey = new Date(now).toISOString().slice(0, 10);
+  const key = `analyticsEventCounts:${dayKey}`;
+  const result = await getLocal([key, 'analyticsEventTrail']);
+
+  const counts = typeof result[key] === 'object' && result[key] !== null
+    ? result[key]
+    : {};
+
+  counts[eventName] = Number.isFinite(counts[eventName])
+    ? counts[eventName] + 1
+    : 1;
+
+  const trail = Array.isArray(result.analyticsEventTrail)
+    ? result.analyticsEventTrail
+    : [];
+
+  trail.push({
+    eventName,
+    ts: now,
+    payload
+  });
+
+  while (trail.length > 200) {
+    trail.shift();
+  }
+
+  await setLocal({
+    [key]: counts,
+    analyticsEventTrail: trail,
+    analyticsLastEventAt: now
+  });
 }
   

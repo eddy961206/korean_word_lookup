@@ -46,6 +46,7 @@ let selectionTimer = null;
 let selectionRequestId = 0;
 let isSelecting = false;
 let tooltipMode = null;
+let hasTrackedFirstSuccess = false;
 
 // 초기 상태를 Promise로 가져오는 함수
 async function initializeExtension() {
@@ -58,6 +59,9 @@ async function initializeExtension() {
     'compactTooltip',
     'selectionTranslationEnabled'
   ]);
+
+  const localState = await storageLocalGet(['firstSuccessAt']);
+  hasTrackedFirstSuccess = Number.isFinite(localState.firstSuccessAt);
 
   applySettings(result);
 
@@ -173,12 +177,40 @@ function storageGet(keys) {
   });
 }
 
+function storageLocalGet(keys) {
+  return new Promise(resolve => {
+    chrome.storage.local.get(keys, resolve);
+  });
+}
+
+function storageLocalSet(values) {
+  return new Promise(resolve => {
+    chrome.storage.local.set(values, resolve);
+  });
+}
+
 function trackUsage(kind) {
   chrome.runtime.sendMessage({ action: 'trackUsage', kind }, () => {
     if (chrome.runtime.lastError) {
       return;
     }
   });
+}
+
+function trackEvent(eventName, payload = {}) {
+  chrome.runtime.sendMessage({ action: 'trackEvent', eventName, payload }, () => {
+    if (chrome.runtime.lastError) {
+      return;
+    }
+  });
+}
+
+async function markFirstSuccess(kind) {
+  if (hasTrackedFirstSuccess) return;
+  hasTrackedFirstSuccess = true;
+  const firstSuccessAt = Date.now();
+  await storageLocalSet({ firstSuccessAt, firstSuccessKind: kind });
+  trackEvent('first_success', { kind });
 }
 
 function applySettings(result) {
@@ -715,6 +747,8 @@ function renderSelectionSuccess(text, translation) {
   setTooltipBody(translation);
   showTooltip();
   trackUsage('selection');
+  markFirstSuccess('selection');
+  trackEvent('feature_use', { kind: 'selection', source: 'google' });
 }
 
 function renderSelectionError(text, message) {
@@ -751,6 +785,7 @@ function renderErrorState(word, message) {
   clearTooltipBody();
   setTooltipBody(message);
   showTooltip();
+  trackEvent('lookup_error', { source: selectedApi, message });
 }
 
 function renderGoogleResult(word, translation, prefix = '') {
@@ -761,6 +796,8 @@ function renderGoogleResult(word, translation, prefix = '') {
   setTooltipBody(translation);
   showTooltip();
   trackUsage('word');
+  markFirstSuccess('word_google');
+  trackEvent('feature_use', { kind: 'word', source: 'google' });
 }
 
 function renderDictionaryResult(result, prefix = '') {
@@ -798,6 +835,8 @@ function renderDictionaryResult(result, prefix = '') {
 
   showTooltip();
   trackUsage('word');
+  markFirstSuccess('word_dict');
+  trackEvent('feature_use', { kind: 'word', source: 'krdict' });
 }
 
 function limitDefinitions(definitions, limit) {

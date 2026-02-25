@@ -34,6 +34,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const REVIEW_PROMPT_MIN_DAYS = 3;
   const REVIEW_PROMPT_MIN_USAGE = 20;
   const REVIEW_SNOOZE_DAYS = 7;
+  const isMac = /Mac/i.test(navigator.platform);
+  const shortcutMap = isMac
+    ? {
+        toggle: '⌘⇧T',
+        google: '⌘⇧G',
+        dict: '⌘⇧K',
+        select: '⌘⇧S'
+      }
+    : {
+        toggle: 'Alt+T',
+        google: 'Alt+G',
+        dict: 'Alt+K',
+        select: 'Alt+S'
+      };
 
   const defaultSettings = {
     hoverDelayMs: 150,
@@ -84,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     autoFallbackToggle.checked = autoFallbackValue;
     selectionTranslationToggle.checked = selectionTranslationValue;
     krdictApiKeyInput.value = apiKeyValue;
+    applyShortcutHints();
     maybeShowReviewPrompt().catch(() => {});
   });
 
@@ -154,7 +169,24 @@ document.addEventListener('DOMContentLoaded', () => {
   if (manageShortcutsLink) {
     manageShortcutsLink.addEventListener('click', (e) => {
       e.preventDefault();
+      trackEvent('open_shortcut_settings', { platform: isMac ? 'mac' : 'other' });
       chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+    });
+  }
+
+  function applyShortcutHints() {
+    const hints = document.querySelectorAll('.shortcut-hint');
+    if (hints[0]) hints[0].textContent = shortcutMap.toggle;
+    if (hints[1]) hints[1].textContent = shortcutMap.google;
+    if (hints[2]) hints[2].textContent = shortcutMap.dict;
+    if (hints[3]) hints[3].textContent = shortcutMap.select;
+  }
+
+  function trackEvent(eventName, payload = {}) {
+    chrome.runtime.sendMessage({ action: 'trackEvent', eventName, payload }, () => {
+      if (chrome.runtime.lastError) {
+        return;
+      }
     });
   }
 
@@ -164,6 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 상태 저장
     chrome.storage.sync.set({ translationEnabled: isEnabled }, () => {
+      trackEvent(isEnabled ? 'enable_extension' : 'disable_extension', {
+        platform: isMac ? 'mac' : 'other'
+      });
+
       // 상태 메시지 업데이트
       updateStatusMessage(isEnabled);
 
@@ -192,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statusMessage.innerHTML = `
         Hover over Korean text to see English definitions<br>
         <small style="display: block; margin-top: 8px; color: #666;">
-          Shortcuts: Alt+G (Google Translate) | Alt+K (Korean Dictionary) | Alt+T (Toggle Translation) | Alt+S (Selection Translate)
+          Shortcuts: ${shortcutMap.google} (Google Translate) | ${shortcutMap.dict} (Korean Dictionary) | ${shortcutMap.toggle} (Toggle Translation) | ${shortcutMap.select} (Selection Translate)
         </small>
       `;
       statusMessage.style.background = '#f0f9ff';
