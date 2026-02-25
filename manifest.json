@@ -10,7 +10,8 @@
   ],
   "host_permissions": [
     "https://translate.googleapis.com/*",
-    "https://krdict.korean.go.kr/*"
+    "https://krdict.korean.go.kr/*",
+    "https://www.google-analytics.com/*"
   ],
   "action": {
     "default_popup": "popup.html",

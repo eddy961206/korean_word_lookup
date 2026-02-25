@@ -222,12 +222,103 @@ function getPlatformLabel() {
   return 'chrome-extension';
 }
 
+const GA4_ALLOWED_PARAM_KEYS = new Set([
+  'kind',
+  'source',
+  'platform',
+  'reason',
+  'action',
+  'message',
+  'daysSinceInstall',
+  'daysSinceFirstSuccess',
+  'usageCount'
+]);
+
+function sanitizeAnalyticsPayload(payload = {}) {
+  const clean = {};
+  for (const [key, value] of Object.entries(payload)) {
+    if (!GA4_ALLOWED_PARAM_KEYS.has(key)) continue;
+    if (typeof value === 'string') {
+      clean[key] = value.slice(0, 50);
+      continue;
+    }
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      clean[key] = value;
+      continue;
+    }
+    if (typeof value === 'boolean') {
+      clean[key] = value ? 1 : 0;
+    }
+  }
+  return clean;
+}
+
+async function getOrCreateAnalyticsClientId() {
+  const result = await getLocal(['analyticsClientId']);
+  if (typeof result.analyticsClientId === 'string' && result.analyticsClientId.length > 8) {
+    return result.analyticsClientId;
+  }
+
+  const clientId = `${Date.now()}.${Math.floor(Math.random() * 1_000_000_000)}`;
+  await setLocal({ analyticsClientId: clientId });
+  return clientId;
+}
+
+async function maybeSendGa4Event(eventName, payload = {}) {
+  const local = await getLocal([
+    'ga4MeasurementId',
+    'ga4ApiSecret',
+    'ga4TelemetryEnabled',
+    'analyticsSessionId'
+  ]);
+
+  if (local.ga4TelemetryEnabled !== true) return;
+
+  const measurementId = (local.ga4MeasurementId || '').trim();
+  const apiSecret = (local.ga4ApiSecret || '').trim();
+  if (!measurementId || !apiSecret) return;
+
+  const clientId = await getOrCreateAnalyticsClientId();
+  const sessionId = Number.isFinite(local.analyticsSessionId)
+    ? local.analyticsSessionId
+    : Math.floor(Date.now() / 1000);
+
+  if (!Number.isFinite(local.analyticsSessionId)) {
+    await setLocal({ analyticsSessionId: sessionId });
+  }
+
+  const params = {
+    session_id: sessionId,
+    engagement_time_msec: 1,
+    ...sanitizeAnalyticsPayload(payload)
+  };
+
+  try {
+    await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${encodeURIComponent(measurementId)}&api_secret=${encodeURIComponent(apiSecret)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_id: clientId,
+        events: [
+          {
+            name: eventName,
+            params
+          }
+        ]
+      })
+    });
+  } catch {
+    // Best-effort only. Do not break extension UX.
+  }
+}
+
 async function trackEvent(eventName, payload = {}) {
   if (!eventName || typeof eventName !== 'string') return;
 
   const now = Date.now();
   const dayKey = new Date(now).toISOString().slice(0, 10);
   const key = `analyticsEventCounts:${dayKey}`;
+  const safePayload = sanitizeAnalyticsPayload(payload);
   const result = await getLocal([key, 'analyticsEventTrail']);
 
   const counts = typeof result[key] === 'object' && result[key] !== null
@@ -245,7 +336,7 @@ async function trackEvent(eventName, payload = {}) {
   trail.push({
     eventName,
     ts: now,
-    payload
+    payload: safePayload
   });
 
   while (trail.length > 200) {
@@ -257,6 +348,8 @@ async function trackEvent(eventName, payload = {}) {
     analyticsEventTrail: trail,
     analyticsLastEventAt: now
   });
+
+  await maybeSendGa4Event(eventName, safePayload);
 }
 
 setUninstallFeedbackUrl();

@@ -19,6 +19,13 @@ Korean translator & dictionary for Chrome: hover Hangul (Korean) words for insta
 ## Credits
 Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary (`https://krdict.korean.go.kr`)
 
+## Ops docs
+- Retention + event notes: `P0_ANALYTICS.md`
+- Listing optimization drafts: `STORE_LISTING_P1.md`, `ACQUISITION_CHANNEL_PLAN_P1.md`
+- Deep-research execution checklist: `DEEP_RESEARCH_ACTION_PLAN.md`
+- Optional GA4 product telemetry setup: `GA4_MEASUREMENT_PROTOCOL_SETUP.md`
+- UTM governance: `UTM_GOVERNANCE.md`
+
 ## License
 This project is licensed under the Creative Commons Attribution-ShareAlike 2.0 Korea License.
 See the [LICENSE](LICENSE) file for details.
