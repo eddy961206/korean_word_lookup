@@ -2,7 +2,7 @@ const CONFIG_URL = chrome.runtime.getURL('config.json');
 const REPO_ISSUE_URL = 'https://github.com/eddy961206/korean_word_lookup/issues/new';
 
 chrome.runtime.onInstalled.addListener((details) => {
-  setUninstallFeedbackUrl();
+  clearUninstallRedirect();
 
   chrome.storage.local.get(['installTimestamp'], (result) => {
     if (!Number.isFinite(result.installTimestamp)) {
@@ -178,8 +178,10 @@ function getFeedbackUrl(kind = 'general') {
   return `${REPO_ISSUE_URL}?title=${title}&body=${body}`;
 }
 
-function setUninstallFeedbackUrl() {
-  chrome.runtime.setUninstallURL(getFeedbackUrl('uninstall'));
+function clearUninstallRedirect() {
+  // User requested silent uninstall (no redirect page)
+  // Empty string clears previously configured uninstall URL.
+  chrome.runtime.setUninstallURL('');
 }
 
 function getLocal(keys) {
@@ -352,5 +354,5 @@ async function trackEvent(eventName, payload = {}) {
   await maybeSendGa4Event(eventName, safePayload);
 }
 
-setUninstallFeedbackUrl();
+clearUninstallRedirect();
 
