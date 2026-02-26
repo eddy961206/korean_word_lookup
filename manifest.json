@@ -3,7 +3,7 @@
   "default_locale": "en",
   "name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "homepage_url": "https://github.com/eddy961206/korean_word_lookup",
   "permissions": [
     "storage"
@@ -48,7 +48,7 @@
       "suggested_key": {
         "default": "Alt+T",
         "windows": "Alt+T",
-        "mac": "Command+Shift+T",
+        "mac": "Alt+Shift+T",
         "chromeos": "Alt+T",
         "linux": "Alt+T"
       },
@@ -58,7 +58,7 @@
       "suggested_key": {
         "default": "Alt+G",
         "windows": "Alt+G",
-        "mac": "Command+Shift+G",
+        "mac": "Alt+Shift+G",
         "chromeos": "Alt+G",
         "linux": "Alt+G"
       },
@@ -68,7 +68,7 @@
       "suggested_key": {
         "default": "Alt+K",
         "windows": "Alt+K",
-        "mac": "Command+Shift+K",
+        "mac": "Alt+Shift+K",
         "chromeos": "Alt+K",
         "linux": "Alt+K"
       },
@@ -78,7 +78,7 @@
       "suggested_key": {
         "default": "Alt+S",
         "windows": "Alt+S",
-        "mac": "Command+Shift+S",
+        "mac": "Alt+Shift+S",
         "chromeos": "Alt+S",
         "linux": "Alt+S"
       },

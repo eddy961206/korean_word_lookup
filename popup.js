@@ -44,10 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const isMac = /Mac/i.test(navigator.platform);
   const shortcutMap = isMac
     ? {
-        toggle: '⌘⇧T',
-        google: '⌘⇧G',
-        dict: '⌘⇧K',
-        select: '⌘⇧S'
+        toggle: '⌥⇧T',
+        google: '⌥⇧G',
+        dict: '⌥⇧K',
+        select: '⌥⇧S'
       }
     : {
         toggle: 'Alt+T',
