@@ -3,7 +3,7 @@
   "default_locale": "en",
   "name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "homepage_url": "https://github.com/eddy961206/korean_word_lookup",
   "permissions": [
     "storage"

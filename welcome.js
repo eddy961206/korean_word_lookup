@@ -14,6 +14,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  const demoResult = document.getElementById('demoResult');
+  document.querySelectorAll('.demo-word').forEach(wordEl => {
+    wordEl.addEventListener('mouseenter', () => {
+      const word = wordEl.textContent.trim();
+      const meaning = wordEl.getAttribute('data-meaning') || '';
+      if (demoResult) {
+        demoResult.textContent = `🔎 ${word} → ${meaning}`;
+      }
+
+      chrome.runtime.sendMessage({
+        action: 'trackEvent',
+        eventName: 'welcome_demo_hover',
+        payload: { kind: 'sample', source: 'welcome' }
+      }, () => {
+        if (chrome.runtime.lastError) return;
+      });
+    });
+  });
+
   const testButton = document.getElementById('openTestPage');
   if (!testButton) return;
 
