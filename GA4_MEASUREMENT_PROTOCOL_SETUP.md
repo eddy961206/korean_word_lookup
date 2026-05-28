@@ -32,7 +32,7 @@ chrome.storage.local.set({
 
 ## Events currently sent (if enabled)
 - install, update
-- welcome_view, onboarding_start
+- welcome_view, onboarding_demo_success, onboarding_start
 - popup_open
 - feature_use, first_success
 - lookup_error

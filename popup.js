@@ -213,7 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
     macTip.style.display = 'block';
   }
 
-  trackEvent('popup_open', { platform: isMac ? 'mac' : 'other' });
+  trackEvent('popup_open', {
+    platform: isMac ? 'mac' : 'other',
+    version: chrome.runtime.getManifest().version,
+    locale: chrome.i18n.getUILanguage()
+  });
 
   const manageShortcutsLink = document.getElementById('manageShortcutsLink');
   if (manageShortcutsLink) {

@@ -12,8 +12,8 @@ chrome.runtime.onInstalled.addListener((details) => {
 
   if (details.reason === 'install') {
     trackEvent('install', {
+      ...getCommonAnalyticsPayload(),
       reason: details.reason,
-      platform: getPlatformLabel()
     }).catch(() => {});
 
     // 웰컴 페이지 열기
@@ -24,8 +24,8 @@ chrome.runtime.onInstalled.addListener((details) => {
 
   if (details.reason === 'update') {
     trackEvent('update', {
+      ...getCommonAnalyticsPayload(),
       reason: details.reason,
-      platform: getPlatformLabel()
     }).catch(() => {});
   }
 });
@@ -160,28 +160,33 @@ function getReviewUrl() {
 
 function getFeedbackUrl(kind = 'general') {
   const extensionId = chrome.runtime.id;
-  const title = encodeURIComponent(`[${kind === 'uninstall' ? 'Uninstall' : 'Feedback'}] Korean Word Lookup`);
-  const body = encodeURIComponent(
-    [
-      'Tell us what we should improve:',
-      '',
-      '- Platform: (Windows/Mac/ChromeOS/Linux)',
-      '- What happened?',
-      '- URL where issue happened:',
-      '- Repro steps:',
-      '- Expected behavior:',
-      '',
-      `Extension ID: ${extensionId}`
-    ].join('\n')
-  );
+  const title = encodeURIComponent('[Feedback] Korean Word Lookup');
+  const lines = [
+    'Tell us what we should improve:',
+    '',
+    '- Platform: (Windows/Mac/ChromeOS/Linux)',
+    '- What happened?',
+    '- URL where issue happened:',
+    '- Repro steps:',
+    '- Expected behavior:',
+    '',
+    `Extension ID: ${extensionId}`
+  ];
+  const body = encodeURIComponent(lines.join('\n'));
 
   return `${REPO_ISSUE_URL}?title=${title}&body=${body}`;
 }
 
 function clearUninstallRedirect() {
-  // User requested silent uninstall (no redirect page)
-  // Empty string clears previously configured uninstall URL.
   chrome.runtime.setUninstallURL('');
+}
+
+function getCommonAnalyticsPayload() {
+  return {
+    platform: getPlatformLabel(),
+    version: chrome.runtime.getManifest().version,
+    locale: chrome.i18n.getUILanguage()
+  };
 }
 
 function getLocal(keys) {
@@ -228,6 +233,8 @@ const GA4_ALLOWED_PARAM_KEYS = new Set([
   'kind',
   'source',
   'platform',
+  'version',
+  'locale',
   'reason',
   'action',
   'message',
@@ -355,4 +362,3 @@ async function trackEvent(eventName, payload = {}) {
 }
 
 clearUninstallRedirect();
-

@@ -99,6 +99,48 @@
       color: #166534;
       border: 2px solid #86efac;
     }
+    .quick-demo {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #bae6fd;
+    }
+    .demo-sentence {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 12px;
+    }
+    .demo-word {
+      position: relative;
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #0f766e;
+      background: #ccfbf1;
+      cursor: pointer;
+    }
+    .demo-tooltip {
+      display: none;
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-size: 15px;
+      line-height: 1.5;
+      max-width: 360px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+    }
+    .demo-tooltip.visible {
+      display: block;
+    }
+    .demo-hint {
+      margin: 0;
+      color: #475569;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -116,9 +158,17 @@
     <h2>⚡ 30-Second Quick Start</h2>
     <ol>
       <li>Click the extension icon and make sure it is <strong>ON</strong>.</li>
+      <li>Try the mini demo below so you know what success looks like.</li>
       <li>Click the button below to open a Korean test page.</li>
-      <li>Hover over Korean words to verify translation works.</li>
     </ol>
+    <div class="quick-demo" aria-label="Korean Word Lookup demo">
+      <p class="demo-sentence">오늘은 <span class="demo-word" id="demoWord" tabindex="0">한국어</span>를 공부해요.</p>
+      <p class="demo-hint">Hover or click the highlighted word.</p>
+      <div class="demo-tooltip" id="demoTooltip" role="status">
+        <strong>한국어</strong><br>
+        Korean language; the Korean language.
+      </div>
+    </div>
     <button id="openTestPage" style="margin-top:12px;padding:10px 14px;border-radius:8px;border:1px solid #06b6d4;background:#06b6d4;color:#fff;cursor:pointer;">Open test page</button>
   </div>
 
@@ -139,10 +189,10 @@
   <div class="shortcuts">
     <h2 data-i18n="shortcutTitle">⌨️ Keyboard Shortcuts</h2>
     <ul>
-      <li><span class="shortcut-key">Mac: ⌥⇧T / Others: Alt+T</span> - <span data-i18n="cmdToggleTrans">Toggle translation on/off</span></li>
-      <li><span class="shortcut-key">Mac: ⌥⇧G / Others: Alt+G</span> - <span data-i18n="cmdToggleGoogle">Switch to Google Translate</span></li>
-      <li><span class="shortcut-key">Mac: ⌥⇧K / Others: Alt+K</span> - <span data-i18n="cmdToggleDict">Switch to Korean Dictionary</span></li>
-      <li><span class="shortcut-key">Mac: ⌥⇧S / Others: Alt+S</span> - <span data-i18n="cmdToggleSelect">Toggle selection translation</span></li>
+      <li><span class="shortcut-key">Mac: Option+Shift+T / Others: Alt+T</span> - <span data-i18n="cmdToggleTrans">Toggle translation on/off</span></li>
+      <li><span class="shortcut-key">Mac: Option+Shift+G / Others: Alt+G</span> - <span data-i18n="cmdToggleGoogle">Switch to Google Translate</span></li>
+      <li><span class="shortcut-key">Mac: Option+Shift+K / Others: Alt+K</span> - <span data-i18n="cmdToggleDict">Switch to Korean Dictionary</span></li>
+      <li><span class="shortcut-key">Mac: Option+Shift+S / Others: Alt+S</span> - <span data-i18n="cmdToggleSelect">Toggle selection translation</span></li>
     </ul>
   </div>
 

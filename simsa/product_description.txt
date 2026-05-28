@@ -1,55 +1,37 @@
-🇰🇷 Korean Word Lookup - Korean Translator (Hover + Selection)
+Korean Word Lookup - Korean Translator for Learners
 
-Korean Word Lookup is a Korean translator + Korean dictionary extension for Chrome.
-Hover Hangul (Korean) words for instant English meaning, or select a sentence to translate it in one shot.
+Read Korean web pages without breaking your flow.
 
-🌟 Key Features and Benefits:
+Korean Word Lookup is a lightweight Chrome extension for Korean learners. Hover over Korean words to see quick English meanings, or select a full sentence to translate it in one shot.
 
-👆 Hover translate (Korean word lookup)
-- 🖱️ Hover over Korean words to see English translations.
-- ⚡ Choose Google Translate for speed or 📚 Korean Dictionary for detailed definitions.
-- 🔄 Smart Auto-Fallback: Automatically tries the other service if the selected one fails (e.g., if Dictionary has no result, it falls back to Google Translate).
-- 📝 Display English and (optional) Korean definitions in a clean tooltip.
+Best for:
+- Korean learners reading articles, posts, docs, and study pages
+- People who want quick English meaning without opening another tab
+- Daily reading practice on Chrome, Windows, Mac, and Chromebook
 
-✨ Selection translate (sentence translation)
-- 🟦 Select multiple words or Korean sentences to translate them at once.
-- ⌨️ Toggle selection translation in the popup or with `Alt+S`.
-- 🧠 Selection translation uses Google Translate for fluent sentence output.
+Main features
 
-🎛️ User-friendly controls
-- 🔛 One-click toggle for enabling or disabling translation.
-- ⌨️ Keyboard shortcuts: `Alt+T` (toggle), `Alt+G` (Google Translate), `Alt+K` (Korean Dictionary), `Alt+S` (selection translate).
-- 🛠️ Manage Shortcuts: Easily customize keyboard shortcuts directly from the popup.
-- ⚙️ Customize hover delay, compact tooltip, and max definitions.
+Hover word lookup
+- Hover over Korean words to see English translations
+- Choose Google Translate for speed or KRDICT Korean Dictionary for detailed definitions
+- Auto-Fallback can try the other source when one source has no result
+- Clean tooltip with optional Korean definitions
 
-👤 Personalization
-- 💾 Saves your preferred settings across sessions via Chrome sync storage.
-- 🔑 Optional KRDICT API key override in the popup.
-- 🔄 Auto-Fallback Toggle: Option to enable/disable automatic service switching.
+Selection translation
+- Select Korean sentences or paragraphs to translate them instantly
+- Turn selection translation on in the popup or with a shortcut
+- Useful when word-by-word meaning is not enough
 
-🛠️ Technical Features:
-- 🌐 Uses Google Translate and the National Institute of Korean Language (KRDICT) dictionary API.
-- 🛡️ Manifest V3 Compliant: Built with the latest Chrome Extension standards for enhanced security and performance.
-- ⚡ Lightweight content script with caching for faster responses.
-- 🌍 Works on any page you visit.
+Controls and shortcuts
+- One-click ON/OFF toggle
+- Windows/Linux/ChromeOS: Alt+T, Alt+G, Alt+K, Alt+S
+- Mac: Option+Shift+T, Option+Shift+G, Option+Shift+K, Option+Shift+S
+- Customize hover delay, compact tooltip, and definition count
 
-❓ FAQ:
-Q: How do I enable selection translation?
-A: Turn it on in the popup or press `Alt+S`.
+Privacy
+- Only the text you hover or select is sent to Google Translate or KRDICT to fetch translations or definitions
+- Settings are saved in Chrome storage
+- No raw hovered or selected text is sent to product analytics
 
-Q: Which services receive the text I look up?
-A: Hovered or selected text is sent to Google Translate or the Korean Dictionary API only to fetch translations/definitions.
-
-Q: Can I use my own Korean Dictionary API key?
-A: Yes. Paste your key in the popup to override the default.
-
-Q: Are settings saved between sessions?
-A: Yes, settings are stored with Chrome sync and automatically restored.
-
-🚀 Planned Future Updates:
-- 🏳️ Additional target languages.
-- 🤖 Better sentence context handling.
-- 🎨 UI refinements and theme options.
-
-📧 Contact:
-For suggestions, feedback, or issues, please contact: skykum2004@gmail.com
+Feedback
+Questions, bugs, and suggestions: skykum2004@gmail.com

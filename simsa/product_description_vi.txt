@@ -1,0 +1,37 @@
+Korean Word Lookup - Công cụ tra từ và dịch câu cho người học tiếng Hàn
+
+Đọc trang web tiếng Hàn mà không phải rời khỏi nội dung đang xem.
+
+Korean Word Lookup là tiện ích Chrome nhẹ dành cho người học tiếng Hàn. Di chuột lên từ tiếng Hàn để xem nghĩa tiếng Anh nhanh, hoặc bôi đen cả câu để dịch ngay.
+
+Phù hợp với:
+- Người học tiếng Hàn đọc bài viết, tài liệu, bài đăng và trang học tập
+- Người muốn xem nghĩa tiếng Anh nhanh mà không mở tab mới
+- Luyện đọc tiếng Hàn hằng ngày trên Chrome, Windows, Mac và Chromebook
+
+Tính năng chính
+
+Tra từ khi di chuột
+- Di chuột lên từ tiếng Hàn để xem bản dịch tiếng Anh
+- Chọn Google Translate để dịch nhanh hoặc KRDICT Korean Dictionary để xem định nghĩa chi tiết
+- Auto-Fallback có thể thử nguồn còn lại khi nguồn đã chọn không có kết quả
+- Tooltip gọn gàng, có tùy chọn hiển thị định nghĩa tiếng Hàn
+
+Dịch câu khi bôi đen
+- Bôi đen câu hoặc đoạn tiếng Hàn để dịch ngay
+- Bật/tắt dịch phần bôi đen trong popup hoặc bằng phím tắt
+- Hữu ích khi nghĩa từng từ chưa đủ để hiểu ngữ cảnh
+
+Cài đặt và phím tắt
+- Bật/tắt tiện ích chỉ bằng một cú nhấp
+- Windows/Linux/ChromeOS: Alt+T, Alt+G, Alt+K, Alt+S
+- Mac: Option+Shift+T, Option+Shift+G, Option+Shift+K, Option+Shift+S
+- Tùy chỉnh độ trễ khi di chuột, tooltip gọn và số lượng định nghĩa
+
+Quyền riêng tư
+- Chỉ văn bản bạn di chuột hoặc bôi đen mới có thể được gửi đến Google Translate hoặc KRDICT để lấy bản dịch/định nghĩa
+- Cài đặt được lưu trong bộ nhớ Chrome
+- Không gửi văn bản gốc bạn tra cứu vào analytics sản phẩm
+
+Liên hệ
+Câu hỏi, lỗi hoặc góp ý: skykum2004@gmail.com

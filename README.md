@@ -10,7 +10,7 @@ Korean translator & dictionary for Chrome: hover Hangul (Korean) words for insta
 - **Customizable tooltip**: hover delay, compact mode, max definitions
 - **Keyboard shortcuts**:
   - Windows/Linux/ChromeOS: `Alt+T`, `Alt+G`, `Alt+K`, `Alt+S`
-  - macOS (default): `⌘⇧T`, `⌘⇧G`, `⌘⇧K`, `⌘⇧S`
+  - macOS (default): `⌥⇧T`, `⌥⇧G`, `⌥⇧K`, `⌥⇧S`
 
 ## Privacy
 - The text you translate is sent to **Google Translate** or **KRDICT** only to fetch translations/definitions.
@@ -29,4 +29,3 @@ Dictionary data provided by National Institute of Korean Language's Basic Korean
 ## License
 This project is licensed under the Creative Commons Attribution-ShareAlike 2.0 Korea License.
 See the [LICENSE](LICENSE) file for details.
-
