@@ -24,6 +24,10 @@ Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-ho
 - User onboarding, uninstall-risk reduction, and analytics-informed UX fixes
 - Dictionary-provider behavior checks and privacy-sensitive translation handling
 
+## Contributing and security
+- Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Security policy: [SECURITY.md](SECURITY.md)
+
 ## Credits
 Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary (`https://krdict.korean.go.kr`)
 
