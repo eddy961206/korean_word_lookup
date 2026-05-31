@@ -2,6 +2,8 @@
 
 Korean translator & dictionary for Chrome: hover Hangul (Korean) words for instant English meaning, or select sentences to translate in one shot.
 
+Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-hover/hhcaojjokbganindbecnhonkfjhnibji
+
 ## Features
 - **Hover translate**: hover Korean words to see English translations/definitions
 - **Selection translate**: select multiple words or sentences to translate (toggle with `Alt+S`)
@@ -15,6 +17,12 @@ Korean translator & dictionary for Chrome: hover Hangul (Korean) words for insta
 ## Privacy
 - The text you translate is sent to **Google Translate** or **KRDICT** only to fetch translations/definitions.
 - Settings are stored in Chrome storage (sync/local depending on the setting).
+
+## Maintainer workflows
+- Chrome Extension Manifest V3 maintenance and compatibility updates
+- Store listing, localization, and release packaging
+- User onboarding, uninstall-risk reduction, and analytics-informed UX fixes
+- Dictionary-provider behavior checks and privacy-sensitive translation handling
 
 ## Credits
 Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary (`https://krdict.korean.go.kr`)
