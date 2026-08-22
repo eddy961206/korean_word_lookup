@@ -273,6 +273,11 @@ async function getOrCreateAnalyticsClientId() {
   return clientId;
 }
 
+// Default GA4 endpoints so telemetry works out of the box for end users.
+// Users can still opt out by setting ga4TelemetryEnabled = false in storage.
+const GA4_DEFAULT_MEASUREMENT_ID = 'G-JDCGN36DHB';
+const GA4_DEFAULT_API_SECRET = 'ApYUxu0gSvyuiRV_ShqW0g';
+
 async function maybeSendGa4Event(eventName, payload = {}) {
   const local = await getLocal([
     'ga4MeasurementId',
@@ -281,10 +286,10 @@ async function maybeSendGa4Event(eventName, payload = {}) {
     'analyticsSessionId'
   ]);
 
-  if (local.ga4TelemetryEnabled !== true) return;
+  if (local.ga4TelemetryEnabled === false) return;
 
-  const measurementId = (local.ga4MeasurementId || '').trim();
-  const apiSecret = (local.ga4ApiSecret || '').trim();
+  const measurementId = (local.ga4MeasurementId || GA4_DEFAULT_MEASUREMENT_ID).trim();
+  const apiSecret = (local.ga4ApiSecret || GA4_DEFAULT_API_SECRET).trim();
   if (!measurementId || !apiSecret) return;
 
   const clientId = await getOrCreateAnalyticsClientId();

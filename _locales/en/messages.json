@@ -1,9 +1,9 @@
 {
     "appName": {
-        "message": "Korean Word Lookup - Hover & Select Translate"
+        "message": "Korean Word Lookup — Korean to English Translator & Dictionary"
     },
     "appDesc": {
-        "message": "Korean translator & dictionary: hover words for definitions, or select sentences to translate instantly."
+        "message": "Translate Korean to English instantly: hover words or select sentences. Google Translate + official KRDICT dictionary."
     },
     "cmdToggleTrans": {
         "message": "Toggle Translation On/Off"
@@ -67,6 +67,15 @@
     },
     "statusDisabled": {
         "message": "Translation is currently disabled"
+    },
+    "shortcutsHint": {
+        "message": "Shortcuts: $ALT_G$ (Google Translate) | $ALT_K$ (Korean Dictionary) | $ALT_T$ (Toggle Translation) | $ALT_S$ (Selection Translate)",
+        "placeholders": {
+            "alt_g": { "content": "$1" },
+            "alt_k": { "content": "$2" },
+            "alt_t": { "content": "$3" },
+            "alt_s": { "content": "$4" }
+        }
     },
     "reviewTitle": {
         "message": "Enjoying Korean Word Lookup?"

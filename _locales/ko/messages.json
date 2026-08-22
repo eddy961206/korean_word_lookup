@@ -68,6 +68,15 @@
     "statusDisabled": {
         "message": "번역 기능이 꺼져 있습니다"
     },
+    "shortcutsHint": {
+        "message": "단축키: $ALT_G$ (구글 번역) | $ALT_K$ (한국어 사전) | $ALT_T$ (번역 켜기/끄기) | $ALT_S$ (선택 번역)",
+        "placeholders": {
+            "alt_g": { "content": "$1" },
+            "alt_k": { "content": "$2" },
+            "alt_t": { "content": "$3" },
+            "alt_s": { "content": "$4" }
+        }
+    },
     "reviewTitle": {
         "message": "확장 프로그램이 마음에 드시나요?"
     },

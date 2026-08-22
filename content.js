@@ -542,7 +542,12 @@ async function lookupWord(word) {
 
 async function performLookup(word, api) {
     if (api === 'google') {
-      const translation = await translateText(word);
+      let translation = await translateText(word);
+      if (!translation) {
+        // Fallback to the on-device Chrome Translator API when the
+        // remote endpoint is unreachable (Chrome 138+).
+        translation = await onDeviceTranslate(word);
+      }
       if (translation) {
         return { type: 'google', translation };
       }
@@ -572,7 +577,10 @@ async function lookupSelection(text) {
   }
 
   const requestPromise = (async () => {
-    const translation = await translateText(text);
+    let translation = await translateText(text);
+    if (!translation) {
+      translation = await onDeviceTranslate(text);
+    }
     if (translation) {
       return { type: 'selection', translation };
     }
@@ -939,6 +947,47 @@ function translateText(text) {
       console.error('Translation error:', error);
       return null;
     });
+}
+
+// On-device translation via the built-in Chrome Translator API.
+// Returns null when the API is unavailable so callers can fall back gracefully.
+let onDeviceTranslatorPromise = null;
+
+async function getOnDeviceTranslator() {
+  if (!('Translator' in self)) {
+    return null;
+  }
+  if (onDeviceTranslatorPromise) {
+    return onDeviceTranslatorPromise;
+  }
+  onDeviceTranslatorPromise = (async () => {
+    try {
+      const options = { sourceLanguage: 'ko', targetLanguage: 'en' };
+      const availability = await Translator.availability(options);
+      if (availability === 'unavailable') {
+        return null;
+      }
+      return await Translator.create(options);
+    } catch (error) {
+      console.warn('On-device translator unavailable:', error);
+      return null;
+    }
+  })();
+  return onDeviceTranslatorPromise;
+}
+
+async function onDeviceTranslate(text) {
+  try {
+    const translator = await getOnDeviceTranslator();
+    if (!translator) {
+      return null;
+    }
+    const translated = await translator.translate(text);
+    return translated || null;
+  } catch (error) {
+    console.warn('On-device translation error:', error);
+    return null;
+  }
 }
 
 // 한국어 품사를 영어로 변환

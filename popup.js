@@ -279,19 +279,26 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelector('.api-selection-container').style.display = 'block';
       document.querySelector('.tooltip-settings-container').style.display = 'block';
       document.querySelector('.api-key-container').style.display = 'block';
-      statusMessage.innerHTML = `
-        Hover over Korean text to see English definitions<br>
-        <small style="display: block; margin-top: 8px; color: #666;">
-          Shortcuts: ${shortcutMap.google} (Google Translate) | ${shortcutMap.dict} (Korean Dictionary) | ${shortcutMap.toggle} (Toggle Translation) | ${shortcutMap.select} (Selection Translate)
-        </small>
-      `;
+      statusMessage.textContent = chrome.i18n.getMessage('statusHover') || '';
+      const shortcutsLine = chrome.i18n.getMessage('shortcutsHint', [
+        shortcutMap.google,
+        shortcutMap.dict,
+        shortcutMap.toggle,
+        shortcutMap.select
+      ]) || '';
+      if (shortcutsLine) {
+        const small = document.createElement('small');
+        small.style.cssText = 'display: block; margin-top: 8px; color: #666;';
+        small.textContent = shortcutsLine;
+        statusMessage.appendChild(small);
+      }
       statusMessage.style.background = '#f0f9ff';
       statusMessage.style.color = '#0369a1';
     } else {
       document.querySelector('.api-selection-container').style.display = 'none';
       document.querySelector('.tooltip-settings-container').style.display = 'none';
       document.querySelector('.api-key-container').style.display = 'none';
-      statusMessage.textContent = 'Translation is currently disabled';
+      statusMessage.textContent = chrome.i18n.getMessage('statusDisabled') || '';
       statusMessage.style.background = '#fee2e2';
       statusMessage.style.color = '#dc2626';
     }
