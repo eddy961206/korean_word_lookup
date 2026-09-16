@@ -13,7 +13,7 @@ Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-ho
 - **Primary maintainer:** [@eddy961206](https://github.com/eddy961206)
 - **Adoption:** 580+ users shown by the Chrome Web Store on 2026-09-16
 - **Store release:** 2.5.0, updated on 2026-09-06
-- **Source status:** 2.5.1 maintenance changes on `main`
+- **Source release:** 2.5.1, published on 2026-09-16
 
 ## Features
 - **Hover translate**: hover Korean words to see English translations/definitions

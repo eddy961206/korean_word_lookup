@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2.5.1)
+## 2.5.1 - 2026-09-16
 
 ### Security
 - Removed the committed GA4 Measurement Protocol secret and all built-in telemetry
