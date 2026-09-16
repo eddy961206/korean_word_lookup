@@ -1,13 +1,28 @@
 # Changelog
 
-## Unreleased (on top of v2.4.5)
+## Unreleased (2.5.1)
+
+### Security
+- Removed the committed GA4 Measurement Protocol secret and all built-in telemetry
+  credentials. Product telemetry now requires explicit opt-in plus locally supplied
+  credentials.
+- Added automated checks that reject built-in GA4 secrets and validate extension
+  permissions, locales, manifest references, and JavaScript syntax.
+
+### Project maintenance
+- Relicensed the project source under MIT while preserving external-provider
+  attribution in `NOTICE`.
+- Added dependency-free Node.js tests and GitHub Actions CI.
+- Documented current Chrome Web Store adoption and maintainer status.
+- Completed missing localization keys used by runtime error and fallback paths.
+
+## 2.5.0
 
 ### Added
 - **On-device translation fallback** (Chrome 138+): when the Google Translate endpoint
   is unreachable, word lookups and selection translation fall back to the built-in
   `chrome.translator` API instead of failing.
-- Real GA4 credentials filled into `scripts/set_ga4_telemetry.js`
-  (`G-JDCGN36DHB`, validated against the Measurement Protocol debug endpoint).
+- Added optional GA4 Measurement Protocol configuration for product-event testing.
 
 ### Changed
 - Popup status message is now fully localized via `statusHover` / `statusDisabled` /

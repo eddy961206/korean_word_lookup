@@ -89,17 +89,43 @@
   "btnManageShortcuts": {
     "message": "Quản lý phím tắt"
   },
+  "shortcutsHint": {
+    "message": "Phím tắt: $ALT_G$ (Google Dịch) | $ALT_K$ (Từ điển Hàn) | $ALT_T$ (Bật/Tắt dịch) | $ALT_S$ (Dịch đoạn chọn)",
+    "placeholders": {
+      "alt_g": {
+        "content": "$1"
+      },
+      "alt_k": {
+        "content": "$2"
+      },
+      "alt_t": {
+        "content": "$3"
+      },
+      "alt_s": {
+        "content": "$4"
+      }
+    }
+  },
   "footerData": {
     "message": "Dữ liệu từ điển được cung cấp bởi Từ điển tiếng Hàn cơ bản của Viện Quốc ngữ Quốc gia Hàn Quốc"
   },
   "footerLicense": {
-    "message": "Tiện ích này được phát hành theo giấy phép CC BY-SA 2.0 KR"
+    "message": "Mã nguồn tiện ích được phát hành theo giấy phép MIT"
   },
   "footerContact": {
     "message": "Nếu bạn có góp ý hoặc gặp vấn đề, vui lòng liên hệ:"
   },
   "msgTranslating": {
     "message": "Đang dịch..."
+  },
+  "error": {
+    "message": "Không thể dịch"
+  },
+  "errorMissingKey": {
+    "message": "Thiếu khóa API từ điển. Hãy đặt khóa trong cửa sổ tiện ích."
+  },
+  "errorNotFound": {
+    "message": "Không tìm thấy từ trong từ điển"
   },
   "msgSelection": {
     "message": "Đoạn đã chọn"

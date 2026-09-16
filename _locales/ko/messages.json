@@ -102,7 +102,7 @@
         "message": "사전 데이터 제공: 국립국어원 한국어기초사전"
     },
     "footerLicense": {
-        "message": "이 확장 프로그램은 CC BY-SA 2.0 KR 라이선스를 따릅니다"
+        "message": "이 확장 프로그램의 소스 코드는 MIT 라이선스로 배포됩니다"
     },
     "footerContact": {
         "message": "문의사항이나 오류 제보는 아래로 연락주세요:"
@@ -110,8 +110,26 @@
     "msgTranslating": {
         "message": "번역 중..."
     },
+    "error": {
+        "message": "번역할 수 없습니다"
+    },
+    "errorMissingKey": {
+        "message": "사전 API 키가 없습니다. 팝업에서 설정해 주세요."
+    },
+    "errorNotFound": {
+        "message": "사전에서 단어를 찾을 수 없습니다"
+    },
     "msgSelection": {
         "message": "선택 영역 • 구글 번역"
+    },
+    "optAutoFallback": {
+        "message": "자동 대체 번역 사용"
+    },
+    "optAutoFallbackDesc": {
+        "message": "결과가 없으면 다른 번역 소스를 자동으로 시도합니다"
+    },
+    "fallbackPrefix": {
+        "message": "(자동)"
     },
     "msgTranslatingSel": {
         "message": "선택 영역 번역 중..."

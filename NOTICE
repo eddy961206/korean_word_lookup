@@ -1,0 +1,9 @@
+Korean Word Lookup
+
+The extension source code is distributed under the MIT License.
+
+Dictionary and translation results are retrieved at runtime from external
+providers and are not bundled with this repository. Korean dictionary data is
+provided by the National Institute of Korean Language's Basic Korean
+Dictionary (KRDICT). Google Translate and KRDICT content remain subject to
+their respective provider terms.

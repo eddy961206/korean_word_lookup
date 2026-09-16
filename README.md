@@ -1,8 +1,19 @@
 # Korean Word Lookup (Chrome Extension)
 
+[![CI](https://github.com/eddy961206/korean_word_lookup/actions/workflows/ci.yml/badge.svg)](https://github.com/eddy961206/korean_word_lookup/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-install-blue.svg)](https://chromewebstore.google.com/detail/korean-word-lookup-hover/hhcaojjokbganindbecnhonkfjhnibji)
+
 Korean translator & dictionary for Chrome: hover Hangul (Korean) words for instant English meaning, or select sentences to translate in one shot.
 
 Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-hover/hhcaojjokbganindbecnhonkfjhnibji
+
+## Project status
+
+- **Primary maintainer:** [@eddy961206](https://github.com/eddy961206)
+- **Adoption:** 580+ users shown by the Chrome Web Store on 2026-09-16
+- **Store release:** 2.5.0, updated on 2026-09-06
+- **Source status:** 2.5.1 maintenance changes on `main`
 
 ## Features
 - **Hover translate**: hover Korean words to see English translations/definitions
@@ -28,6 +39,12 @@ Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-ho
 - Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Security policy: [SECURITY.md](SECURITY.md)
 
+Run the dependency-free validation and regression checks before opening a pull request:
+
+```bash
+npm run check
+```
+
 ## Credits
 Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary (`https://krdict.korean.go.kr`)
 
@@ -39,5 +56,5 @@ Dictionary data provided by National Institute of Korean Language's Basic Korean
 - UTM governance: `UTM_GOVERNANCE.md`
 
 ## License
-This project is licensed under the Creative Commons Attribution-ShareAlike 2.0 Korea License.
-See the [LICENSE](LICENSE) file for details.
+The extension source code is licensed under the [MIT License](LICENSE).
+Dictionary and translation results remain subject to their providers' terms; see [NOTICE](NOTICE).

@@ -18,9 +18,10 @@ Before opening a pull request:
 
 1. Keep the change focused on one behavior or documentation update.
 2. Test the extension locally through `chrome://extensions` with Developer mode enabled.
-3. Check popup, content-script, and keyboard-shortcut behavior when relevant.
-4. Avoid adding new host permissions unless the feature clearly requires them.
-5. Document user-visible behavior changes in the pull request.
+3. Run `npm run check` and fix validation or regression failures.
+4. Check popup, content-script, and keyboard-shortcut behavior when relevant.
+5. Avoid adding new host permissions unless the feature clearly requires them.
+6. Document user-visible behavior changes in the pull request.
 
 ## Local testing
 
@@ -30,4 +31,3 @@ Before opening a pull request:
 4. Click Load unpacked.
 5. Select this repository folder.
 6. Test hover lookup and selected-text translation on Korean text.
-

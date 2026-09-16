@@ -96,19 +96,28 @@
         "message": "Send feedback"
     },
     "btnManageShortcuts": {
-        "message": "단축키 관리"
+        "message": "Manage shortcuts"
     },
     "footerData": {
         "message": "Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary"
     },
     "footerLicense": {
-        "message": "This extension is distributed under CC BY-SA 2.0 KR License"
+        "message": "The extension source code is distributed under the MIT License"
     },
     "footerContact": {
         "message": "If you have any suggestions or problems, please contact:"
     },
     "msgTranslating": {
         "message": "Translating..."
+    },
+    "error": {
+        "message": "Unable to translate"
+    },
+    "errorMissingKey": {
+        "message": "Dictionary API key missing. Set it in the popup."
+    },
+    "errorNotFound": {
+        "message": "Word not found in dictionary"
     },
     "msgSelection": {
         "message": "Selection"

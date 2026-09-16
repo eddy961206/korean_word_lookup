@@ -10,6 +10,8 @@ This extension now supports **optional** GA4 product-event sending from the back
 - Disabled by default (`ga4TelemetryEnabled !== true`)
 - No raw hovered/selected text is sent
 - Payload is allowlisted and truncated
+- No Measurement Protocol secret is bundled in source or extension packages
+- Create credentials locally and rotate them immediately if they are ever committed
 
 ## Storage keys (chrome.storage.local)
 Set these keys to enable telemetry:

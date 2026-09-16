@@ -2,7 +2,7 @@
  * Korean Word Lookup Chrome Extension
  * Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary
  * (https://krdict.korean.go.kr)
- * Licensed under CC BY-SA 2.0 KR
+ * Licensed under the MIT License
  */
 
 const DEFAULT_SETTINGS = {
