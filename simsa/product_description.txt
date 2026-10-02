@@ -1,37 +1,30 @@
-Korean Word Lookup - Korean Translator for Learners
+Korean Word Lookup - Korean to English Translator & Dictionary
 
-Read Korean web pages without breaking your flow.
+Read Korean articles, posts, and study pages with English help beside the text. Hover over a Korean word to look it up, or enable selection translation and select a sentence to understand it without opening another tab.
 
-Korean Word Lookup is a lightweight Chrome extension for Korean learners. Hover over Korean words to see quick English meanings, or select a full sentence to translate it in one shot.
+Start with Google Translate
+- No API key is needed for Google translations.
+- After installing or updating, refresh a web page you already had open, then hover over a Korean word.
+- To translate sentences, turn on selection translation in the extension popup. Each selection can contain up to 500 characters.
 
-Best for:
-- Korean learners reading articles, posts, docs, and study pages
-- People who want quick English meaning without opening another tab
-- Daily reading practice on Chrome, Windows, Mac, and Chromebook
+Look up words in more detail
+- Add your own KRDICT API key in the popup to use the Korean Basic Dictionary's detailed definitions.
+- Choose Google Translate or KRDICT, and adjust the number of definitions and whether Korean definitions appear.
+- Auto-Fallback can try the other source if a lookup fails or returns no result. KRDICT still requires your API key.
 
-Main features
+Adjust it to your reading
+- Toggle translation on or off, change the hover delay, or use a compact tooltip.
+- Windows/Linux/ChromeOS shortcuts: Alt+T to toggle translation, Alt+G for Google, Alt+K for KRDICT, and Alt+S for selection translation.
+- On Mac, use Option+Shift with the same letters.
 
-Hover word lookup
-- Hover over Korean words to see English translations
-- Choose Google Translate for speed or KRDICT Korean Dictionary for detailed definitions
-- Auto-Fallback can try the other source when one source has no result
-- Clean tooltip with optional Korean definitions
-
-Selection translation
-- Select Korean sentences or paragraphs to translate them instantly
-- Turn selection translation on in the popup or with a shortcut
-- Useful when word-by-word meaning is not enough
-
-Controls and shortcuts
-- One-click ON/OFF toggle
-- Windows/Linux/ChromeOS: Alt+T, Alt+G, Alt+K, Alt+S
-- Mac: Option+Shift+T, Option+Shift+G, Option+Shift+K, Option+Shift+S
-- Customize hover delay, compact tooltip, and definition count
+Where it works
+- Designed for Korean text on ordinary web pages. Chrome internal pages, the Chrome Web Store, and some PDF viewers do not support it.
+- Online translation and dictionary lookups need an internet connection.
 
 Privacy
-- Only the text you hover or select is sent to Google Translate or KRDICT to fetch translations or definitions
-- Settings are saved in Chrome storage
-- No raw hovered or selected text is sent to product analytics
+- The text you look up is sent to Google Translate or KRDICT as needed to provide translations or definitions.
+- Settings are stored in Chrome storage.
+- External product analytics are off by default and require opt-in. Local usage counters stay in Chrome storage. Raw hovered or selected text is never sent to product analytics.
 
 Feedback
 Questions, bugs, and suggestions: skykum2004@gmail.com

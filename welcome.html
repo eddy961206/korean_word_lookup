@@ -2,7 +2,8 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Welcome to Korean Word Lookup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="welcomeTitle">Welcome to Korean Word Lookup</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -145,32 +146,37 @@
 </head>
 <body>
   <div class="header">
-    <img src="icons/icon128.png" alt="Logo" class="logo">
+    <img src="icons/icon128.png" alt="" class="logo">
     <h1 data-i18n="welcomeTitle">Welcome to Korean Word Lookup!</h1>
     <p data-i18n="welcomeSubtitle">Thank you for installing Korean Word Lookup. Here's how to get started.</p>
   </div>
 
-  <div class="refresh-notice" data-i18n="refreshNotice">
-    ⚠️ If the extension is not working properly, please press F5 to refresh the page!
-  </div>
-
   <div class="feature" style="background:#ecfeff;border:1px solid #a5f3fc;">
-    <h2>⚡ 30-Second Quick Start</h2>
+    <h2 data-i18n="quickStartTitle">⚡ Try your first translation</h2>
     <ol>
-      <li>Click the extension icon and make sure it is <strong>ON</strong>.</li>
-      <li>Try the mini demo below so you know what success looks like.</li>
-      <li>Click the button below to open a Korean test page.</li>
+      <li data-i18n="quickStartEnable">Open the extension icon, turn on word translation, and select Google Translate.</li>
+      <li data-i18n="quickStartOpen">Open the Korean Wikipedia test page with the button below.</li>
+      <li data-i18n="quickStartHover">Hover over a Korean word on that page to see its English meaning.</li>
     </ol>
-    <div class="quick-demo" aria-label="Korean Word Lookup demo">
-      <p class="demo-sentence">오늘은 <span class="demo-word" id="demoWord" tabindex="0">한국어</span>를 공부해요.</p>
-      <p class="demo-hint">Hover or click the highlighted word.</p>
+    <button id="openTestPage" type="button" data-i18n="btnOpenTestPage" style="padding:10px 14px;border-radius:8px;border:1px solid #06b6d4;background:#06b6d4;color:#fff;cursor:pointer;">Open Korean test page</button>
+    <p class="demo-hint" style="margin-top:12px;" data-i18n="quickStartSelection">For sentences, enable selection translation in the popup, then highlight Korean text.</p>
+    <p class="demo-hint" data-i18n="sourceKeyNotice">Google Translate works without an API key. Korean Dictionary (KRDICT) requires your own key.</p>
+    <div class="quick-demo">
+      <p><strong data-i18n="demoTitle">Tooltip example</strong></p>
+      <p class="demo-hint" data-i18n="demoDisclaimer">This is a saved example, not a live translation. Use the test page above to try real lookups.</p>
+      <p class="demo-sentence" lang="ko">오늘은 <span class="demo-word" id="demoWord" tabindex="0" role="button" aria-controls="demoTooltip" aria-expanded="false">한국어</span>를 공부해요.</p>
+      <p class="demo-hint" data-i18n="demoHint">Hover, focus, or click the highlighted word to show the example.</p>
       <div class="demo-tooltip" id="demoTooltip" role="status">
-        <strong>한국어</strong><br>
-        Korean language; the Korean language.
+        <strong lang="ko">한국어</strong><br>
+        <span lang="en">Korean language; the Korean language.</span>
       </div>
     </div>
-    <button id="openTestPage" style="margin-top:12px;padding:10px 14px;border-radius:8px;border:1px solid #06b6d4;background:#06b6d4;color:#fff;cursor:pointer;">Open test page</button>
   </div>
+
+  <div class="refresh-notice" data-i18n="refreshNotice">
+    Refresh tabs that were already open before you installed or updated the extension.
+  </div>
+  <p class="demo-hint" data-i18n="supportedPagesHint">Use regular webpages. Chrome internal pages, the Chrome Web Store, and Chrome's PDF viewer are not supported.</p>
 
   <div class="feature">
     <h2 data-i18n="featMain">🔍 Main Features</h2>
@@ -189,10 +195,10 @@
   <div class="shortcuts">
     <h2 data-i18n="shortcutTitle">⌨️ Keyboard Shortcuts</h2>
     <ul>
-      <li><span class="shortcut-key">Mac: Option+Shift+T / Others: Alt+T</span> - <span data-i18n="cmdToggleTrans">Toggle translation on/off</span></li>
-      <li><span class="shortcut-key">Mac: Option+Shift+G / Others: Alt+G</span> - <span data-i18n="cmdToggleGoogle">Switch to Google Translate</span></li>
-      <li><span class="shortcut-key">Mac: Option+Shift+K / Others: Alt+K</span> - <span data-i18n="cmdToggleDict">Switch to Korean Dictionary</span></li>
-      <li><span class="shortcut-key">Mac: Option+Shift+S / Others: Alt+S</span> - <span data-i18n="cmdToggleSelect">Toggle selection translation</span></li>
+      <li><span class="shortcut-key" data-shortcut="T">Alt+T</span> - <span data-i18n="cmdToggleTrans">Toggle translation on/off</span></li>
+      <li><span class="shortcut-key" data-shortcut="G">Alt+G</span> - <span data-i18n="cmdToggleGoogle">Switch to Google Translate</span></li>
+      <li><span class="shortcut-key" data-shortcut="K">Alt+K</span> - <span data-i18n="cmdToggleDict">Switch to Korean Dictionary</span></li>
+      <li><span class="shortcut-key" data-shortcut="S">Alt+S</span> - <span data-i18n="cmdToggleSelect">Toggle selection translation</span></li>
     </ul>
   </div>
 

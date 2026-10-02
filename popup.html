@@ -165,6 +165,7 @@
       border: 1px solid #fed7aa;
     }
     .api-key-input {
+      box-sizing: border-box;
       width: 100%;
       padding: 8px 10px;
       border-radius: 6px;
@@ -217,6 +218,7 @@
     }
     .review-buttons {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
     }
     .review-button-primary {
@@ -243,9 +245,11 @@
 </head>
 <body>
   <div class="header">
-    <img src="icons/icon48.png" alt="Logo" class="logo">
+    <img src="icons/icon48.png" alt="" class="logo">
     <h1 data-i18n="appName">Korean Word Lookup</h1>
   </div>
+
+  <button id="openWelcomeGuide" type="button" class="review-button-secondary" data-i18n="btnOpenGuide" style="width:100%;">How to use · Quick start</button>
   
   <div class="toggle-container">
     <span class="toggle-label">
@@ -280,7 +284,7 @@
       <span data-i18n="hoverDelay">Hover delay</span>
       <select id="hoverDelay" class="setting-select">
         <option value="0" data-i18n="instant">Instant</option>
-        <option value="150" selected>150ms (Default)</option>
+        <option value="150" selected data-i18n="hoverDelayDefault">150ms (Default)</option>
         <option value="300">300ms</option>
         <option value="500">500ms</option>
       </select>
@@ -313,16 +317,17 @@
   </div>
 
   <div class="api-key-container">
-    <span class="section-label" data-i18n="apiKeyTitle">Korean Dictionary API Key (Optional)</span>
-    <input type="text" id="krdictApiKey" class="api-key-input" placeholder="Paste your key to override the default" data-i18n-placeholder="apiKeyPlaceholder">
+    <label class="section-label" for="krdictApiKey" data-i18n="apiKeyTitle">Korean Dictionary API key</label>
+    <p class="helper-text" data-i18n="sourceKeyNotice">Google Translate works without an API key. Korean Dictionary (KRDICT) requires your own key.</p>
+    <input type="password" id="krdictApiKey" class="api-key-input" autocomplete="off" placeholder="Paste your own KRDICT key" data-i18n-placeholder="apiKeyPlaceholder">
     <div class="api-key-actions">
       <span class="helper-text" data-i18n="apiKeyHelper">Stored in Chrome sync storage.</span>
-      <button class="api-key-button" id="clearApiKey" type="button" data-i18n="btnUseDefault">Use default key</button>
+      <button class="api-key-button" id="clearApiKey" type="button" data-i18n="btnUseDefault">Clear key</button>
     </div>
   </div>
 
-  <div id="macTip" style="display:none;margin:10px 0 12px;padding:10px;border-radius:8px;background:#ecfeff;border:1px solid #67e8f9;font-size:12px;color:#0f766e;">
-    🍎 Mac tip: If shortcuts conflict, open <b>Manage Shortcuts</b> and keep only ⌥⇧T / ⌥⇧G / ⌥⇧K / ⌥⇧S.
+  <div id="macTip" data-i18n="macShortcutTip" style="display:none;margin:10px 0 12px;padding:10px;border-radius:8px;background:#ecfeff;border:1px solid #67e8f9;font-size:12px;color:#0f766e;">
+    Mac: If shortcuts conflict, use Manage shortcuts to set ⌥⇧T / ⌥⇧G / ⌥⇧K / ⌥⇧S.
   </div>
 
   <div style="text-align: right; margin-bottom: 12px;">
@@ -337,7 +342,7 @@
     <div class="review-title" data-i18n="reviewTitle">Enjoying Korean Word Lookup?</div>
     <div class="review-text" data-i18n="reviewText">A quick rating helps more Korean learners find this extension.</div>
     <div class="review-buttons">
-      <button class="review-button-primary" id="rateButton" type="button" data-i18n="btnRate">Rate ★★★★★</button>
+      <button class="review-button-primary" id="rateButton" type="button" data-i18n="btnRate">Write a review</button>
       <button class="review-button-secondary" id="rateLaterButton" type="button" data-i18n="btnLater">Later</button>
       <button class="review-button-secondary" id="feedbackButton" type="button" data-i18n="btnFeedback">Send feedback</button>
       <button class="review-button-secondary" id="dismissRateButton" type="button" data-i18n="btnNo">No thanks</button>
@@ -345,11 +350,11 @@
   </div>
 
   <div class="review-container" id="onboardingNudge" style="display:none;background:#eff6ff;border-color:#bfdbfe;">
-    <div class="review-title" style="color:#1e3a8a;">Quick tip: turn on sentence translation</div>
-    <div class="review-text" style="color:#1d4ed8;">Enable selection translate to instantly translate Korean sentences you highlight.</div>
+    <div class="review-title" style="color:#1e3a8a;" data-i18n="selectionNudgeTitle">Quick tip: turn on sentence translation</div>
+    <div class="review-text" style="color:#1d4ed8;" data-i18n="selectionNudgeText">Enable selection translate to instantly translate Korean sentences you highlight.</div>
     <div class="review-buttons">
-      <button class="review-button-primary" id="enableSelectionNudge" type="button" style="background:#dbeafe;border-color:#93c5fd;color:#1e40af;">Enable now</button>
-      <button class="review-button-secondary" id="dismissSelectionNudge" type="button">Dismiss</button>
+      <button class="review-button-primary" id="enableSelectionNudge" type="button" style="background:#dbeafe;border-color:#93c5fd;color:#1e40af;" data-i18n="btnEnableSelection">Enable now</button>
+      <button class="review-button-secondary" id="dismissSelectionNudge" type="button" data-i18n="btnDismiss">Dismiss</button>
     </div>
   </div>
   <br/><hr>

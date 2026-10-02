@@ -1,37 +1,30 @@
-Korean Word Lookup - Công cụ tra từ và dịch câu cho người học tiếng Hàn
+Korean Word Lookup - Tra từ và dịch câu từ tiếng Hàn sang tiếng Anh
 
-Đọc trang web tiếng Hàn mà không phải rời khỏi nội dung đang xem.
+Đọc bài viết, bài đăng và tài liệu học tiếng Hàn với nghĩa tiếng Anh ngay bên cạnh nội dung. Di chuột lên một từ để tra nghĩa, hoặc bật dịch phần bôi đen rồi chọn một câu để xem bản dịch mà không cần mở tab khác.
 
-Korean Word Lookup là tiện ích Chrome nhẹ dành cho người học tiếng Hàn. Di chuột lên từ tiếng Hàn để xem nghĩa tiếng Anh nhanh, hoặc bôi đen cả câu để dịch ngay.
+Bắt đầu với Google Translate
+- Không cần khóa API để dùng Google Translate.
+- Sau khi cài đặt hoặc cập nhật, hãy tải lại trang web đang mở rồi di chuột lên một từ tiếng Hàn.
+- Để dịch câu, bật dịch phần bôi đen trong cửa sổ tiện ích. Mỗi lần có thể chọn tối đa 500 ký tự.
 
-Phù hợp với:
-- Người học tiếng Hàn đọc bài viết, tài liệu, bài đăng và trang học tập
-- Người muốn xem nghĩa tiếng Anh nhanh mà không mở tab mới
-- Luyện đọc tiếng Hàn hằng ngày trên Chrome, Windows, Mac và Chromebook
+Tra định nghĩa chi tiết
+- Nhập khóa API KRDICT của riêng bạn trong cửa sổ tiện ích để xem định nghĩa từ Từ điển tiếng Hàn cơ sở.
+- Chọn Google Translate hoặc KRDICT, điều chỉnh số lượng định nghĩa và tùy chọn hiển thị định nghĩa tiếng Hàn.
+- Tự động chuyển nguồn có thể thử nguồn còn lại khi tra cứu thất bại hoặc không có kết quả. KRDICT vẫn cần khóa API của bạn.
 
-Tính năng chính
+Tùy chỉnh khi đọc
+- Bật/tắt dịch, điều chỉnh độ trễ khi di chuột hoặc dùng bảng nghĩa thu gọn.
+- Windows/Linux/ChromeOS: Alt+T để bật/tắt dịch, Alt+G để chọn Google, Alt+K để chọn KRDICT và Alt+S để bật/tắt dịch phần bôi đen.
+- Trên Mac, dùng Option+Shift cùng các chữ cái tương ứng.
 
-Tra từ khi di chuột
-- Di chuột lên từ tiếng Hàn để xem bản dịch tiếng Anh
-- Chọn Google Translate để dịch nhanh hoặc KRDICT Korean Dictionary để xem định nghĩa chi tiết
-- Auto-Fallback có thể thử nguồn còn lại khi nguồn đã chọn không có kết quả
-- Tooltip gọn gàng, có tùy chọn hiển thị định nghĩa tiếng Hàn
-
-Dịch câu khi bôi đen
-- Bôi đen câu hoặc đoạn tiếng Hàn để dịch ngay
-- Bật/tắt dịch phần bôi đen trong popup hoặc bằng phím tắt
-- Hữu ích khi nghĩa từng từ chưa đủ để hiểu ngữ cảnh
-
-Cài đặt và phím tắt
-- Bật/tắt tiện ích chỉ bằng một cú nhấp
-- Windows/Linux/ChromeOS: Alt+T, Alt+G, Alt+K, Alt+S
-- Mac: Option+Shift+T, Option+Shift+G, Option+Shift+K, Option+Shift+S
-- Tùy chỉnh độ trễ khi di chuột, tooltip gọn và số lượng định nghĩa
+Phạm vi sử dụng
+- Dành cho văn bản tiếng Hàn trên các trang web thông thường. Không hoạt động trên trang nội bộ Chrome, Chrome Web Store và một số trình xem PDF.
+- Dịch và tra từ điển trực tuyến cần kết nối internet.
 
 Quyền riêng tư
-- Chỉ văn bản bạn di chuột hoặc bôi đen mới có thể được gửi đến Google Translate hoặc KRDICT để lấy bản dịch/định nghĩa
-- Cài đặt được lưu trong bộ nhớ Chrome
-- Không gửi văn bản gốc bạn tra cứu vào analytics sản phẩm
+- Văn bản bạn tra cứu được gửi đến Google Translate hoặc KRDICT khi cần để lấy bản dịch hoặc định nghĩa.
+- Cài đặt được lưu trong bộ nhớ Chrome.
+- Việc gửi dữ liệu phân tích sản phẩm ra bên ngoài mặc định tắt và chỉ được bật khi bạn đồng ý. Bộ đếm sử dụng cục bộ được lưu trong bộ nhớ Chrome. Văn bản gốc bạn di chuột hoặc bôi đen không được gửi vào dữ liệu phân tích sản phẩm.
 
 Liên hệ
 Câu hỏi, lỗi hoặc góp ý: skykum2004@gmail.com

@@ -1,6 +1,6 @@
 {
   "name": "korean-word-lookup",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "private": true,
   "type": "module",
   "description": "Validation tooling for the Korean Word Lookup Chrome extension",

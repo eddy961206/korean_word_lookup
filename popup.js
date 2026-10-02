@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  document.documentElement.lang = chrome.i18n.getUILanguage();
   // i18n initialization
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n');
@@ -14,6 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
       element.placeholder = message;
     }
   });
+
+  const openWelcomeGuide = document.getElementById('openWelcomeGuide');
+  if (openWelcomeGuide) {
+    openWelcomeGuide.addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+    });
+  }
 
   const toggleSwitch = document.getElementById('translationToggle');
   const statusMessage = document.getElementById('statusMessage');
