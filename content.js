@@ -57,6 +57,7 @@ async function initializeExtension() {
     'maxDefinitions',
     'showKoreanDefinitions',
     'compactTooltip',
+    'autoFallbackEnabled',
     'selectionTranslationEnabled'
   ]);
 
@@ -829,16 +830,14 @@ function renderDictionaryResult(result, prefix = '') {
   if (compactTooltip) {
     const compactLine = result.englishDefs[0] || result.koreanDefs[0] || chrome.i18n.getMessage('noDef');
     setTooltipBody(compactLine);
-    showTooltip();
-    return;
-  }
+  } else {
+    const englishDefs = limitDefinitions(result.englishDefs, maxDefinitions);
+    appendSection(chrome.i18n.getMessage('headerEng'), englishDefs);
 
-  const englishDefs = limitDefinitions(result.englishDefs, maxDefinitions);
-  appendSection(chrome.i18n.getMessage('headerEng'), englishDefs);
-
-  if (showKoreanDefinitions) {
-    const koreanDefs = limitDefinitions(result.koreanDefs, maxDefinitions);
-    appendSection(chrome.i18n.getMessage('headerKor'), koreanDefs);
+    if (showKoreanDefinitions) {
+      const koreanDefs = limitDefinitions(result.koreanDefs, maxDefinitions);
+      appendSection(chrome.i18n.getMessage('headerKor'), koreanDefs);
+    }
   }
 
   showTooltip();
@@ -938,10 +937,12 @@ function translateText(text) {
       return response.json();
     })
     .then(data => {
-      if (data && data[0] && data[0][0] && data[0][0][0]) {
-        return data[0][0][0];
-      }
-      return null;
+      if (!Array.isArray(data?.[0])) return null;
+      const translation = data[0]
+        .filter(segment => Array.isArray(segment) && typeof segment[0] === 'string')
+        .map(segment => segment[0])
+        .join('');
+      return translation || null;
     })
     .catch(error => {
       console.error('Translation error:', error);

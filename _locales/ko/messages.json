@@ -51,16 +51,16 @@
         "message": "선택 번역 사용"
     },
     "apiKeyTitle": {
-        "message": "한국어 사전 API 키 (선택 사항)"
+        "message": "한국어 사전 API 키"
     },
     "apiKeyPlaceholder": {
-        "message": "기본 키 대신 사용할 키를 붙여넣으세요"
+        "message": "본인의 KRDICT API 키를 붙여넣으세요"
     },
     "apiKeyHelper": {
-        "message": "Chrome 동기화 저장소에 저장됩니다."
+        "message": "기본 키는 제공되지 않습니다. 입력한 키는 Chrome 동기화 저장소에 저장됩니다."
     },
     "btnUseDefault": {
-        "message": "기본 키 사용"
+        "message": "키 지우기"
     },
     "statusHover": {
         "message": "한국어 텍스트 위에 마우스를 올려보세요"
@@ -71,20 +71,28 @@
     "shortcutsHint": {
         "message": "단축키: $ALT_G$ (구글 번역) | $ALT_K$ (한국어 사전) | $ALT_T$ (번역 켜기/끄기) | $ALT_S$ (선택 번역)",
         "placeholders": {
-            "alt_g": { "content": "$1" },
-            "alt_k": { "content": "$2" },
-            "alt_t": { "content": "$3" },
-            "alt_s": { "content": "$4" }
+            "alt_g": {
+                "content": "$1"
+            },
+            "alt_k": {
+                "content": "$2"
+            },
+            "alt_t": {
+                "content": "$3"
+            },
+            "alt_s": {
+                "content": "$4"
+            }
         }
     },
     "reviewTitle": {
-        "message": "확장 프로그램이 마음에 드시나요?"
+        "message": "사용 경험을 공유해 주세요"
     },
     "reviewText": {
-        "message": "별점 평가는 더 많은 한국어 학습자들이 이 도구를 찾는 데 큰 도움이 됩니다."
+        "message": "확장 프로그램의 사용 경험을 다른 한국어 학습자에게 알려 주세요."
     },
     "btnRate": {
-        "message": "평가하기 ★★★★★"
+        "message": "리뷰 작성"
     },
     "btnLater": {
         "message": "나중에"
@@ -166,7 +174,7 @@
         "message": "한국어 단어 검색 확장 프로그램을 시작하는 방법입니다."
     },
     "refreshNotice": {
-        "message": "⚠️ 확장 프로그램이 정상적으로 작동하지 않으면 F5를 눌러 페이지를 새로고침 해주세요!"
+        "message": "설치하거나 업데이트하기 전에 열어 둔 탭은 새로고침하세요."
     },
     "featMain": {
         "message": "🔍 주요 기능"
@@ -230,5 +238,59 @@
     },
     "credits4": {
         "message": "자세한 단어 정의와 예문 제공"
+    },
+    "quickStartTitle": {
+        "message": "⚡ 첫 번역을 시작해 보세요"
+    },
+    "quickStartEnable": {
+        "message": "확장 프로그램 아이콘을 열고 단어 번역을 켠 다음 구글 번역을 선택하세요."
+    },
+    "quickStartOpen": {
+        "message": "아래 버튼으로 한국어 위키백과 테스트 페이지를 여세요."
+    },
+    "quickStartHover": {
+        "message": "테스트 페이지의 한국어 단어 위에 마우스를 올려 영어 뜻을 확인하세요."
+    },
+    "btnOpenTestPage": {
+        "message": "한국어 테스트 페이지 열기"
+    },
+    "quickStartSelection": {
+        "message": "문장을 번역하려면 팝업에서 선택 번역을 켠 다음 한국어 문장을 드래그하세요."
+    },
+    "sourceKeyNotice": {
+        "message": "구글 번역은 API 키 없이 사용할 수 있습니다. 한국어 사전(KRDICT)은 본인의 API 키가 필요합니다."
+    },
+    "demoTitle": {
+        "message": "툴팁 표시 예시"
+    },
+    "demoDisclaimer": {
+        "message": "미리 저장된 예시이며 실시간 번역이 아닙니다. 실제 번역은 위의 테스트 페이지에서 확인하세요."
+    },
+    "demoHint": {
+        "message": "강조된 단어에 마우스를 올리거나, 키보드로 포커스하거나, 클릭하면 예시가 표시됩니다."
+    },
+    "supportedPagesHint": {
+        "message": "일반 웹페이지에서 사용하세요. Chrome 내부 페이지, Chrome 웹 스토어, Chrome PDF 뷰어는 지원하지 않습니다."
+    },
+    "btnOpenGuide": {
+        "message": "사용법 · 빠른 시작"
+    },
+    "hoverDelayDefault": {
+        "message": "150ms (기본값)"
+    },
+    "macShortcutTip": {
+        "message": "Mac: 단축키가 충돌하면 단축키 관리에서 ⌥⇧T / ⌥⇧G / ⌥⇧K / ⌥⇧S로 설정하세요."
+    },
+    "selectionNudgeTitle": {
+        "message": "빠른 팁: 문장 번역을 켜 보세요"
+    },
+    "selectionNudgeText": {
+        "message": "선택 번역을 켜면 드래그한 한국어 문장을 번역할 수 있습니다."
+    },
+    "btnEnableSelection": {
+        "message": "지금 켜기"
+    },
+    "btnDismiss": {
+        "message": "닫기"
     }
 }

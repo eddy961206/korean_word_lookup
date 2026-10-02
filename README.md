@@ -13,7 +13,7 @@ Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-ho
 - **Primary maintainer:** [@eddy961206](https://github.com/eddy961206)
 - **Adoption:** 580+ users shown by the Chrome Web Store on 2026-09-16
 - **Store release:** 2.5.0, updated on 2026-09-06
-- **Source release:** 2.5.1, published on 2026-09-16
+- **Source version:** 2.5.2; Chrome Web Store submission is tracked separately
 
 ## Features
 - **Hover translate**: hover Korean words to see English translations/definitions
@@ -44,6 +44,17 @@ Run the dependency-free validation and regression checks before opening a pull r
 ```bash
 npm run check
 ```
+
+Build a clean store ZIP with Python 3.9+ after the checks pass:
+
+```bash
+python tools/package_release.py /absolute/path/to/korean-word-lookup-2.5.2.zip
+```
+
+The builder includes only runtime files, declared icons, locales, and license
+notices. It generates an empty `config.json`; local API keys and development files
+are never copied. Google translation needs no API key. To use KRDICT definitions,
+enter your own KRDICT API key in the popup.
 
 ## Credits
 Dictionary data provided by National Institute of Korean Language's Basic Korean Dictionary (`https://krdict.korean.go.kr`)

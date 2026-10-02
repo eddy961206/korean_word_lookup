@@ -4,7 +4,6 @@
 - `install`
 - `update`
 - `welcome_view`
-- `onboarding_demo_success`
 - `onboarding_start`
 - `popup_open`
 - `open_shortcut_settings`
@@ -28,16 +27,21 @@
 - `analyticsLastEventAt`
 - `firstSuccessAt`
 - `firstSuccessKind`
-- `onboardingDemoSuccessAt`
 
 ## P0 funnel to track
 1. install
 2. welcome_view
-3. onboarding_demo_success
-4. onboarding_start
-5. first_success
-6. feature_use (repeat)
-7. disable_extension / uninstall feedback URL open (proxy)
+3. onboarding_start (test-page click, not proof of a successful translation)
+4. first_success (a real translation shown in the content script)
+5. feature_use (repeat)
+6. disable_extension
+
+Since 2.5.2 the saved welcome-page example does not emit a success event or write
+`onboardingDemoSuccessAt`. Historical demo events must not be mixed with real
+activation. Compact and expanded dictionary results both record real successes.
+`first_success` is a local installation marker, not a cross-device user identity
+or an exactly-once guarantee across concurrently open tabs. External GA4 product
+telemetry requires explicit opt-in and locally configured credentials.
 
 ## Mac churn mitigation in P0
 - macOS shortcut defaults changed to:
@@ -46,4 +50,6 @@
   - Dictionary: `Option+Shift+K`
   - Selection: `Option+Shift+S`
 - Popup now shows a Mac-specific shortcut conflict tip.
-- Uninstall feedback URL is set to GitHub issue template for churn reason collection.
+- Uninstall redirects remain disabled at the maintainer's request. Use actual
+  Chrome Web Store uninstall statistics; do not infer uninstall counts from a
+  nonexistent feedback redirect or from store-page return visits.

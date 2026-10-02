@@ -51,16 +51,16 @@
         "message": "Enable selection translate"
     },
     "apiKeyTitle": {
-        "message": "Korean Dictionary API Key (Optional)"
+        "message": "Korean Dictionary API key"
     },
     "apiKeyPlaceholder": {
-        "message": "Paste your key to override the default"
+        "message": "Paste your own KRDICT key"
     },
     "apiKeyHelper": {
-        "message": "Stored in Chrome sync storage."
+        "message": "No key is included. Your key is saved in Chrome sync storage."
     },
     "btnUseDefault": {
-        "message": "Use default key"
+        "message": "Clear key"
     },
     "statusHover": {
         "message": "Hover over Korean text to see English definitions"
@@ -71,20 +71,28 @@
     "shortcutsHint": {
         "message": "Shortcuts: $ALT_G$ (Google Translate) | $ALT_K$ (Korean Dictionary) | $ALT_T$ (Toggle Translation) | $ALT_S$ (Selection Translate)",
         "placeholders": {
-            "alt_g": { "content": "$1" },
-            "alt_k": { "content": "$2" },
-            "alt_t": { "content": "$3" },
-            "alt_s": { "content": "$4" }
+            "alt_g": {
+                "content": "$1"
+            },
+            "alt_k": {
+                "content": "$2"
+            },
+            "alt_t": {
+                "content": "$3"
+            },
+            "alt_s": {
+                "content": "$4"
+            }
         }
     },
     "reviewTitle": {
-        "message": "Enjoying Korean Word Lookup?"
+        "message": "Share your experience"
     },
     "reviewText": {
-        "message": "A quick rating helps more Korean learners find this extension."
+        "message": "Tell other Korean learners how the extension works for you."
     },
     "btnRate": {
-        "message": "Rate ★★★★★"
+        "message": "Write a review"
     },
     "btnLater": {
         "message": "Later"
@@ -166,7 +174,7 @@
         "message": "Thank you for installing Korean Word Lookup. Here's how to get started."
     },
     "refreshNotice": {
-        "message": "⚠️ If the extension is not working properly, please press F5 to refresh the page!"
+        "message": "Refresh tabs that were already open before you installed or updated the extension."
     },
     "featMain": {
         "message": "🔍 Main Features"
@@ -230,5 +238,59 @@
     },
     "credits4": {
         "message": "Offers detailed word definitions and examples"
+    },
+    "quickStartTitle": {
+        "message": "⚡ Try your first translation"
+    },
+    "quickStartEnable": {
+        "message": "Open the extension icon, turn on word translation, and select Google Translate."
+    },
+    "quickStartOpen": {
+        "message": "Open the Korean Wikipedia test page with the button below."
+    },
+    "quickStartHover": {
+        "message": "Hover over a Korean word on that page to see its English meaning."
+    },
+    "btnOpenTestPage": {
+        "message": "Open Korean test page"
+    },
+    "quickStartSelection": {
+        "message": "For sentences, enable selection translation in the popup, then highlight Korean text."
+    },
+    "sourceKeyNotice": {
+        "message": "Google Translate works without an API key. Korean Dictionary (KRDICT) requires your own key."
+    },
+    "demoTitle": {
+        "message": "Tooltip example"
+    },
+    "demoDisclaimer": {
+        "message": "This is a saved example, not a live translation. Use the test page above to try real lookups."
+    },
+    "demoHint": {
+        "message": "Hover, focus, or click the highlighted word to show the example."
+    },
+    "supportedPagesHint": {
+        "message": "Use regular webpages. Chrome internal pages, the Chrome Web Store, and Chrome's PDF viewer are not supported."
+    },
+    "btnOpenGuide": {
+        "message": "How to use · Quick start"
+    },
+    "hoverDelayDefault": {
+        "message": "150ms (Default)"
+    },
+    "macShortcutTip": {
+        "message": "Mac: If shortcuts conflict, use Manage shortcuts to set ⌥⇧T / ⌥⇧G / ⌥⇧K / ⌥⇧S."
+    },
+    "selectionNudgeTitle": {
+        "message": "Quick tip: turn on sentence translation"
+    },
+    "selectionNudgeText": {
+        "message": "Enable selection translation to translate Korean sentences you highlight."
+    },
+    "btnEnableSelection": {
+        "message": "Enable now"
+    },
+    "btnDismiss": {
+        "message": "Dismiss"
     }
 }

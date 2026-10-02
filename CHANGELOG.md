@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.5.2 - 2026-10-02
+
+### Translation and settings
+- Preserve all translated segments when selecting multiple Korean sentences.
+- Restore the saved Auto-Fallback preference on every new page.
+- Make the first toggle shortcut switch the default enabled state off.
+- Count successful dictionary lookups consistently in compact and expanded modes.
+
+### Getting started
+- Localize the quick-start flow, help text, and sentence-translation tips in English,
+  Korean, and Vietnamese, with a permanent guide button in the popup.
+- Distinguish the saved tooltip example from a real translation; the example no
+  longer records an onboarding-success event.
+- Explain supported pages, refreshing existing tabs, and the personal KRDICT key
+  requirement. Use neutral review wording.
+- Refresh the three store-description drafts to match actual functionality.
+
+### Release verification
+- Add behavioral regression coverage and a deterministic allowlist ZIP builder
+  that always generates an empty config.json and never reads local credentials.
+- Preserve 2.5.1's opt-in telemetry and existing permissions.
+
 ## 2.5.1 - 2026-09-16
 
 ### Security

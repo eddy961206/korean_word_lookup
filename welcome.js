@@ -1,29 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
+  document.documentElement.lang = typeof chrome !== 'undefined' && chrome.i18n
+    ? chrome.i18n.getUILanguage()
+    : navigator.language;
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n');
     const message = getI18nMessage(key);
     if (message) element.textContent = message;
   });
 
+  const shortcutPrefix = /Mac/i.test(navigator.platform) ? '⌥⇧' : 'Alt+';
+  document.querySelectorAll('[data-shortcut]').forEach(element => {
+    element.textContent = shortcutPrefix + element.getAttribute('data-shortcut');
+  });
+
   trackEvent('welcome_view');
 
   const demoWord = document.getElementById('demoWord');
   const demoTooltip = document.getElementById('demoTooltip');
-  let demoTracked = false;
-
   function showDemoTooltip() {
     if (!demoTooltip) return;
     demoTooltip.classList.add('visible');
-    if (demoTracked) return;
-    demoTracked = true;
-    setLocal({ onboardingDemoSuccessAt: Date.now() });
-    trackEvent('onboarding_demo_success');
+    demoWord.setAttribute('aria-expanded', 'true');
+    // 정적 예시는 실제 번역이나 첫 성공 지표로 기록하지 않는다.
   }
 
   if (demoWord) {
     demoWord.addEventListener('mouseenter', showDemoTooltip);
     demoWord.addEventListener('focus', showDemoTooltip);
     demoWord.addEventListener('click', showDemoTooltip);
+    demoWord.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        showDemoTooltip();
+      }
+    });
   }
 
   const testButton = document.getElementById('openTestPage');
@@ -78,11 +88,4 @@ function trackEvent(eventName) {
       return;
     }
   });
-}
-
-function setLocal(values) {
-  if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
-    return;
-  }
-  chrome.storage.local.set(values);
 }

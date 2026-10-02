@@ -112,7 +112,7 @@ chrome.commands.onCommand.addListener((command) => {
   switch (command) {
     case 'toggle-translation':
       chrome.storage.sync.get(['translationEnabled'], (result) => {
-        const newStatus = !result.translationEnabled;
+        const newStatus = !(result.translationEnabled !== false);
         chrome.storage.sync.set({ translationEnabled: newStatus }, () => {
           updateIcon(newStatus);
           // 현재 활성 탭에만 메시지 전송

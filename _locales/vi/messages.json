@@ -51,16 +51,16 @@
     "message": "Bật dịch đoạn được chọn"
   },
   "apiKeyTitle": {
-    "message": "Khóa API từ điển tiếng Hàn (tùy chọn)"
+    "message": "Khóa API từ điển tiếng Hàn"
   },
   "apiKeyPlaceholder": {
-    "message": "Dán khóa để ghi đè khóa mặc định"
+    "message": "Dán khóa KRDICT của riêng bạn"
   },
   "apiKeyHelper": {
-    "message": "Lưu trong bộ nhớ đồng bộ của Chrome."
+    "message": "Không có khóa đi kèm. Khóa của bạn được lưu trong bộ nhớ đồng bộ của Chrome."
   },
   "btnUseDefault": {
-    "message": "Dùng khóa mặc định"
+    "message": "Xóa khóa"
   },
   "statusHover": {
     "message": "Di chuột lên văn bản tiếng Hàn để xem nghĩa tiếng Anh"
@@ -69,13 +69,13 @@
     "message": "Tính năng dịch hiện đang tắt"
   },
   "reviewTitle": {
-    "message": "Bạn thấy Korean Word Lookup hữu ích không?"
+    "message": "Chia sẻ trải nghiệm của bạn"
   },
   "reviewText": {
-    "message": "Một đánh giá nhanh sẽ giúp nhiều người học tiếng Hàn tìm thấy tiện ích này hơn."
+    "message": "Hãy cho những người học tiếng Hàn khác biết trải nghiệm sử dụng tiện ích của bạn."
   },
   "btnRate": {
-    "message": "Đánh giá ★★★★★"
+    "message": "Viết đánh giá"
   },
   "btnLater": {
     "message": "Để sau"
@@ -174,7 +174,7 @@
     "message": "Cảm ơn bạn đã cài đặt. Bắt đầu nhanh như sau."
   },
   "refreshNotice": {
-    "message": "⚠️ Nếu tiện ích không hoạt động đúng, hãy nhấn F5 để tải lại trang!"
+    "message": "Hãy tải lại các tab đã mở trước khi bạn cài đặt hoặc cập nhật tiện ích."
   },
   "featMain": {
     "message": "🔍 Tính năng chính"
@@ -238,5 +238,59 @@
   },
   "credits4": {
     "message": "Cung cấp định nghĩa và ví dụ chi tiết"
+  },
+  "quickStartTitle": {
+    "message": "⚡ Thử bản dịch đầu tiên"
+  },
+  "quickStartEnable": {
+    "message": "Mở biểu tượng tiện ích, bật dịch từ và chọn Google Dịch."
+  },
+  "quickStartOpen": {
+    "message": "Nhấn nút bên dưới để mở trang Wikipedia tiếng Hàn dùng thử."
+  },
+  "quickStartHover": {
+    "message": "Di chuột lên một từ tiếng Hàn trên trang đó để xem nghĩa tiếng Anh."
+  },
+  "btnOpenTestPage": {
+    "message": "Mở trang tiếng Hàn dùng thử"
+  },
+  "quickStartSelection": {
+    "message": "Để dịch câu, bật dịch đoạn được chọn trong cửa sổ tiện ích, rồi bôi đen văn bản tiếng Hàn."
+  },
+  "sourceKeyNotice": {
+    "message": "Google Dịch không cần khóa API. Từ điển tiếng Hàn (KRDICT) cần khóa API của riêng bạn."
+  },
+  "demoTitle": {
+    "message": "Ví dụ hiển thị tooltip"
+  },
+  "demoDisclaimer": {
+    "message": "Đây là ví dụ được lưu sẵn, không phải bản dịch trực tiếp. Hãy dùng trang thử ở trên để tra từ thật."
+  },
+  "demoHint": {
+    "message": "Di chuột, dùng bàn phím để chọn hoặc nhấp vào từ được tô sáng để xem ví dụ."
+  },
+  "supportedPagesHint": {
+    "message": "Dùng trên các trang web thông thường. Không hỗ trợ trang nội bộ Chrome, Chrome Web Store và trình xem PDF của Chrome."
+  },
+  "btnOpenGuide": {
+    "message": "Hướng dẫn · Bắt đầu nhanh"
+  },
+  "hoverDelayDefault": {
+    "message": "150ms (Mặc định)"
+  },
+  "macShortcutTip": {
+    "message": "Mac: Nếu phím tắt bị xung đột, mở Quản lý phím tắt và đặt ⌥⇧T / ⌥⇧G / ⌥⇧K / ⌥⇧S."
+  },
+  "selectionNudgeTitle": {
+    "message": "Mẹo nhanh: bật dịch câu"
+  },
+  "selectionNudgeText": {
+    "message": "Bật dịch đoạn được chọn để dịch các câu tiếng Hàn bạn bôi đen."
+  },
+  "btnEnableSelection": {
+    "message": "Bật ngay"
+  },
+  "btnDismiss": {
+    "message": "Đóng"
   }
 }
