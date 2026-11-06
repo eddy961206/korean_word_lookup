@@ -27,6 +27,6 @@ Words or selected text are sent to the relevant translation or dictionary provid
 
 This version does not send remote product analytics. Local usage information supports features such as onboarding and review prompts. Recent local diagnostics are limited to 200 events; events and daily buckets older than 30 days are removed when the next event is recorded. Installation state and aggregate usage counters can remain for the installation lifetime.
 
-Your KRDICT key is stored locally in Chrome, is not encrypted, and is not synced by this version. It is sent only to KRDICT for dictionary requests and is not returned to page content scripts. Ordinary settings can sync through Chrome. See the privacy policy for details. Internet access and provider availability affect results; Chrome restricts extensions on some pages.
+Your KRDICT key is kept only in memory for the current browser session, not persistent or sync storage. Enter it again after restarting Chrome or reloading/updating the extension. It is sent only to KRDICT for dictionary requests and is not returned to page content scripts. Ordinary settings can sync through Chrome. See the privacy policy for details. Internet access and provider availability affect results; Chrome restricts extensions on some pages.
 
 This is an independent extension. Dictionary data is provided by the National Institute of Korean Language's Basic Korean Dictionary.

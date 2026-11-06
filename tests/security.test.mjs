@@ -9,7 +9,7 @@ const popup = { id: extensionId, url: `chrome-extension://${extensionId}/popup.h
 const content = { id: extensionId, url: 'https://example.test/', tab: { id: 1 } };
 
 // 가짜 저장소와 공급자를 사용해 실제 키/사용자 텍스트를 외부로 전송하지 않는다.
-async function loadBackground({ sync = {}, local = {}, failRestriction = false, failMigration = false, fetchImpl } = {}) {
+async function loadBackground({ sync = {}, local = {}, session = {}, failRestriction = false, failMigration = false, delayMs = 0, fetchImpl } = {}) {
   let listener;
   const requests = [];
   const calls = [];
@@ -32,6 +32,7 @@ async function loadBackground({ sync = {}, local = {}, failRestriction = false, 
       async setAccessLevel(options) {
         calls.push([name, 'setAccessLevel', options]);
         if (failRestriction) throw new Error('not supported');
+        if (delayMs) await new Promise(resolve => setTimeout(resolve, delayMs));
       },
       get(keys, callback) {
         const result = keys === null ? { ...values }
@@ -55,7 +56,7 @@ async function loadBackground({ sync = {}, local = {}, failRestriction = false, 
       }
     };
   }
-  chrome.storage = { sync: storage(sync, 'sync'), local: storage(local, 'local'), onChanged: { addListener() {} } };
+  chrome.storage = { session: storage(session, 'session'), sync: storage(sync, 'sync'), local: storage(local, 'local'), onChanged: { addListener() {} } };
   const context = vm.createContext({ chrome, URLSearchParams, AbortController, setTimeout, clearTimeout,
     fetch: async (url, options) => {
       requests.push({ url, options });
@@ -65,13 +66,16 @@ async function loadBackground({ sync = {}, local = {}, failRestriction = false, 
   vm.runInContext(source, context);
   const send = (message, sender = content) => new Promise(resolve => listener(message, sender, resolve));
   await send({ action: 'readUsageState' });
-  return { send, local, sync, requests, calls, context };
+  return { send, local, sync, session, requests, calls, context };
 }
 
-test('key migration restricts local storage before writing and removes the synced key', async () => {
+test('key migration restricts session storage before writing and removes persistent keys', async () => {
   const state = await loadBackground({ sync: { krdictApiKey: 'legacy-test-key' } });
-  assert.equal(state.local.krdictApiKey, 'legacy-test-key');
+  assert.equal(state.session.krdictApiKey, 'legacy-test-key');
   assert.equal(state.sync.krdictApiKey, undefined);
+  assert.equal(state.local.krdictApiKey, undefined);
+  assert.equal(state.calls[1][0], 'session');
+  assert.equal(state.calls[1][2].accessLevel, 'TRUSTED_CONTEXTS');
   assert.equal(state.calls[0][1], 'setAccessLevel');
   assert.equal(state.calls[0][2].accessLevel, 'TRUSTED_CONTEXTS');
   assert.equal((await state.send({ action: 'getApiKey' })).error, 'unsupported_action');
@@ -82,7 +86,7 @@ test('key migration restricts local storage before writing and removes the synce
 test('a newer local key or an intentional clear wins over a stale synced key', async () => {
   for (const key of ['new-local-key', '']) {
     const state = await loadBackground({ local: { krdictApiKey: key }, sync: { krdictApiKey: 'old-key' } });
-    assert.equal(state.local.krdictApiKey, key);
+    assert.equal(state.session.krdictApiKey, key);
     assert.equal(state.sync.krdictApiKey, undefined);
   }
 });
@@ -104,9 +108,9 @@ test('only the extension popup can save/clear a key and the raw key is never ret
   const result = await state.send(request, popup);
   assert.equal(result.ok, true);
   assert.equal(JSON.stringify(result).includes('test-key-123'), false);
-  assert.equal(state.local.krdictApiKey, 'test-key-123');
+  assert.equal(state.session.krdictApiKey, 'test-key-123');
   assert.equal((await state.send({ action: 'setDictionaryKey', key: '' }, popup)).hasKey, false);
-  assert.equal(state.local.krdictApiKey, '');
+  assert.equal(state.session.krdictApiKey, '');
 });
 
 test('service-worker translation includes all sentences and omits credentials/referrer', async () => {
@@ -219,4 +223,43 @@ test('local history enforces the 200-entry cap and removes expired or malformed 
 test('page scripts contain no key retrieval, local-storage, or direct provider-fetch path', async () => {
   const contentSource = await readFile(new URL('../content.js', import.meta.url), 'utf8');
   assert.doesNotMatch(contentSource, /getApiKey|krdictApiKey|chrome\.storage\.local|\bfetch\(/u);
+});
+
+
+test('service-worker restart retains the session key without persistent writes', async () => {
+  const session = {};
+  const first = await loadBackground({ session });
+  await first.send({ action: 'setDictionaryKey', key: 'memory-test-key' }, popup);
+  const restarted = await loadBackground({ session, local: first.local, sync: first.sync });
+  assert.equal((await restarted.send({ action: 'getDictionaryKeyStatus' }, popup)).hasKey, true);
+  assert.equal(restarted.session.krdictApiKey, 'memory-test-key');
+  for (const [area, method, value] of [...first.calls, ...restarted.calls]) {
+    if (area !== 'session' && method === 'set') assert.equal(Object.hasOwn(value, 'krdictApiKey'), false);
+  }
+  const browserRestart = await loadBackground({ local: first.local, sync: first.sync });
+  assert.equal((await browserRestart.send({ action: 'getDictionaryKeyStatus' }, popup)).hasKey, false);
+});
+
+test('session value including a clear wins over both legacy copies', async () => {
+  for (const key of ['session-key', '']) {
+    const state = await loadBackground({ session: { krdictApiKey: key }, local: { krdictApiKey: 'local-key' }, sync: { krdictApiKey: 'sync-key' } });
+    assert.equal(state.session.krdictApiKey, key);
+    assert.equal(state.local.krdictApiKey, undefined);
+    assert.equal(state.sync.krdictApiKey, undefined);
+  }
+});
+
+test('failed session transfer preserves both legacy copies', async () => {
+  const state = await loadBackground({ local: { krdictApiKey: 'local-key' }, sync: { krdictApiKey: 'sync-key' }, failMigration: true });
+  assert.equal(state.local.krdictApiKey, 'local-key');
+  assert.equal(state.sync.krdictApiKey, 'sync-key');
+  assert.equal(state.session.krdictApiKey, undefined);
+  assert.equal((await state.send({ action: 'setDictionaryKey', key: '' }, popup)).error, 'unavailable');
+});
+
+test('messages wait for asynchronous session initialization and migration', async () => {
+  const state = await loadBackground({ sync: { krdictApiKey: 'legacy-key' }, delayMs: 5 });
+  assert.equal((await state.send({ action: 'getDictionaryKeyStatus' }, popup)).hasKey, true);
+  assert.equal(state.session.krdictApiKey, 'legacy-key');
+  assert.equal(state.sync.krdictApiKey, undefined);
 });

@@ -10,13 +10,14 @@ const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const profile = await mkdtemp(path.join(os.tmpdir(), 'korean-lookup-smoke-'));
-const context = await chromium.launchPersistentContext(profile, {
+const launch = () => chromium.launchPersistentContext(profile, {
   executablePath: process.env.CHROMIUM_PATH || undefined,
   channel: process.env.CHROMIUM_PATH ? undefined : 'chromium',
   headless: true,
   ignoreDefaultArgs: ['--disable-extensions'],
   args: [`--disable-extensions-except=${root}`, `--load-extension=${root}`]
 });
+let context = await launch();
 try {
   const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
   const id = new URL(worker.url()).host;
@@ -37,8 +38,9 @@ try {
   await popup.locator('#krdictApiKey').fill('fake-smoke-key');
   await popup.locator('#saveApiKey').click();
   await popup.waitForFunction(() => document.getElementById('krdictApiKey').value === '');
-  assert.equal(await worker.evaluate(async () => (await chrome.storage.local.get('krdictApiKey')).krdictApiKey), 'fake-smoke-key');
+  assert.equal(await worker.evaluate(async () => (await chrome.storage.session.get('krdictApiKey')).krdictApiKey), 'fake-smoke-key');
   assert.equal(await worker.evaluate(async () => (await chrome.storage.sync.get('krdictApiKey')).krdictApiKey), undefined);
+  assert.equal(await worker.evaluate(async () => (await chrome.storage.local.get('krdictApiKey')).krdictApiKey), undefined);
 
   // CSP가 엄격한 일반 페이지에서도 콘텐츠가 아닌 서비스 워커에서 요청해야 한다.
   await context.route('http://127.0.0.1/reading', route => route.fulfill({
@@ -62,10 +64,10 @@ try {
     if (identity.result.value !== id) continue;
     const access = await cdp.send('Runtime.evaluate', {
       contextId: execution.id,
-      expression: "(async () => { try { await chrome.storage.local.get('krdictApiKey'); return false; } catch { return true; } })()",
+      expression: "(async () => { try { await chrome.storage.session.get('krdictApiKey'); return false; } catch { return true; } })()",
       awaitPromise: true, returnByValue: true
     });
-    assert.equal(access.result.value, true, 'content script must not read local key storage');
+    assert.equal(access.result.value, true, 'content script must not read session key storage');
     privateStorageChecked = true;
   }
   assert.equal(privateStorageChecked, true, 'extension content execution context was inspected');
@@ -94,7 +96,7 @@ try {
   assert.equal(await worker.evaluate(() => testRequests.length), count + 1);
   await popup.locator('#clearApiKey').click();
   await popup.locator('#apiKeyStatus').filter({ hasText: /No key|저장된 키|Chưa lưu/ }).waitFor();
-  assert.equal(await worker.evaluate(async () => (await chrome.storage.local.get('krdictApiKey')).krdictApiKey), '');
+  assert.equal(await worker.evaluate(async () => (await chrome.storage.session.get('krdictApiKey')).krdictApiKey), '');
   const requests = await worker.evaluate(() => testRequests);
   assert.ok(requests.every(request => request.credentials === 'omit' && request.referrerPolicy === 'no-referrer'));
   assert.ok(requests.every(request => !request.url.includes('google-analytics')));
@@ -104,7 +106,32 @@ try {
     return translateTextRequest('도서관');
   });
   console.log('LIVE_GOOGLE_PROBE:', liveGoogle.translation ? JSON.stringify(liveGoogle.translation) : 'UNAVAILABLE (not a passed provider check)');
-  console.log('PASS: real Chromium popup save/clear, local-only key, normal hover, editable/password skip, selection, worker transport. Provider responses mocked.');
+  // A real browser process restart must clear the key without losing ordinary settings.
+  // Close the reading page first so no lookup can transmit the fake restart key.
+  await page.close();
+  await popup.locator('#krdictApiKey').fill('fake-restart-key');
+  await popup.locator('#saveApiKey').click();
+  await popup.waitForFunction(() => document.getElementById('krdictApiKey').value === '');
+  await worker.evaluate(() => chrome.storage.sync.set({ hoverDelayMs: 450 }));
+  assert.equal(await worker.evaluate(async () => (await chrome.storage.session.get('krdictApiKey')).krdictApiKey), 'fake-restart-key');
+  for (const area of ['local', 'sync']) {
+    assert.equal(await worker.evaluate(async area => (await chrome.storage[area].get('krdictApiKey')).krdictApiKey, area), undefined);
+  }
+  await context.close();
+  context = await launch(); // same profile directory, new Chromium process
+  const restartedWorker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
+  const restartedId = new URL(restartedWorker.url()).host;
+  assert.equal(restartedId, id);
+  const restartedPopup = await context.newPage();
+  await restartedPopup.goto(`chrome-extension://${id}/popup.html`);
+  // The popup status response waits for asynchronous private-storage initialization.
+  await restartedPopup.locator('#apiKeyStatus').filter({ hasText: /No key|저장된 키|Chưa lưu/ }).waitFor();
+  for (const area of ['session', 'local', 'sync']) {
+    assert.equal(await restartedWorker.evaluate(async area => (await chrome.storage[area].get('krdictApiKey')).krdictApiKey, area), undefined);
+  }
+  assert.equal(await restartedWorker.evaluate(async () => (await chrome.storage.sync.get('hoverDelayMs')).hoverDelayMs), 450);
+  assert.equal(await restartedWorker.evaluate(async () => (await chrome.storage.sync.get('selectionTranslationEnabled')).selectionTranslationEnabled), true);
+  console.log('PASS: real Chromium popup save/clear, memory-only session key, browser restart clears key and preserves settings, normal hover, editable/password skip, selection, worker transport. Provider responses mocked.');
 } finally {
   await context.close();
   await rm(profile, { recursive: true, force: true });

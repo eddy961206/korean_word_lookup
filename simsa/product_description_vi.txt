@@ -27,6 +27,6 @@ Từ hoặc văn bản được chọn được gửi đến nhà cung cấp b�
 
 Phiên bản này không gửi dữ liệu phân tích sản phẩm ra bên ngoài. Thông tin sử dụng cục bộ hỗ trợ hướng dẫn ban đầu và lời nhắc đánh giá. Nhật ký chẩn đoán cục bộ gần đây có tối đa 200 sự kiện; sự kiện và số liệu theo ngày quá 30 ngày được xóa khi ghi nhận sự kiện tiếp theo. Trạng thái cài đặt và tổng số lần sử dụng có thể được giữ trong suốt thời gian cài đặt tiện ích.
 
-Khóa KRDICT được lưu cục bộ trong Chrome, không được mã hóa và không được đồng bộ trong phiên bản này. Khóa chỉ được gửi đến KRDICT để tra từ điển và không được trả về cho tập lệnh nội dung trên trang. Các cài đặt thông thường có thể được Chrome đồng bộ. Xem chính sách quyền riêng tư để biết thêm chi tiết. Kết quả phụ thuộc vào kết nối Internet và tình trạng của nhà cung cấp; Chrome hạn chế tiện ích trên một số trang.
+Khóa KRDICT chỉ được giữ trong bộ nhớ cho phiên trình duyệt hiện tại, không được lưu lâu dài hoặc đồng bộ. Bạn cần nhập lại khóa sau khi khởi động lại Chrome hoặc tải lại/cập nhật tiện ích. Khóa chỉ được gửi đến KRDICT để tra từ điển và không được trả về cho tập lệnh nội dung trên trang. Các cài đặt thông thường có thể được Chrome đồng bộ. Xem chính sách quyền riêng tư để biết thêm chi tiết. Kết quả phụ thuộc vào kết nối Internet và tình trạng của nhà cung cấp; Chrome hạn chế tiện ích trên một số trang.
 
 Đây là tiện ích được phát triển độc lập. Dữ liệu từ điển do Từ điển tiếng Hàn cơ sở của Viện Quốc ngữ Quốc gia Hàn Quốc cung cấp.

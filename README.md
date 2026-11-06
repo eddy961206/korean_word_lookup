@@ -27,7 +27,7 @@ Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-ho
 ## Privacy
 - Hovered words go to the selected provider; optional source fallback may contact the other provider. Selected-text translation uses Google.
 - Inputs, password fields, and editable regions are skipped. This does not make other page text public: turn translation off before reading private material.
-- Your KRDICT key is kept in extension-local, trusted-context storage, not Chrome sync. It is not encrypted. Only the service worker uses it for KRDICT requests.
+- Your KRDICT key is kept only in trusted, memory-only Chrome session storage. Re-enter it after restarting Chrome or reloading/updating the extension. It is never written to persistent storage by this version or returned to page scripts.
 - No product-usage analytics are uploaded. Local counters support onboarding/review prompts; recent local diagnostics are capped and pruned.
 - See [Privacy](PRIVACY.md) for the complete data flow and retention details.
 

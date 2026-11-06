@@ -49,7 +49,7 @@ Words or selected text are sent to the relevant translation or dictionary provid
 
 This version does not send remote product analytics. Local usage information supports features such as onboarding and review prompts. Recent local diagnostics are limited to 200 events; events and daily buckets older than 30 days are removed when the next event is recorded. Installation state and aggregate usage counters can remain for the installation lifetime.
 
-Your KRDICT key is stored locally in Chrome, is not encrypted, and is not synced by this version. It is sent only to KRDICT for dictionary requests and is not returned to page content scripts. Ordinary settings can sync through Chrome. See the privacy policy for details. Internet access and provider availability affect results; Chrome restricts extensions on some pages.
+Your KRDICT key is kept only in memory for the current browser session, not persistent or sync storage. Enter it again after restarting Chrome or reloading/updating the extension. It is sent only to KRDICT for dictionary requests and is not returned to page content scripts. Ordinary settings can sync through Chrome. See the privacy policy for details. Internet access and provider availability affect results; Chrome restricts extensions on some pages.
 
 This is an independent extension. Dictionary data is provided by the National Institute of Korean Language's Basic Korean Dictionary.
 
@@ -88,7 +88,7 @@ Korean Word Lookup은 한국어 단어에 마우스를 올리면 번역이나 �
 
 이 버전은 외부로 제품 분석 정보를 전송하지 않습니다. 로컬 사용 정보는 시작 안내와 리뷰 요청 등에 사용됩니다. 최근 로컬 진단 기록은 최대 200개이며, 30일이 지난 이벤트와 날짜별 집계는 다음 이벤트가 기록될 때 삭제됩니다. 설치 상태와 누적 사용 횟수는 설치 기간 동안 남을 수 있습니다.
 
-KRDICT 키는 Chrome의 로컬 저장소에 저장되며 암호화되지 않습니다. 이 버전에서는 키를 동기화하지 않습니다. 키는 사전 조회를 위해 KRDICT에만 전송되며, 페이지 콘텐츠 스크립트로 반환되지 않습니다. 일반 설정은 Chrome을 통해 동기화될 수 있습니다. 자세한 내용은 개인정보처리방침을 확인하세요. 인터넷 연결과 제공자 상태에 따라 결과를 가져오지 못할 수 있으며, Chrome이 확장 프로그램 실행을 제한하는 페이지도 있습니다.
+KRDICT 키는 현재 브라우저 세션의 메모리에만 보관되며 영구 저장하거나 동기화하지 않습니다. Chrome 재시작 또는 확장 프로그램 새로고침·업데이트 후 다시 입력해야 합니다. 키는 사전 조회를 위해 KRDICT에만 전송되며, 페이지 콘텐츠 스크립트로 반환되지 않습니다. 일반 설정은 Chrome을 통해 동기화될 수 있습니다. 자세한 내용은 개인정보처리방침을 확인하세요. 인터넷 연결과 제공자 상태에 따라 결과를 가져오지 못할 수 있으며, Chrome이 확장 프로그램 실행을 제한하는 페이지도 있습니다.
 
 독립적으로 개발된 확장 프로그램입니다. 사전 데이터는 국립국어원 한국어기초사전에서 제공합니다.
 
@@ -161,11 +161,11 @@ Existing `marketing/screenshots/final` and `scenes` are historical assets. They 
 - [ ] Confirm no keys, development fixtures, marketing documents, or remote analytics credentials in ZIP.
 - [ ] Load the ZIP contents into Chrome for fresh-install and upgrade tests. Test provider error/missing key/selection off/on and shortcuts on supported platforms.
 - [ ] Publish or update the genuine public privacy policy at an owner-approved location, then insert its verified URL into the store dashboard. This kit contains no invented policy URL.
-- [ ] Fill store data and permission declarations from the final data flows. `storage` supports settings, local key and local state; provider host access supports lookups; broad content-script matching supports hover/selection on regular pages. Website text is transmitted for translation even without analytics.
+- [ ] Fill store data and permission declarations from the final data flows. `storage` supports settings, session key and local state; provider host access supports lookups; broad content-script matching supports hover/selection on regular pages. Website text is transmitted for translation even without analytics.
 - [ ] Check language-specific title/description limits, new store policies, and screenshot specifications in the current dashboard.
 - [ ] Proofread Korean and Vietnamese in the rendered listing. Confirm English output is obvious in all languages.
 - [ ] Capture final screenshots from the release candidate, with no personal browser data or keys visible.
-- [ ] Confirm no stale “key saved in sync” language if the local-only key migration is included, and no claim of zero local diagnostics.
+- [ ] Confirm no stale “key saved in sync” language if the session-only key migration is included, and no claim of zero local diagnostics.
 - [ ] Owner reviews final listing, policy, package, and store declarations before any submission. This document does not assert approval or publication.
 
 ## Measurement after publication
