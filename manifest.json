@@ -3,15 +3,14 @@
   "default_locale": "en",
   "name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "homepage_url": "https://github.com/eddy961206/korean_word_lookup",
   "permissions": [
     "storage"
   ],
   "host_permissions": [
     "https://translate.googleapis.com/*",
-    "https://krdict.korean.go.kr/*",
-    "https://www.google-analytics.com/*"
+    "https://krdict.korean.go.kr/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -84,5 +83,6 @@
       },
       "description": "__MSG_cmdToggleSelect__"
     }
-  }
+  },
+  "minimum_chrome_version": "102"
 }

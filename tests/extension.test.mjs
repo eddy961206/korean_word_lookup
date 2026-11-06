@@ -23,8 +23,7 @@ test('extension permissions remain intentionally narrow', async () => {
   assert.deepEqual(manifest.permissions, ['storage']);
   assert.deepEqual([...manifest.host_permissions].sort(), [
     'https://krdict.korean.go.kr/*',
-    'https://translate.googleapis.com/*',
-    'https://www.google-analytics.com/*'
+    'https://translate.googleapis.com/*'
   ]);
 });
 
@@ -38,8 +37,8 @@ test('all locales expose the same message keys', async () => {
   }
 });
 
-test('telemetry remains opt-in and has no built-in secret', async () => {
+test('remote telemetry is absent and has no built-in secret', async () => {
   const source = await readFile(path.join(root, 'background.js'), 'utf8');
-  assert.match(source, /ga4TelemetryEnabled !== true/u);
+  assert.doesNotMatch(source, /google-analytics\.com|mp\/collect/u);
   assert.doesNotMatch(source, /GA4_DEFAULT_API_SECRET/u);
 });

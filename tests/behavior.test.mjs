@@ -77,27 +77,21 @@ async function loadContent({ syncValues, fetch: fetchImpl } = {}) {
   return { ...state, context };
 }
 
-test('sentence translation includes every provider response segment', async () => {
-  const { context } = await loadContent({
-    fetch: async () => ({
-      ok: true,
-      json: async () => [[
-        ['Hello. ', '안녕하세요. '],
-        ['Nice to meet you.', '만나서 반갑습니다.']
-      ]]
-    })
-  });
-  assert.equal(
-    await context.translateText('안녕하세요. 만나서 반갑습니다.'),
-    'Hello. Nice to meet you.'
-  );
+test('content translation uses background messages, not page-origin fetch', async () => {
+  const { context, chrome, messages } = await loadContent({ fetch: () => { throw new Error('content must not fetch'); } });
+  chrome.runtime.sendMessage = async message => {
+    messages.push(message);
+    return { translation: 'Hello. Nice to meet you.' };
+  };
+  assert.equal(await context.translateText('안녕하세요. 만나서 반갑습니다.'), 'Hello. Nice to meet you.');
+  assert.equal(messages.at(-1).action, 'translateText');
 });
 
 test('disabled automatic fallback stays disabled when a page initializes', async () => {
   const { context, messages } = await loadContent({ syncValues: { autoFallbackEnabled: false } });
   const result = await context.lookupWord('한국어');
   assert.equal(result.type, 'error');
-  assert.equal(messages.some((message) => message.action === 'getApiKey'), false);
+  assert.equal(messages.some((message) => message.action === 'lookupDictionary'), false);
 });
 
 for (const compactTooltip of [false, true]) {
@@ -110,13 +104,13 @@ for (const compactTooltip of [false, true]) {
       englishDefs: ['Korean language'],
       koreanDefs: ['한국어']
     });
-    // markFirstSuccess writes storage before sending its event.
+    // 최초 성공 저장/중복 제거는 백그라운드에 위임한다.
     await new Promise(setImmediate);
     assert.equal(messages.filter((message) => message.action === 'trackUsage' && message.kind === 'word').length, 1);
     assert.equal(messages.filter((message) => message.eventName === 'feature_use' && message.payload.source === 'krdict').length, 1);
-    assert.equal(messages.filter((message) => message.eventName === 'first_success').length, 1);
-    assert.equal(localValues.firstSuccessKind, 'word_dict');
-    assert.ok(Number.isFinite(localValues.firstSuccessAt));
+    assert.equal(messages.filter((message) => message.action === 'markFirstSuccess' && message.kind === 'word_dict').length, 1);
+    assert.equal(messages.filter((message) => message.eventName === 'first_success').length, 0);
+    assert.equal(localValues.firstSuccessAt, undefined);
   });
 }
 

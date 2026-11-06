@@ -1,3 +1,5 @@
+> Historical planning document. For 2.5.3, remote product analytics is removed. See [the current privacy and analytics plan](docs/PRIVACY_ANALYTICS_PLAN.md). Metrics/targets below are not verified current results.
+
 # P0 Analytics & Retention Spec
 
 ## Added events

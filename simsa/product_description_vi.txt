@@ -1,30 +1,32 @@
-Korean Word Lookup - Tra từ và dịch câu từ tiếng Hàn sang tiếng Anh
+Korean Word Lookup: Dịch tiếng Hàn sang tiếng Anh
 
-Đọc bài viết, bài đăng và tài liệu học tiếng Hàn với nghĩa tiếng Anh ngay bên cạnh nội dung. Di chuột lên một từ để tra nghĩa, hoặc bật dịch phần bôi đen rồi chọn một câu để xem bản dịch mà không cần mở tab khác.
+Đọc trang web tiếng Hàn và xem nghĩa tiếng Anh ngay tại đoạn bạn đang đọc.
 
-Bắt đầu với Google Translate
-- Không cần khóa API để dùng Google Translate.
-- Sau khi cài đặt hoặc cập nhật, hãy tải lại trang web đang mở rồi di chuột lên một từ tiếng Hàn.
-- Để dịch câu, bật dịch phần bôi đen trong cửa sổ tiện ích. Mỗi lần có thể chọn tối đa 500 ký tự.
+Korean Word Lookup hiển thị bản dịch hoặc nghĩa từ điển trong chú giải khi bạn di chuột lên một từ tiếng Hàn. Bật tính năng dịch văn bản được chọn để dịch cụm từ hoặc câu sang tiếng Anh.
 
-Tra định nghĩa chi tiết
-- Nhập khóa API KRDICT của riêng bạn trong cửa sổ tiện ích để xem định nghĩa từ Từ điển tiếng Hàn cơ sở.
-- Chọn Google Translate hoặc KRDICT, điều chỉnh số lượng định nghĩa và tùy chọn hiển thị định nghĩa tiếng Hàn.
-- Tự động chuyển nguồn có thể thử nguồn còn lại khi tra cứu thất bại hoặc không có kết quả. KRDICT vẫn cần khóa API của bạn.
+Chọn nguồn tra từ:
+- Google Dịch: xem bản dịch tiếng Anh mà không cần nhập khóa API.
+- KRDICT: xem mục từ trong Từ điển tiếng Hàn cơ sở của Viện Quốc ngữ Quốc gia Hàn Quốc bằng khóa API KRDICT của riêng bạn.
+- Tùy chọn chuyển nguồn: thử nguồn còn lại khi không có kết quả tra từ phù hợp. Bạn vẫn cần khóa riêng để dùng từ điển.
 
-Tùy chỉnh khi đọc
-- Bật/tắt dịch, điều chỉnh độ trễ khi di chuột hoặc dùng bảng nghĩa thu gọn.
-- Windows/Linux/ChromeOS: Alt+T để bật/tắt dịch, Alt+G để chọn Google, Alt+K để chọn KRDICT và Alt+S để bật/tắt dịch phần bôi đen.
-- Trên Mac, dùng Option+Shift cùng các chữ cái tương ứng.
+Điều chỉnh theo cách bạn đọc:
+- Thay đổi độ trễ trước khi hiện chú giải.
+- Chọn chế độ gọn và số lượng định nghĩa tối đa.
+- Hiển thị thêm định nghĩa bằng tiếng Hàn trong kết quả từ điển.
+- Dùng phím tắt để bật hoặc tắt bản dịch, đổi nguồn tra từ và bật hoặc tắt tính năng dịch văn bản được chọn.
 
-Phạm vi sử dụng
-- Dành cho văn bản tiếng Hàn trên các trang web thông thường. Không hoạt động trên trang nội bộ Chrome, Chrome Web Store và một số trình xem PDF.
-- Dịch và tra từ điển trực tuyến cần kết nối internet.
+Giao diện có tiếng Anh, tiếng Hàn và tiếng Việt. Kết quả dịch là tiếng Anh. Văn bản được chọn sử dụng Google để dịch, ngay cả khi bạn chọn KRDICT để tra từ.
 
-Quyền riêng tư
-- Văn bản bạn tra cứu được gửi đến Google Translate hoặc KRDICT khi cần để lấy bản dịch hoặc định nghĩa.
-- Cài đặt được lưu trong bộ nhớ Chrome.
-- Việc gửi dữ liệu phân tích sản phẩm ra bên ngoài mặc định tắt và chỉ được bật khi bạn đồng ý. Bộ đếm sử dụng cục bộ được lưu trong bộ nhớ Chrome. Văn bản gốc bạn di chuột hoặc bôi đen không được gửi vào dữ liệu phân tích sản phẩm.
+Bắt đầu:
+1. Mở một trang web tiếng Hàn thông thường và di chuột lên một từ.
+2. Mở cửa sổ tiện ích để điều chỉnh cài đặt hoặc bật tính năng dịch văn bản được chọn.
+3. Để dùng KRDICT, nhập khóa API của riêng bạn trong cửa sổ tiện ích.
 
-Liên hệ
-Câu hỏi, lỗi hoặc góp ý: skykum2004@gmail.com
+Quyền riêng tư và khả năng sử dụng:
+Từ hoặc văn bản được chọn được gửi đến nhà cung cấp bản dịch hoặc từ điển tương ứng để lấy kết quả. Nếu bật tùy chọn chuyển nguồn, từ cần tra cũng có thể được gửi đến nhà cung cấp còn lại. Tiện ích bỏ qua ô nhập liệu, ô mật khẩu, vùng nhập văn bản, vùng có thể chỉnh sửa và phần chọn đi qua nội dung có thể chỉnh sửa. Văn bản khác trên trang vẫn có thể chứa thông tin riêng tư; hãy tắt dịch trước khi đọc nội dung bạn không muốn gửi đến nhà cung cấp.
+
+Phiên bản này không gửi dữ liệu phân tích sản phẩm ra bên ngoài. Thông tin sử dụng cục bộ hỗ trợ hướng dẫn ban đầu và lời nhắc đánh giá. Nhật ký chẩn đoán cục bộ gần đây có tối đa 200 sự kiện; sự kiện và số liệu theo ngày quá 30 ngày được xóa khi ghi nhận sự kiện tiếp theo. Trạng thái cài đặt và tổng số lần sử dụng có thể được giữ trong suốt thời gian cài đặt tiện ích.
+
+Khóa KRDICT được lưu cục bộ trong Chrome, không được mã hóa và không được đồng bộ trong phiên bản này. Khóa chỉ được gửi đến KRDICT để tra từ điển và không được trả về cho tập lệnh nội dung trên trang. Các cài đặt thông thường có thể được Chrome đồng bộ. Xem chính sách quyền riêng tư để biết thêm chi tiết. Kết quả phụ thuộc vào kết nối Internet và tình trạng của nhà cung cấp; Chrome hạn chế tiện ích trên một số trang.
+
+Đây là tiện ích được phát triển độc lập. Dữ liệu từ điển do Từ điển tiếng Hàn cơ sở của Viện Quốc ngữ Quốc gia Hàn Quốc cung cấp.

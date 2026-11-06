@@ -4,16 +4,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-install-blue.svg)](https://chromewebstore.google.com/detail/korean-word-lookup-hover/hhcaojjokbganindbecnhonkfjhnibji)
 
-Korean translator & dictionary for Chrome: hover Hangul (Korean) words for instant English meaning, or select sentences to translate in one shot.
+Read Korean web pages with English help where you are reading. Hover over a Korean word for a translation or dictionary meaning, or enable selection translation for phrases and sentences.
 
 Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-hover/hhcaojjokbganindbecnhonkfjhnibji
 
 ## Project status
 
 - **Primary maintainer:** [@eddy961206](https://github.com/eddy961206)
-- **Adoption:** 580+ users shown by the Chrome Web Store on 2026-09-16
-- **Store release:** 2.5.0, updated on 2026-09-06
-- **Source version:** 2.5.2; Chrome Web Store submission is tracked separately
+- **Source version:** 2.5.3 release candidate; Chrome Web Store submission is tracked separately
+- **Last verified store snapshot:** version 2.5.0 on 2026-09-16; this is not a claim about the current store version
 
 ## Features
 - **Hover translate**: hover Korean words to see English translations/definitions
@@ -26,8 +25,11 @@ Chrome Web Store: https://chromewebstore.google.com/detail/korean-word-lookup-ho
   - macOS (default): `⌥⇧T`, `⌥⇧G`, `⌥⇧K`, `⌥⇧S`
 
 ## Privacy
-- The text you translate is sent to **Google Translate** or **KRDICT** only to fetch translations/definitions.
-- Settings are stored in Chrome storage (sync/local depending on the setting).
+- Hovered words go to the selected provider; optional source fallback may contact the other provider. Selected-text translation uses Google.
+- Inputs, password fields, and editable regions are skipped. This does not make other page text public: turn translation off before reading private material.
+- Your KRDICT key is kept in extension-local, trusted-context storage, not Chrome sync. It is not encrypted. Only the service worker uses it for KRDICT requests.
+- No product-usage analytics are uploaded. Local counters support onboarding/review prompts; recent local diagnostics are capped and pruned.
+- See [Privacy](PRIVACY.md) for the complete data flow and retention details.
 
 ## Maintainer workflows
 - Chrome Extension Manifest V3 maintenance and compatibility updates
@@ -48,7 +50,7 @@ npm run check
 Build a clean store ZIP with Python 3.9+ after the checks pass:
 
 ```bash
-python tools/package_release.py /absolute/path/to/korean-word-lookup-2.5.2.zip
+python tools/package_release.py /absolute/path/to/korean-word-lookup-2.5.3.zip
 ```
 
 The builder includes only runtime files, declared icons, locales, and license
@@ -63,7 +65,9 @@ Dictionary data provided by National Institute of Korean Language's Basic Korean
 - Retention + event notes: `P0_ANALYTICS.md`
 - Listing optimization drafts: `STORE_LISTING_P1.md`, `ACQUISITION_CHANNEL_PLAN_P1.md`
 - Deep-research execution checklist: `DEEP_RESEARCH_ACTION_PLAN.md`
-- Optional GA4 product telemetry setup: `GA4_MEASUREMENT_PROTOCOL_SETUP.md`
+- Privacy and future opt-in analytics assessment: `docs/PRIVACY_ANALYTICS_PLAN.md`
+- Current multilingual store copy and screenshot brief: `docs/STORE_RELEASE_KIT.md`
+- Retired GA4 telemetry path: `GA4_MEASUREMENT_PROTOCOL_SETUP.md`
 - UTM governance: `UTM_GOVERNANCE.md`
 
 ## License

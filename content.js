@@ -18,7 +18,6 @@ const DEFAULT_SETTINGS = {
 
 const CACHE_LIMIT = 200;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24;
-const ERROR_TTL_MS = 1000 * 60 * 2;
 const MAX_SELECTION_CHARS = 500;
 const SELECTION_HEADER_CHARS = 60;
 
@@ -41,6 +40,7 @@ let positionFrame = null;
 let activeRequestId = 0;
 const translationCache = new Map();
 const pendingRequests = new Map();
+let cacheGeneration = 0;
 let selectionText = '';
 let selectionTimer = null;
 let selectionRequestId = 0;
@@ -50,28 +50,20 @@ let hasTrackedFirstSuccess = false;
 
 // 초기 상태를 Promise로 가져오는 함수
 async function initializeExtension() {
-  const result = await storageGet([
-    'translationEnabled',
-    'selectedApi',
-    'hoverDelayMs',
-    'maxDefinitions',
-    'showKoreanDefinitions',
-    'compactTooltip',
-    'autoFallbackEnabled',
-    'selectionTranslationEnabled'
-  ]);
-
-  const localState = await storageLocalGet(['firstSuccessAt']);
-  hasTrackedFirstSuccess = Number.isFinite(localState.firstSuccessAt);
-
-  applySettings(result);
-
+  // 초기 비동기 읽기 중 도착한 변경을 모아 오래된 스냅샷보다 우선 적용한다.
+  const startupSettings = {};
   // 툴팁 요소 생성 및 이벤트 리스너 설정
   tooltipElements = createTooltip();
 
   // 팝업으로부터 상태 변경 메시지를 수신
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'invalidateDictionaryCache') {
+      invalidateLookupCache();
+      sendResponse({ status: 'success' });
+      return true;
+    }
     if (request.action === 'toggleTranslation') {
+      if (!isInitialized) startupSettings.translationEnabled = request.enabled;
       isEnabled = request.enabled;
       if (!isEnabled) {
         hideTooltip();
@@ -89,6 +81,10 @@ async function initializeExtension() {
   // 스토리지 변경 사항을 실시간으로 감지
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
+    if (!isInitialized) {
+      for (const [key, change] of Object.entries(changes)) startupSettings[key] = change.newValue;
+      return;
+    }
 
     if (changes.translationEnabled) {
       isEnabled = changes.translationEnabled.newValue !== false;
@@ -104,8 +100,12 @@ async function initializeExtension() {
 
     if (changes.selectedApi) {
       selectedApi = changes.selectedApi.newValue || DEFAULT_SETTINGS.selectedApi;
-      activeRequestId += 1;
-      lastWord = '';
+      invalidateLookupCache();
+    }
+
+    // 키/제공자 설정 변경 뒤 이전 실패나 폴백 결과를 재사용하지 않는다.
+    if (changes.autoFallbackEnabled) {
+      invalidateLookupCache();
     }
 
     if (changes.hoverDelayMs) {
@@ -142,23 +142,50 @@ async function initializeExtension() {
     }
   });
 
+  const result = await storageGet([
+    'translationEnabled',
+    'selectedApi',
+    'hoverDelayMs',
+    'maxDefinitions',
+    'showKoreanDefinitions',
+    'compactTooltip',
+    'autoFallbackEnabled',
+    'selectionTranslationEnabled'
+  ]);
+
+  // 로컬 사용 기록은 신뢰된 백그라운드에서만 읽고 쓴다.
+  const localState = await chrome.runtime.sendMessage({ action: 'readUsageState' }).catch(() => ({}));
+  hasTrackedFirstSuccess = Number.isFinite(localState?.firstSuccessAt);
+
+  applySettings({ ...result, ...startupSettings });
+
   isInitialized = true; // 초기화 완료 표시
 
   document.addEventListener('mousedown', () => {
-    if (!selectionTranslationEnabled) return;
+    cancelPendingLookups();
     isSelecting = true;
-    clearHoverTimer();
   });
 
   document.addEventListener('mouseup', () => {
-    if (!selectionTranslationEnabled) return;
     isSelecting = false;
+    if (!selectionTranslationEnabled) return;
     handleSelectionChange();
   });
 
   document.addEventListener('keyup', () => {
     if (!selectionTranslationEnabled) return;
     handleSelectionChange();
+  });
+
+  // 포커스/선택/화면 변화 뒤에는 이전 위치의 텍스트를 전송하지 않는다.
+  document.addEventListener('focusin', cancelPendingLookups, true);
+  document.addEventListener('scroll', cancelPendingLookups, true);
+  document.addEventListener('visibilitychange', cancelPendingLookups);
+  document.addEventListener('mouseleave', cancelPendingLookups);
+  document.addEventListener('selectionchange', () => {
+    clearHoverTimer();
+    activeRequestId += 1;
+    if (!isSelecting) handleSelectionChange();
   });
 
   // 마우스 이동 이벤트 핸들러
@@ -175,18 +202,6 @@ async function initializeExtension() {
 function storageGet(keys) {
   return new Promise(resolve => {
     chrome.storage.sync.get(keys, resolve);
-  });
-}
-
-function storageLocalGet(keys) {
-  return new Promise(resolve => {
-    chrome.storage.local.get(keys, resolve);
-  });
-}
-
-function storageLocalSet(values) {
-  return new Promise(resolve => {
-    chrome.storage.local.set(values, resolve);
   });
 }
 
@@ -209,9 +224,12 @@ function trackEvent(eventName, payload = {}) {
 async function markFirstSuccess(kind) {
   if (hasTrackedFirstSuccess) return;
   hasTrackedFirstSuccess = true;
-  const firstSuccessAt = Date.now();
-  await storageLocalSet({ firstSuccessAt, firstSuccessKind: kind });
-  trackEvent('first_success', { kind });
+  try {
+    const response = await chrome.runtime.sendMessage({ action: 'markFirstSuccess', kind });
+    if (!response?.ok) hasTrackedFirstSuccess = false;
+  } catch {
+    hasTrackedFirstSuccess = false;
+  }
 }
 
 function applySettings(result) {
@@ -262,20 +280,65 @@ function clearHoverTimer() {
   hoverTimer = null;
 }
 
+// 편집 영역은 중첩/상속 및 Shadow DOM 경계를 넘어 보수적으로 제외한다.
+function composedParent(node) {
+  return node?.assignedSlot || node?.parentNode || node?.getRootNode?.().host || null;
+}
+
+function isPrivateNode(node) {
+  for (let current = node; current; current = composedParent(current)) {
+    if (current.nodeType !== Node.ELEMENT_NODE) continue;
+    const tag = current.tagName?.toLowerCase();
+    const editable = current.getAttribute?.('contenteditable');
+    if (['input', 'textarea', 'select'].includes(tag)
+      || current.isContentEditable
+      || (editable !== null && editable !== undefined && ['', 'true', 'plaintext-only'].includes(editable.toLowerCase()))
+      || ['textbox', 'searchbox', 'combobox'].includes(current.getAttribute?.('role'))
+      || current === tooltipElements?.tooltip) return true;
+  }
+  return document.designMode?.toLowerCase() === 'on';
+}
+
+function cancelPendingLookups() {
+  clearHoverTimer();
+  lastHoverPoint = null;
+  activeRequestId += 1;
+  clearSelectionTranslation();
+  hideTooltip();
+}
+
+function invalidateLookupCache() {
+  cancelPendingLookups();
+  cacheGeneration += 1;
+  translationCache.clear();
+  pendingRequests.clear();
+}
+
 function scheduleLookup(event) {
-  if (selectionTranslationEnabled && (isSelecting || selectionText)) {
+  // Mouseup can happen outside this document. Recover only when no button is held.
+  if (isSelecting && event.buttons === 0) isSelecting = false;
+  clearHoverTimer();
+  if (!isEnabled || !isInitialized || document.hidden || isSelecting
+    || (selectionTranslationEnabled && selectionText)
+    || (event.composedPath?.() || [event.target]).some(isPrivateNode)) {
+    cancelPendingLookups();
     return;
   }
-  lastHoverPoint = { clientX: event.clientX, clientY: event.clientY };
-  clearHoverTimer();
-
-  const delay = Math.max(0, hoverDelayMs);
+  const point = { clientX: event.clientX, clientY: event.clientY, target: event.target };
+  lastHoverPoint = point;
+  // 이미 표시한 같은 단어는 위치만 갱신하고 사용 횟수를 다시 기록하지 않는다.
+  if (lastWord && getKoreanWordAtPoint(point.clientX, point.clientY) === lastWord) return;
+  // 다른 단어로 이동하면 진행 중인 응답도 이전 위치에 표시하지 않는다.
+  activeRequestId += 1;
+  lastWord = '';
   hoverTimer = setTimeout(() => {
-    if (!lastHoverPoint) return;
-    handleHover(lastHoverPoint).catch(error => {
-      console.error('Hover handling error:', error);
+    hoverTimer = null;
+    if (lastHoverPoint !== point) return;
+    handleHover(point).catch(() => {
+      lastWord = '';
+      hideTooltip();
     });
-  }, delay);
+  }, Math.max(0, hoverDelayMs));
 }
 
 function schedulePositionUpdate(event) {
@@ -306,7 +369,6 @@ function clearSelectionTranslation() {
   clearSelectionTimer();
   selectionText = '';
   selectionRequestId += 1;
-  isSelecting = false;
   lastWord = '';
   if (tooltipMode === 'selection') {
     hideTooltip();
@@ -320,15 +382,11 @@ function handleSelectionChange() {
   }
 
   const selection = window.getSelection();
-  if (!selection || selection.isCollapsed) {
+  if (!selection || selection.isCollapsed || isEditableSelection(selection)) {
     clearSelectionTranslation();
     return;
   }
 
-  if (isEditableSelection(selection)) {
-    clearSelectionTranslation();
-    return;
-  }
 
   const normalized = normalizeSelectionText(selection.toString());
   if (!normalized) {
@@ -341,7 +399,11 @@ function handleSelectionChange() {
     return;
   }
 
+  clearHoverTimer();
+  activeRequestId += 1;
+
   if (normalized.length > MAX_SELECTION_CHARS) {
+    clearSelectionTimer();
     selectionText = normalized;
     selectionRequestId += 1;
     const msg = chrome.i18n.getMessage('msgTooLong', [String(MAX_SELECTION_CHARS)]);
@@ -366,21 +428,27 @@ function handleSelectionChange() {
 
   const delay = Math.max(0, hoverDelayMs);
   selectionTimer = setTimeout(() => {
-    translateSelection(selectionText, requestId).catch(error => {
+    selectionTimer = null;
+    translateSelection(normalized, requestId).catch(error => {
       console.error('Selection translation error:', error);
     });
   }, delay);
 }
 
 function isEditableSelection(selection) {
-  const anchorNode = selection.anchorNode;
-  if (!anchorNode) return false;
-  const element = anchorNode.nodeType === Node.ELEMENT_NODE
-    ? anchorNode
-    : anchorNode.parentElement;
-  if (!element) return false;
-  if (element.isContentEditable) return true;
-  return Boolean(element.closest('input, textarea, [contenteditable="true"]'));
+  if (isPrivateNode(document.activeElement)
+    || isPrivateNode(selection.anchorNode) || isPrivateNode(selection.focusNode)) return true;
+  // 양 끝이 일반 텍스트여도 범위 내부에 편집기가 끼어 있으면 전송하지 않는다.
+  for (let index = 0; index < selection.rangeCount; index += 1) {
+    const range = selection.getRangeAt(index);
+    if (isPrivateNode(range.commonAncestorContainer)) return true;
+    const root = range.commonAncestorContainer;
+    const candidates = root.querySelectorAll?.('input, textarea, select, [contenteditable], [role="textbox"], [role="searchbox"], [role="combobox"]') || [];
+    for (const element of candidates) {
+      if (isPrivateNode(element) && range.intersectsNode(element)) return true;
+    }
+  }
+  return false;
 }
 
 function normalizeSelectionText(text) {
@@ -431,10 +499,10 @@ function updateTooltipPositionFromRect(rect) {
 }
 
 async function translateSelection(text, requestId) {
-  if (requestId !== selectionRequestId) return;
+  if (requestId !== selectionRequestId || !isEnabled || !selectionTranslationEnabled || document.hidden) return;
 
   const selection = window.getSelection();
-  if (!selection || selection.isCollapsed) {
+  if (!selection || selection.isCollapsed || isEditableSelection(selection)) {
     clearSelectionTranslation();
     return;
   }
@@ -454,11 +522,18 @@ async function translateSelection(text, requestId) {
     updateTooltipPosition(lastHoverPoint);
   }
 
-  const result = await lookupSelection(text);
+  const result = await lookupSelection(text, () => {
+    const current = window.getSelection();
+    return requestId === selectionRequestId && isEnabled && selectionTranslationEnabled
+      && !document.hidden && current && !current.isCollapsed && !isEditableSelection(current)
+      && normalizeSelectionText(current.toString()) === text;
+  });
 
-  if (requestId !== selectionRequestId) {
-    return;
-  }
+  const currentSelection = window.getSelection();
+  if (requestId !== selectionRequestId || !isEnabled || !selectionTranslationEnabled
+    || document.hidden || !currentSelection || currentSelection.isCollapsed
+    || isEditableSelection(currentSelection)
+    || normalizeSelectionText(currentSelection.toString()) !== text) return;
 
   renderSelectionResult(text, result);
   if (selectionRect) {
@@ -467,7 +542,8 @@ async function translateSelection(text, requestId) {
 }
 
 async function handleHover(point) {
-  if (selectionTranslationEnabled && selectionText) {
+  if (!isEnabled || !isInitialized || document.hidden || isSelecting || isPrivateNode(point.target)
+    || (selectionTranslationEnabled && selectionText)) {
     return;
   }
   const koreanWord = getKoreanWordAtPoint(point.clientX, point.clientY);
@@ -483,26 +559,32 @@ async function handleHover(point) {
     return;
   }
 
-  lastWord = koreanWord;
+  lastWord = '';
   const requestId = ++activeRequestId;
 
   renderLoadingState(koreanWord);
   updateTooltipPosition(point);
 
   // Auto-fallback logic inside lookupWord
-  const result = await lookupWord(koreanWord);
+  const result = await lookupWord(koreanWord, () => requestId === activeRequestId
+    && isEnabled && !document.hidden && !isPrivateNode(point.target)
+    && getKoreanWordAtPoint(point.clientX, point.clientY) === koreanWord);
 
-  if (requestId !== activeRequestId) {
+  if (requestId !== activeRequestId || !isEnabled || document.hidden
+    || isPrivateNode(point.target) || getKoreanWordAtPoint(point.clientX, point.clientY) !== koreanWord) {
     return;
   }
 
   renderLookupResult(koreanWord, result);
+  lastWord = result.type === 'error' ? '' : koreanWord; // 성공한 단어만 중복 표시를 막는다.
   if (lastHoverPoint) {
     updateTooltipPosition(lastHoverPoint);
   }
 }
 
-async function lookupWord(word) {
+async function lookupWord(word, isCurrent = () => true) {
+  const api = selectedApi;
+  const allowFallback = autoFallbackEnabled;
   const cacheKey = `${selectedApi}:${word}:${autoFallbackEnabled}`;
   const cached = getCacheEntry(cacheKey);
   if (cached) {
@@ -511,16 +593,23 @@ async function lookupWord(word) {
 
   const pending = pendingRequests.get(cacheKey);
   if (pending) {
-    return pending;
+    pending.subscribers.add(isCurrent);
+    return pending.promise;
   }
 
+  const generation = cacheGeneration;
+  const subscribers = new Set([isCurrent]);
+  // Shared work may continue for a newer caller, but never for stale contexts only.
+  const hasCurrentSubscriber = () => generation === cacheGeneration
+    && [...subscribers].some(check => check());
+  const entry = { subscribers, promise: null };
   const requestPromise = (async () => {
-    let result = await performLookup(word, selectedApi);
+    let result = await performLookup(word, api, hasCurrentSubscriber);
     
     // Fallback Logic
-    if (autoFallbackEnabled && result.type === 'error') {
-       const fallbackApi = selectedApi === 'google' ? 'krdict' : 'google';
-       const fallbackResult = await performLookup(word, fallbackApi);
+    if (allowFallback && hasCurrentSubscriber() && result.type === 'error') {
+       const fallbackApi = api === 'google' ? 'krdict' : 'google';
+       const fallbackResult = await performLookup(word, fallbackApi, hasCurrentSubscriber);
        if (fallbackResult.type !== 'error') {
          // Mark as fallback for UI
          fallbackResult.isFallback = true;
@@ -530,21 +619,22 @@ async function lookupWord(word) {
     return result;
   })();
 
-  pendingRequests.set(cacheKey, requestPromise);
+  entry.promise = requestPromise;
+  pendingRequests.set(cacheKey, entry);
 
   try {
     const result = await requestPromise;
-    cacheResult(cacheKey, result);
+    if (generation === cacheGeneration) cacheResult(cacheKey, result);
     return result;
   } finally {
-    pendingRequests.delete(cacheKey);
+    if (pendingRequests.get(cacheKey) === entry) pendingRequests.delete(cacheKey);
   }
 }
 
-async function performLookup(word, api) {
+async function performLookup(word, api, isCurrent = () => true) {
     if (api === 'google') {
       let translation = await translateText(word);
-      if (!translation) {
+      if (!translation && isCurrent()) {
         // Fallback to the on-device Chrome Translator API when the
         // remote endpoint is unreachable (Chrome 138+).
         translation = await onDeviceTranslate(word);
@@ -565,7 +655,7 @@ async function performLookup(word, api) {
     return buildErrorResult(chrome.i18n.getMessage('errorNotFound') || 'Word not found in dictionary');
 }
 
-async function lookupSelection(text) {
+async function lookupSelection(text, isCurrent = () => true) {
   const cacheKey = `selection:${text}`;
   const cached = getCacheEntry(cacheKey);
   if (cached) {
@@ -574,12 +664,19 @@ async function lookupSelection(text) {
 
   const pending = pendingRequests.get(cacheKey);
   if (pending) {
-    return pending;
+    pending.subscribers.add(isCurrent);
+    return pending.promise;
   }
 
+  const generation = cacheGeneration;
+  const subscribers = new Set([isCurrent]);
+  // Shared work may continue for a newer caller, but never for stale contexts only.
+  const hasCurrentSubscriber = () => generation === cacheGeneration
+    && [...subscribers].some(check => check());
+  const entry = { subscribers, promise: null };
   const requestPromise = (async () => {
-    let translation = await translateText(text);
-    if (!translation) {
+    let translation = await translateText(text, 'selection');
+    if (!translation && hasCurrentSubscriber()) {
       translation = await onDeviceTranslate(text);
     }
     if (translation) {
@@ -588,14 +685,15 @@ async function lookupSelection(text) {
     return buildErrorResult(chrome.i18n.getMessage('error') || 'Unable to translate selection');
   })();
 
-  pendingRequests.set(cacheKey, requestPromise);
+  entry.promise = requestPromise;
+  pendingRequests.set(cacheKey, entry);
 
   try {
     const result = await requestPromise;
-    cacheResult(cacheKey, result);
+    if (generation === cacheGeneration) cacheResult(cacheKey, result);
     return result;
   } finally {
-    pendingRequests.delete(cacheKey);
+    if (pendingRequests.get(cacheKey) === entry) pendingRequests.delete(cacheKey);
   }
 }
 
@@ -624,8 +722,9 @@ function buildErrorResult(message) {
 }
 
 function cacheResult(key, result) {
-  const ttl = result.type === 'error' ? ERROR_TTL_MS : CACHE_TTL_MS;
-  setCacheEntry(key, result, ttl);
+  // 첫 요청의 네트워크/키 설정 실패가 이후 정상 요청을 막지 않게 한다.
+  if (result.type === 'error') return;
+  setCacheEntry(key, result, CACHE_TTL_MS);
 }
 
 function getCacheEntry(key) {
@@ -867,6 +966,8 @@ function containsKorean(text) {
 
 // 마우스 위치에서 한국어 단어를 추출
 function getKoreanWordAtPoint(x, y) {
+  // caret API는 가까운 편집기까지 이동할 수 있으므로 실제 노드도 아래에서 검사한다.
+  if (isPrivateNode(document.elementFromPoint?.(x, y))) return null;
   let range;
   if (document.caretRangeFromPoint) {
     range = document.caretRangeFromPoint(x, y);
@@ -881,7 +982,7 @@ function getKoreanWordAtPoint(x, y) {
 
   if (range) {
     const node = range.startContainer;
-    if (node.nodeType === Node.TEXT_NODE) {
+    if (node.nodeType === Node.TEXT_NODE && !isPrivateNode(node)) {
       const text = node.textContent;
       const offset = range.startOffset;
 
@@ -921,33 +1022,14 @@ function getKoreanWordAtPoint(x, y) {
   return null;
 }
 
-// 구글 번역 API 사용
-function translateText(text) {
-  const params = new URLSearchParams({
-    client: 'gtx',
-    sl: 'ko',
-    tl: 'en',
-    dt: 't',
-    q: text
-  });
-
-  return fetch(`https://translate.googleapis.com/translate_a/single?${params.toString()}`)
-    .then(response => {
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
-    })
-    .then(data => {
-      if (!Array.isArray(data?.[0])) return null;
-      const translation = data[0]
-        .filter(segment => Array.isArray(segment) && typeof segment[0] === 'string')
-        .map(segment => segment[0])
-        .join('');
-      return translation || null;
-    })
-    .catch(error => {
-      console.error('Translation error:', error);
-      return null;
-    });
+// 공급자 요청은 서비스 워커에서 실행해 페이지 CORS와 자격 증명 노출을 피한다.
+async function translateText(text, kind = 'word') {
+  try {
+    const response = await chrome.runtime.sendMessage({ action: 'translateText', text, kind });
+    return typeof response?.translation === 'string' ? response.translation : null;
+  } catch {
+    return null;
+  }
 }
 
 // On-device translation via the built-in Chrome Translator API.
@@ -974,7 +1056,10 @@ async function getOnDeviceTranslator() {
       return null;
     }
   })();
-  return onDeviceTranslatorPromise;
+  const translator = await onDeviceTranslatorPromise;
+  // 모델 다운로드/활성화 전 실패를 페이지 수명 전체에 캐시하지 않는다.
+  if (!translator) onDeviceTranslatorPromise = null;
+  return translator;
 }
 
 async function onDeviceTranslate(text) {
@@ -1015,20 +1100,11 @@ function translatePos(koreanPos) {
 
 // 국립국어원 사전 API 사용
 async function getDictionaryMeaning(word) {
-  // background.js로부터 API 키 가져오기
-  const response = await chrome.runtime.sendMessage({ action: 'getApiKey' });
-  const API_KEY = (response.apiKey || '').trim();
-  if (!API_KEY) {
-    return { error: 'missing_key' };
-  }
-
-  const url = `https://krdict.korean.go.kr/api/search?key=${API_KEY}&q=${encodeURIComponent(word)}&translated=y&trans_lang=1`;
-
   try {
-    const fetchResponse = await fetch(url);
-    if (!fetchResponse.ok) throw new Error('Network response was not ok');
-    
-    const xmlText = await fetchResponse.text();
+    const response = await chrome.runtime.sendMessage({ action: 'lookupDictionary', text: word });
+    if (response?.error === 'missing_key') return { error: 'missing_key' };
+    if (typeof response?.xml !== 'string') return null;
+    const xmlText = response.xml;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, "text/xml");
     
@@ -1083,7 +1159,7 @@ async function getDictionaryMeaning(word) {
     }
     return null;
   } catch (error) {
-    console.error('Dictionary lookup error:', error);
+    // 공급자 오류나 본문을 로그에 남기지 않는다.
     return null;
   }
 }
