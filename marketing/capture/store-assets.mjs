@@ -14,10 +14,27 @@ const evidence={sourceCommit:process.env.GITHUB_SHA,provider:'Live Google Transl
 try {
   const worker=context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
   const id=new URL(worker.url()).host;
+  async function readyReading(page) {
+    await page.bringToFront();
+    await page.locator('.kr-tooltip').waitFor({state:'attached'});
+    const cdp=await context.newCDPSession(page), worlds=[];
+    cdp.on('Runtime.executionContextCreated',event=>worlds.push(event.context));
+    await cdp.send('Runtime.enable');
+    let ready=false;
+    for (const world of worlds) {
+      const identity=await cdp.send('Runtime.evaluate',{contextId:world.id,expression:"typeof chrome === 'object' ? chrome.runtime?.id : ''",returnByValue:true});
+      if(identity.result.value!==id) continue;
+      const state=await cdp.send('Runtime.evaluate',{contextId:world.id,expression:"new Promise(resolve=>{const start=Date.now();const timer=setInterval(()=>{if(isInitialized && !sitePaused){clearInterval(timer);resolve(true);}else if(Date.now()-start>10000){clearInterval(timer);resolve({isInitialized,sitePaused,isEnabled,hidden:document.hidden});}},50);})",awaitPromise:true,returnByValue:true});
+      if(state.result.value!==true) throw new Error('Reading startup not ready: '+JSON.stringify(state.result.value));
+      ready=true;
+    }
+    await cdp.detach();
+    if(!ready) throw new Error('Extension content world missing');
+  }
   await worker.evaluate(()=>chrome.storage.sync.set({selectedApi:'google',targetLanguage:'en',selectionTranslationEnabled:true,triggerMode:'hover'}));
   await context.route('http://127.0.0.1/reading',route=>route.fulfill({contentType:'text/html',body:`<!doctype html><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#193b37;font-family:'Noto Sans CJK KR',sans-serif;padding:35px 48px}nav{font:11px Arial;letter-spacing:2px;color:#607c73;border-bottom:1px solid #dfe8e2;padding-bottom:15px}h1{font-size:30px;margin:22px 0 18px}p{font-size:23px;line-height:1.9;margin:10px 0}#word{background:#fff0b3;border-radius:4px}::selection{background:#c2e5dc;color:#153b31}</style><nav>READING NOTES</nav><h1>나의 작은 일상</h1><p>오늘은 <span id="word">도서관</span>에 갑니다.</p><p id="sentence">좋은 책을 읽고 싶어요.</p>`}));
   const page=await context.newPage();await page.goto('http://127.0.0.1/reading');
-  await page.locator('.kr-tooltip').waitFor({state:'attached'});await page.locator('#word').hover();
+  await readyReading(page);await page.locator('#word').hover();
   await page.waitForFunction(()=>/library/i.test(document.querySelector('.kr-tooltip__body')?.textContent||''));
   await page.locator('.kr-tooltip').getByRole('button',{name:'Pin',exact:true}).click();
   await page.mouse.move(760,30);await page.waitForTimeout(250);
@@ -27,7 +44,7 @@ try {
   await page.locator('.kr-tooltip').getByRole('button',{name:'Close',exact:true}).click();
   await worker.evaluate(()=>chrome.storage.sync.set({targetLanguage:'vi'}));
   // Reload ensures the actual content script consumes the stored target language.
-  await page.reload();await page.locator('.kr-tooltip').waitFor({state:'attached'});
+  await page.reload();await readyReading(page);
   await page.locator('#sentence').evaluate(el=>{const r=document.createRange();r.selectNodeContents(el);const s=window.getSelection();s.removeAllRanges();s.addRange(r);document.dispatchEvent(new KeyboardEvent('keyup',{key:'Shift'}));});
   await page.waitForFunction(()=>{const el=document.querySelector('.kr-tooltip');return el?.textContent.includes('좋은 책을 읽고 싶어요.')&&/sách/i.test(el.textContent)&&!el.classList.contains('kr-tooltip--loading');});
   await page.waitForTimeout(250);
@@ -60,4 +77,4 @@ try {
   await design.setContent(`<!doctype html><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;background:#eff5ed;color:#183d35;font-family:Arial,sans-serif;overflow:hidden}.brand{position:absolute;left:64px;top:55px;font-size:21px;font-weight:700}h1{position:absolute;left:64px;top:163px;font-size:68px;letter-spacing:-2.8px;line-height:1.04;margin:0}.capture{position:absolute;left:660px;top:80px;width:675px;border:1px solid #d0ded3;border-radius:18px;overflow:hidden;box-shadow:0 22px 48px #244a3325}.capture img{display:block;width:100%}</style><div class="brand">Korean Word Lookup</div><h1>Read Korean.<br>Keep going.</h1><div class="capture"><img src="${img(hover)}"></div>`);
   await design.screenshot({path:path.join(out,'05-marquee.png'),scale:'css'});
   await writeFile(path.join(out,'capture-evidence.json'),JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence));
-} finally {await context.close();await rm(profile,{recursive:true,force:true});}
+} catch(error) { console.error('CAPTURE FAILURE',String(error)); for(const tab of context.pages()) console.error('TAB',tab.url(),await tab.evaluate(()=>({hidden:document.hidden,panel:document.querySelector('.kr-tooltip')?.innerText})).catch(()=>null)); throw error; } finally {await context.close();await rm(profile,{recursive:true,force:true});}
