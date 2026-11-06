@@ -1,6 +1,6 @@
 {
     "appName": {
-        "message": "한국어 단어 검색 - 마우스 오버 & 선택 번역"
+        "message": "한국어 영어 번역 · Korean Word Lookup"
     },
     "appDesc": {
         "message": "한국어 단어에 마우스를 올려 영어 뜻을 확인하고, 선택한 문장을 번역하세요. Google 번역과 KRDICT 사전을 지원합니다."
