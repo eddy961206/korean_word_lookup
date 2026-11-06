@@ -1,8 +1,6 @@
 # Korean Word Lookup privacy information
 
-Release candidate: 2.5.3. This document describes this repository version, not an
-older build currently installed from the Chrome Web Store. It is a proposed
-release disclosure, not confirmation of store publication.
+Applies to version 2.5.3. Older installed versions may behave differently until updated.
 
 ## Translation and dictionary requests
 
