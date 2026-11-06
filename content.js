@@ -131,7 +131,6 @@ async function initializeExtension() {
 
     if (changes.targetLanguage) {
       targetLanguage = changes.targetLanguage.newValue === 'vi' ? 'vi' : 'en';
-      onDeviceTranslatorPromise = null;
       invalidateLookupCache();
     }
     if (changes.triggerMode) {
@@ -790,7 +789,7 @@ async function performLookup(word, api, isCurrent = () => true) {
       if (!translation && isCurrent()) {
         // Fallback to the on-device Chrome Translator API when the
         // remote endpoint is unreachable (Chrome 138+).
-        translation = await onDeviceTranslate(word);
+        translation = await onDeviceTranslate(word, isCurrent);
         onDevice = Boolean(translation);
       }
       if (translation) {
@@ -833,7 +832,7 @@ async function lookupSelection(text, isCurrent = () => true) {
     let translation = await translateText(text, 'selection');
     let onDevice = false;
     if (!translation && hasCurrentSubscriber()) {
-      translation = await onDeviceTranslate(text);
+      translation = await onDeviceTranslate(text, hasCurrentSubscriber);
       onDevice = Boolean(translation);
     }
     if (translation) {
@@ -1224,46 +1223,40 @@ async function translateText(text, kind = 'word') {
 
 // On-device translation via the built-in Chrome Translator API.
 // Returns null when the API is unavailable so callers can fall back gracefully.
-let onDeviceTranslatorPromise = null;
+const ON_DEVICE_TIMEOUT_MS = 2500;
 
-async function getOnDeviceTranslator() {
-  if (!('Translator' in self)) {
-    return null;
-  }
-  if (onDeviceTranslatorPromise) {
-    return onDeviceTranslatorPromise;
-  }
-  onDeviceTranslatorPromise = (async () => {
-    try {
-      const options = { sourceLanguage: 'ko', targetLanguage };
-      const availability = await Translator.availability(options);
-      if (availability === 'unavailable') {
-        return null;
-      }
-      return await Translator.create(options);
-    } catch (error) {
-      console.warn('On-device translator unavailable:', error);
-      return null;
-    }
-  })();
-  const translator = await onDeviceTranslatorPromise;
-  // 모델 다운로드/활성화 전 실패를 페이지 수명 전체에 캐시하지 않는다.
-  if (!translator) onDeviceTranslatorPromise = null;
-  return translator;
-}
-
-async function onDeviceTranslate(text) {
-  if (sitePaused) return null;
+async function onDeviceTranslate(text, isCurrent = () => true) {
+  if (sitePaused || !('Translator' in self)) return null;
+  const generation = cacheGeneration;
+  const language = targetLanguage;
+  const controller = new AbortController();
+  let translator = null;
+  let finished = false;
+  let timeout;
+  const current = () => !finished && !sitePaused && isEnabled && !document.hidden
+    && generation === cacheGeneration && language === targetLanguage && isCurrent();
+  const destroy = instance => { try { instance?.destroy?.(); } catch {} };
+  const work = (async () => {
+    const options = { sourceLanguage: 'ko', targetLanguage: language };
+    const availability = await Translator.availability(options);
+    // Do not initiate or wait for a model download from an automatic hover.
+    if (!current() || availability !== 'available') return null;
+    const instance = await Translator.create({ ...options, signal: controller.signal });
+    if (!current()) { destroy(instance); return null; }
+    translator = instance;
+    const translated = await translator.translate(text, { signal: controller.signal });
+    return current() && typeof translated === 'string' ? translated || null : null;
+  })().catch(() => null);
   try {
-    const translator = await getOnDeviceTranslator();
-    if (!translator) {
-      return null;
-    }
-    const translated = await translator.translate(text);
-    return translated || null;
-  } catch (error) {
-    console.warn('On-device translation error:', error);
-    return null;
+    return await Promise.race([work, new Promise(resolve => {
+      timeout = setTimeout(() => resolve(null), ON_DEVICE_TIMEOUT_MS);
+    })]);
+  } finally {
+    finished = true;
+    clearTimeout(timeout);
+    controller.abort();
+    destroy(translator);
+    // No translator or pending promise survives this request or a timeout.
   }
 }
 

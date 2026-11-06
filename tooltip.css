@@ -89,3 +89,8 @@
 .kr-tooltip__retry[hidden] { display: none; }
 
 .kr-tooltip__source-link { display: inline-block; color: #a5f3fc; margin: 4px 10px 0 0; text-decoration: underline; }
+
+/* Keep the Korean term readable while long provider labels wrap below it. */
+.kr-tooltip__header { flex-wrap: wrap; }
+.kr-tooltip__word { flex: 0 0 auto; max-width: 100%; }
+.kr-tooltip__meta { flex: 1 1 180px; min-width: 0; overflow-wrap: anywhere; }

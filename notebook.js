@@ -64,7 +64,7 @@ function render() {
   $('search').disabled = editing !== null;
   const query = $('search').value.trim().toLocaleLowerCase();
   const visible = items.filter((item) => [item.term,item.meaning,item.note,item.context].some((value) => value.toLocaleLowerCase().includes(query)));
-  $('count').textContent = `${query ? `${visible.length} ${t.shown} · ` : ''}${items.length} ${t.count} / 2,000 ${t.limit}`;
+  $('count').textContent = `${query ? `${visible.length} ${t.shown} · ` : ''}${items.length} ${t === copy.en && items.length === 1 ? 'word' : t.count} / 2,000 ${t.limit}`;
   $('empty').hidden = visible.length > 0;
   $('empty-title').textContent = items.length ? t.noMatch : t.emptyTitle;
   $('empty-copy').textContent = items.length ? t.noMatchCopy : t.emptyCopy;

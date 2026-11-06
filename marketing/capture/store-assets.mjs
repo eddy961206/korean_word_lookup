@@ -59,6 +59,7 @@ try {
   await notebook.locator('.edit-form').waitFor({state:'detached'});
   await notebook.locator('.entry').filter({hasText:'A place to borrow books'}).waitFor();
   await notebook.locator('.toolbar').evaluate(el=>el.scrollIntoView({block:'start'}));
+  await notebook.evaluate(()=>window.scrollBy(0,-20));
   const notebookShot=await notebook.screenshot({path:path.join(out,'raw-notebook.png')});
   evidence.captures.push({kind:'notebook',authorship:'Self-authored illustrative meaning and note, typed through the UI. No provider output saved.',text:await notebook.locator('.entry').innerText()});
   const design=await context.newPage();const img=b=>`data:image/png;base64,${b.toString('base64')}`;

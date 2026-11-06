@@ -243,3 +243,62 @@ test('selectionchange from tooltip retry input does not invalidate the in-flight
   listeners.selectionchange({ target: normal });
   assert.ok(vm.runInContext('activeRequestId', context) > requestId);
 });
+
+function installNativeTranslator(context, api) {
+  context.self.Translator = api;
+  context.Translator = api;
+  context.AbortController = AbortController;
+}
+for (const phase of ['availability', 'create', 'translate']) {
+  test(`native fallback ends within one deadline when ${phase} never settles`, async () => {
+    const { context, timers } = await setup();
+    let destroyed = 0;
+    const never = () => new Promise(() => {});
+    installNativeTranslator(context, {
+      availability: phase === 'availability' ? never : async () => 'available',
+      create: phase === 'create' ? never : async () => ({ translate: never, destroy() { destroyed++; } })
+    });
+    const pending = context.onDeviceTranslate('한국어');
+    await new Promise(setImmediate);
+    assert.equal(vm.runInContext('ON_DEVICE_TIMEOUT_MS', context), 2500);
+    assert.equal(timers.size, 1);
+    for (const callback of [...timers.values()]) callback();
+    assert.equal(await pending, null);
+    assert.equal(timers.size, 0);
+    if (phase === 'translate') assert.equal(destroyed, 1);
+  });
+}
+test('late native creation is destroyed and never reused after timeout', async () => {
+  const { context, timers } = await setup();
+  let finishCreate;
+  let destroyed = 0;
+  let translated = 0;
+  installNativeTranslator(context, { availability: async () => 'available', create: () => new Promise(resolve => { finishCreate = resolve; }) });
+  const pending = context.onDeviceTranslate('한국어');
+  await new Promise(setImmediate);
+  for (const callback of [...timers.values()]) callback();
+  assert.equal(await pending, null);
+  finishCreate({ translate() { translated++; }, destroy() { destroyed++; } });
+  await new Promise(setImmediate);
+  assert.equal(destroyed, 1);
+  assert.equal(translated, 0);
+});
+test('native result after language change is discarded and instance destroyed', async () => {
+  const { context, listeners } = await setup();
+  let finishTranslate;
+  let destroyed = 0;
+  installNativeTranslator(context, { availability: async () => 'available', create: async () => ({ translate: () => new Promise(resolve => { finishTranslate = resolve; }), destroy() { destroyed++; } }) });
+  const pending = context.onDeviceTranslate('한국어');
+  await new Promise(setImmediate);
+  listeners.storage({ targetLanguage: { newValue: 'vi' } }, 'sync');
+  finishTranslate('stale English');
+  assert.equal(await pending, null);
+  assert.equal(destroyed, 1);
+});
+test('native fallback never initiates a model download', async () => {
+  const { context } = await setup();
+  let created = 0;
+  installNativeTranslator(context, { availability: async () => 'downloadable', create() { created++; } });
+  assert.equal(await context.onDeviceTranslate('한국어'), null);
+  assert.equal(created, 0);
+});

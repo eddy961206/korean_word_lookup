@@ -370,8 +370,9 @@ try {
     console.error('WORKSPACE_WORKER_STATE', JSON.stringify(await diagnosticWorker.evaluate(async () => {
       if (!Array.isArray(globalThis.syntheticRequests)) return {syntheticFixture:'not-installed',directProbe:'not-run'};
       const requestsBeforeProbe = [...syntheticRequests];
+      const probeLanguage = (await chrome.storage.sync.get('targetLanguage')).targetLanguage === 'vi' ? 'vi' : 'en';
       const directProbe = await Promise.race([
-        handleRequest({action:'translateText',text:'도서관',targetLanguage:'en'}, {id:chrome.runtime.id,url:'http://127.0.0.1/workspace-reading',tab:{id:0}}),
+        handleRequest({action:'translateText',text:'도서관',targetLanguage:probeLanguage}, {id:chrome.runtime.id,url:'http://127.0.0.1/workspace-reading',tab:{id:0}}),
         new Promise(resolve => setTimeout(() => resolve({error:'diagnostic_timeout'}),2000))
       ]);
       return {requestsBeforeProbe,directProbe};
