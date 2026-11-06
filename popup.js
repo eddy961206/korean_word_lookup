@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const targetLanguageSelect = document.getElementById('targetLanguage');
+  const triggerModeSelect = document.getElementById('triggerMode');
+  const pauseSiteButton = document.getElementById('pauseSite');
+  const siteStatus = document.getElementById('siteStatus');
+  let currentSite = { supported: false, paused: false };
+
   const toggleSwitch = document.getElementById('translationToggle');
   const statusMessage = document.getElementById('statusMessage');
   const apiRadios = document.getElementsByName('apiChoice');
@@ -84,8 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
     'showKoreanDefinitions',
     'compactTooltip',
     'autoFallbackEnabled',
-    'selectionTranslationEnabled'
+    'selectionTranslationEnabled',
+    'targetLanguage',
+    'triggerMode'
   ], (result) => {
+    targetLanguageSelect.value = result.targetLanguage === 'vi' ? 'vi' : 'en';
+    triggerModeSelect.value = result.triggerMode === 'modifier' ? 'modifier' : 'hover';
     toggleSwitch.checked = result.translationEnabled !== false;
     updateStatusMessage(toggleSwitch.checked);
     
@@ -115,6 +125,52 @@ document.addEventListener('DOMContentLoaded', () => {
     applyShortcutHints();
     maybeShowReviewPrompt().catch(() => {});
     maybeShowOnboardingNudge(result).catch(() => {});
+  });
+
+  const msg = key => chrome.i18n.getMessage(key) || key;
+  function renderSite(response) {
+    if (!response || response.error) {
+      pauseSiteButton.disabled = true;
+      siteStatus.textContent = msg(response?.error ? 'settingError' : 'siteUnavailable');
+      return;
+    }
+    currentSite = response;
+    document.getElementById('siteName').textContent = response.hostname || '';
+    pauseSiteButton.disabled = !response.supported;
+    pauseSiteButton.textContent = msg(response.paused ? 'resumeSite' : 'pauseSite');
+    siteStatus.textContent = msg(!response.supported ? 'siteUnavailable' : response.paused ? 'sitePausedStatus' : 'siteActiveStatus');
+  }
+  function refreshSite() {
+    chrome.runtime.sendMessage({ action: 'getSiteState' }, response => renderSite(chrome.runtime.lastError ? {error:true} : response));
+  }
+  refreshSite();
+  pauseSiteButton.addEventListener('click', () => {
+    if (!currentSite.supported) return;
+    pauseSiteButton.disabled = true;
+    chrome.runtime.sendMessage({ action: 'setSitePaused', paused: !currentSite.paused }, response => renderSite(chrome.runtime.lastError ? {error:true} : response));
+  });
+  document.getElementById('clearPausedSites').addEventListener('click', () => {
+    chrome.runtime.sendMessage({ action: 'clearPausedSites' }, response => {
+      if (chrome.runtime.lastError || response?.error) renderSite({error:true});
+      else refreshSite();
+    });
+  });
+  document.getElementById('openNotebook').addEventListener('click', () => {
+    chrome.runtime.sendMessage({ action: 'openNotebook' }, response => {
+      if (chrome.runtime.lastError || response?.error) siteStatus.textContent = msg('settingError');
+    });
+  });
+  targetLanguageSelect.addEventListener('change', () => {
+    const targetLanguage = targetLanguageSelect.value === 'vi' ? 'vi' : 'en';
+    chrome.storage.sync.set({ targetLanguage }, () => {
+      if (chrome.runtime.lastError) siteStatus.textContent = msg('settingError');
+    });
+  });
+  triggerModeSelect.addEventListener('change', () => {
+    const triggerMode = triggerModeSelect.value === 'modifier' ? 'modifier' : 'hover';
+    chrome.storage.sync.set({ triggerMode }, () => {
+      if (chrome.runtime.lastError) siteStatus.textContent = msg('settingError');
+    });
   });
 
   // API 선택 변경 이벤트
@@ -257,11 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function applyShortcutHints() {
-    const hints = document.querySelectorAll('.shortcut-hint');
-    if (hints[0]) hints[0].textContent = shortcutMap.toggle;
-    if (hints[1]) hints[1].textContent = shortcutMap.google;
-    if (hints[2]) hints[2].textContent = shortcutMap.dict;
-    if (hints[3]) hints[3].textContent = shortcutMap.select;
+    document.querySelectorAll('[data-shortcut]').forEach(element => {
+      element.textContent = shortcutMap[element.getAttribute('data-shortcut')] || '';
+    });
   }
 
   function trackEvent(eventName, payload = {}) {
@@ -416,6 +470,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 스토리지 변경 감지하여 라디오 버튼 상태 업데이트
   chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.targetLanguage) targetLanguageSelect.value = changes.targetLanguage.newValue === 'vi' ? 'vi' : 'en';
+    if (area === 'sync' && changes.triggerMode) triggerModeSelect.value = changes.triggerMode.newValue === 'modifier' ? 'modifier' : 'hover';
+    if (area === 'local' && changes.pausedHostnames) refreshSite();
     if (area === 'sync' && changes.selectedApi) {
       const newApi = changes.selectedApi.newValue;
       apiRadios.forEach(radio => {

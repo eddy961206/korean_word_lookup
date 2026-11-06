@@ -1,9 +1,9 @@
 {
     "appName": {
-        "message": "Korean Word Lookup: Dịch Hàn-Anh"
+        "message": "Korean Word Lookup: Dịch & lưu từ"
     },
     "appDesc": {
-        "message": "Di chuột lên từ tiếng Hàn để xem nghĩa tiếng Anh. Chọn văn bản để dịch. Hỗ trợ Google Dịch và từ điển KRDICT."
+        "message": "Đọc tiếng Hàn với bản dịch Anh hoặc Việt. Lưu từ cục bộ rồi tự viết nghĩa và ghi chú."
     },
     "cmdToggleTrans": {
         "message": "Bật/Tắt dịch"
@@ -63,7 +63,7 @@
         "message": "Xóa khóa"
     },
     "statusHover": {
-        "message": "Di chuột lên văn bản tiếng Hàn để xem nghĩa tiếng Anh"
+        "message": "Di chuột lên tiếng Hàn để xem nghĩa bằng ngôn ngữ đã chọn."
     },
     "statusDisabled": {
         "message": "Tính năng dịch hiện đang tắt"
@@ -237,7 +237,7 @@
         "message": "Được cung cấp bởi Từ điển tiếng Hàn cơ bản của Viện Quốc ngữ Quốc gia Hàn Quốc"
     },
     "credits4": {
-        "message": "Cung cấp định nghĩa và ví dụ chi tiết"
+        "message": "Cung cấp định nghĩa từ điển tiếng Hàn"
     },
     "quickStartTitle": {
         "message": "⚡ Thử bản dịch đầu tiên"
@@ -307,5 +307,92 @@
     },
     "privacyNotice": {
         "message": "Văn bản cần dịch được gửi đến nhà cung cấp đã chọn; bản dịch vùng chọn dùng Google. Bỏ qua vùng nhập và chỉnh sửa. Không tải dữ liệu sử dụng lên."
+    },
+    "readingCompanion": {
+        "message": "Đọc · hiểu · ghi nhớ"
+    },
+    "targetLanguage": {
+        "message": "Ngôn ngữ bản dịch"
+    },
+    "lookupTrigger": {
+        "message": "Cách tra từ"
+    },
+    "triggerHover": {
+        "message": "Di chuột"
+    },
+    "triggerModifier": {
+        "message": "Alt / Option + di chuột"
+    },
+    "selectionPrivacyHint": {
+        "message": "Khi bật, phần chọn được gửi đến Google. Chọn tiếng Hàn rồi nhấn Alt / Option + Enter để chuyển đến kết quả."
+    },
+    "pauseSite": {
+        "message": "Tạm dừng trên trang này"
+    },
+    "resumeAllSites": {
+        "message": "Tiếp tục trên mọi trang đã tạm dừng"
+    },
+    "openNotebook": {
+        "message": "Mở sổ từ của tôi →"
+    },
+    "notebookSummary": {
+        "message": "Lưu từ rồi tự viết nghĩa và ghi chú của bạn."
+    },
+    "advancedSettings": {
+        "message": "Tùy chọn đọc & từ điển"
+    },
+    "resumeSite": {
+        "message": "Tiếp tục trên trang này"
+    },
+    "siteUnavailable": {
+        "message": "Không thể chỉnh tùy chọn trang tại đây."
+    },
+    "sitePausedStatus": {
+        "message": "Đã tạm dừng. Tên miền chỉ được lưu trong trình duyệt này."
+    },
+    "siteActiveStatus": {
+        "message": "Có thể dịch trên trang này."
+    },
+    "settingError": {
+        "message": "Không thể lưu tùy chọn. Hãy thử lại."
+    },
+    "tipPin": {
+        "message": "Ghim"
+    },
+    "tipUnpin": {
+        "message": "Bỏ ghim"
+    },
+    "tipCopy": {
+        "message": "Sao chép"
+    },
+    "tipCopied": {
+        "message": "Đã sao chép"
+    },
+    "tipSaveWord": {
+        "message": "Lưu từ"
+    },
+    "tipSavedWord": {
+        "message": "Đã lưu từ. Hãy tự thêm nghĩa trong sổ từ."
+    },
+    "tipClose": {
+        "message": "Đóng"
+    },
+    "tipRetry": {
+        "message": "Tra lại"
+    },
+    "tipRetryLabel": {
+        "message": "Sửa từ tiếng Hàn để tra lại"
+    },
+    "tipOpenNotebook": {
+        "message": "Mở sổ từ"
+    },
+    "tipNoResult": {
+        "message": "Không có kết quả. Hãy sửa từ tiếng Hàn để tra lại."
+    },
+    "tipSavingError": {
+        "message": "Không thể lưu. Hãy thử lại."
+    },
+    "tipMachineTranslation": {
+        "message": "Bản dịch máy"
     }
 }

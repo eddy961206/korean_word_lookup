@@ -1,3 +1,19 @@
+# Korean Word Lookup 2.6.0
+
+Read Korean with English or Vietnamese results. Pin a lookup, save a word, and add your own meaning in a local vocabulary notebook.
+
+## Reading workspace
+
+- The popup separates result language from interface language and offers automatic hover or Alt/Option-hover.
+- Selection translation remains independently opt-in and limited to 500 characters.
+- Pause a current site locally. Only its hostname is stored, not browsing paths or visit history.
+- Results can be pinned, copied with attribution, closed, or retried with an edited Korean word. This is not a morphology engine.
+- Save word stores only the source term. Notebook meanings, context and notes are user-authored; provider results are not prefilled or persisted.
+- Notebook limits: 2,000 entries / 2 MB. Search, edit, Undo recent deletions, export CSV/TSV, and back up/import JSON without overwriting existing terms.
+- KRDICT keys remain in trusted memory-only session storage. Reenter after Chrome restart or extension reload/update.
+
+See [Privacy](PRIVACY.md), [release verification](docs/RELEASE_VERIFICATION.md), and [store release kit](docs/STORE_RELEASE_KIT.md).
+
 # Korean Word Lookup (Chrome Extension)
 
 [![CI](https://github.com/eddy961206/korean_word_lookup/actions/workflows/ci.yml/badge.svg)](https://github.com/eddy961206/korean_word_lookup/actions/workflows/ci.yml)

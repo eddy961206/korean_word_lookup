@@ -43,6 +43,7 @@ function createChrome(syncValues = {}) {
       setUninstallURL() {},
       sendMessage(message, callback) {
         messages.push(message);
+        if (message.action === 'getSiteState') return Promise.resolve({ ok: true, supported: true, paused: false });
         callback?.();
         return Promise.resolve({ apiKey: '' });
       }

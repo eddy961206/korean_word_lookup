@@ -43,6 +43,10 @@ const requiredFiles = new Set([
   'LICENSE',
   'NOTICE',
   'README.md',
+  'notebook.html',
+  'notebook.css',
+  'notebook.js',
+  'vocabulary-store.js',
   'CONTRIBUTING.md',
   'SECURITY.md',
   manifest?.background?.service_worker,
@@ -58,6 +62,8 @@ const jsFiles = [
   'background.js',
   'content.js',
   'popup.js',
+  'notebook.js',
+  'vocabulary-store.js',
   'welcome.js',
   'scripts/set_ga4_telemetry.js'
 ];

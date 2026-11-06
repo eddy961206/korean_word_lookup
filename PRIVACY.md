@@ -1,17 +1,17 @@
 # Korean Word Lookup privacy information
 
-Applies to version 2.5.3. Older installed versions may behave differently until updated.
+Applies to version 2.6.0. Older installed versions may behave differently until updated.
 
 ## Translation and dictionary requests
 
-When translation is enabled, hovering over a Korean word sends that word to the
+When translation is enabled and the current site is not paused, hovering over a Korean word sends that word to the
 selected provider: Google Translate (`translate.googleapis.com`) or the National
 Institute of Korean Language's KRDICT (`krdict.korean.go.kr`). If automatic source
 fallback is enabled and the first lookup fails, the word may also be sent to the
-other provider. KRDICT needs your own API key.
+other provider. KRDICT needs your own API key. In Alt / Option + hover mode, the modifier key must be held for a hover lookup. Changing a setting stops pending UI work but does not undo a request already sent.
 
 Selection translation is off by default. When enabled, selecting Korean text
-(up to 500 characters) sends the selection to Google for English translation,
+(up to 500 characters) sends the selection to Google for English or Vietnamese translation in your selected result language,
 including when KRDICT is selected for word lookups. No whole-page upload occurs.
 
 Input/password fields, textareas, editable regions, and selections crossing
@@ -45,6 +45,37 @@ vault and does not protect against a compromised browser or device.
 
 Ordinary settings, such as translation/source selection and tooltip preferences,
 use Chrome sync storage. Chrome may synchronize them if browser sync is enabled.
+
+## Your vocabulary notebook and site controls
+
+The notebook stores only words you explicitly save and meanings, notes, and
+context you write yourself. Saving from a lookup passes only the source word;
+Google or KRDICT results are not automatically copied into the notebook. No page
+URL, title, surrounding paragraph, or automatic lookup history is added.
+Notebook data is stored in this Chrome profile's local extension storage, not
+Chrome sync or a remote server. It is not encrypted and is not a private vault.
+Do not put secrets in notes. Removing the extension removes its local data.
+
+The notebook holds up to 2,000 entries within a 2 MB data limit. Deleting an entry
+keeps a local recovery copy among the last 20 deletions so Undo can restore it.
+Older recovery copies are removed as more entries are deleted. Exported files
+are separate copies that you control; clearing extension data does not remove
+those files. CSV/TSV exports and JSON backups contain all saved entries and your
+notes, including entries hidden by the current search. Import validates a JSON
+backup up to 2 MB, shows a confirmation, and adds new entries without replacing
+existing entries with the same term or identifier.
+
+The current-site pause control reads the active page address transiently to
+identify its hostname. Only the hostname you choose to pause is stored locally;
+paths, query strings, page titles, visit times, and browsing-history logs are not
+stored. The list is limited to 500 hostnames. Resume a site or use Resume all
+paused sites to remove these preferences. The extension checks this pause state
+before new provider requests. Previously sent requests cannot be retracted.
+
+Copy writes the displayed result to your clipboard only after you click Copy.
+The source is included. KRDICT text is attributed to the National Institute of
+Korean Language and identified as CC BY-SA 2.0 Korea; the extension's own code
+license does not replace that data license.
 
 ## Local usage information
 

@@ -34,6 +34,7 @@ try {
   });
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${id}/popup.html`);
+  await popup.locator('#advancedSettings summary').click();
   await popup.locator('#apiKeyStatus').filter({ hasText: /No key|저장된 키|Chưa lưu/ }).waitFor();
   await popup.locator('#krdictApiKey').fill('fake-smoke-key');
   await popup.locator('#saveApiKey').click();
@@ -124,6 +125,7 @@ try {
   assert.equal(restartedId, id);
   const restartedPopup = await context.newPage();
   await restartedPopup.goto(`chrome-extension://${id}/popup.html`);
+  await restartedPopup.locator('#advancedSettings summary').click();
   // The popup status response waits for asynchronous private-storage initialization.
   await restartedPopup.locator('#apiKeyStatus').filter({ hasText: /No key|저장된 키|Chưa lưu/ }).waitFor();
   for (const area of ['session', 'local', 'sync']) {

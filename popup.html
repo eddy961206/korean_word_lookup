@@ -5,7 +5,11 @@
   <title>Korean Word Lookup</title>
   <style>
     body {
-      width: 300px;
+      width: 360px;
+      box-sizing: border-box;
+      margin: 0;
+      background: #f5f8f3;
+      color: #173d35;
       padding: 16px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
@@ -241,39 +245,81 @@
       font-size: 12px;
       cursor: pointer;
     }
+
+    .brand-caption { margin:4px 0 0; font-size:11px; color:#607b73; }
+    .header h1 {font-size:18px; color:#173d35;}
+    .header .logo {width:32px;height:32px;}
+    .toggle-container,.reading-controls,.site-controls {background:#fff;border:1px solid #dce6dd;border-radius:12px;padding:14px;margin:12px 0;}
+    .toggle-container {margin-top:14px;}
+    .reading-help {font-size:11px;line-height:1.5;color:#61796f;margin:8px 0;}
+    .site-name {font-size:12px;overflow-wrap:anywhere;margin-bottom:8px;}
+    .secondary-action,.notebook-action {width:100%;padding:10px 12px;border-radius:8px;font-weight:600;cursor:pointer;}
+    .secondary-action {background:#fff;border:1px solid #c8d9cd;color:#254c3f;}
+    .notebook-action {background:#245c49;color:white;border:1px solid #245c49;font-size:14px;}
+    .text-action {display:block;margin-top:9px;padding:0;background:none;border:0;color:#4e6e61;text-decoration:underline;cursor:pointer;font-size:11px;}
+    button:disabled {opacity:.55;cursor:default;}
+    button:focus-visible,select:focus-visible,summary:focus-visible,input:focus-visible {outline:3px solid #c29a3e;outline-offset:3px;}
+    .toggle-switch input:focus-visible + .slider {outline:3px solid #c29a3e;outline-offset:3px;}
+    input:checked + .slider {background:#245c49;}
+    .setting-select {max-width:195px;padding:7px;font-size:12px;}
+    details {border-top:1px solid #dce6dd;padding-top:12px;margin-top:14px;}
+    summary {cursor:pointer;font-size:12px;font-weight:600;color:#315347;}
+    .status {font-size:12px;line-height:1.5;padding:10px;}
+    .footer {font-size:10px;line-height:1.5;color:#738278;}
+    .helper-text {line-height:1.5;}
   </style>
 </head>
 <body>
   <div class="header">
     <img src="icons/icon48.png" alt="" class="logo">
-    <h1 data-i18n="appName">Korean Word Lookup</h1>
+    <div><h1>Korean Word Lookup</h1><p class="brand-caption" data-i18n="readingCompanion">Read · understand · remember</p></div>
   </div>
 
   <button id="openWelcomeGuide" type="button" class="review-button-secondary" data-i18n="btnOpenGuide" style="width:100%;">How to use · Quick start</button>
   
   <div class="toggle-container">
     <span class="toggle-label">
-      <span data-i18n="popupEnable">Enable word translate</span>
-      <span class="shortcut-hint">Alt+T</span>
+      <span id="enableLabel" data-i18n="popupEnable">Enable word translate</span>
+      <span class="shortcut-hint" data-shortcut="toggle">Alt+T</span>
     </span>
     <label class="toggle-switch">
-      <input type="checkbox" id="translationToggle">
+      <input type="checkbox" id="translationToggle" aria-label="Enable word translation" aria-labelledby="enableLabel">
       <span class="slider"></span>
     </label>
   </div>
 
+  <section class="reading-controls" aria-label="Reading controls">
+    <label class="setting-row" for="targetLanguage"><span data-i18n="targetLanguage">Translate into</span><select id="targetLanguage" class="setting-select"><option value="en">English</option><option value="vi">Tiếng Việt</option></select></label>
+    <label class="setting-row" for="triggerMode"><span data-i18n="lookupTrigger">Look up words</span><select id="triggerMode" class="setting-select"><option value="hover" data-i18n="triggerHover">Hover</option><option value="modifier" data-i18n="triggerModifier">Alt / Option + hover</option></select></label>
+    <label class="checkbox-row">
+      <input type="checkbox" id="selectionTranslationToggle">
+      <span data-i18n="enableSelect">Enable selection translate</span>
+      <span class="shortcut-hint" data-shortcut="select">Alt+S</span>
+    </label>
+    <p class="reading-help" data-i18n="selectionPrivacyHint">Selected text is sent only when selection translation is enabled.</p>
+  </section>
+  <section class="site-controls" aria-label="Current site">
+    <div id="siteName" class="site-name"></div>
+    <button id="pauseSite" type="button" class="secondary-action" disabled data-i18n="pauseSite">Pause on this site</button>
+    <button id="clearPausedSites" type="button" class="text-action" data-i18n="resumeAllSites">Resume all paused sites</button>
+    <p id="siteStatus" role="status" aria-live="polite" class="reading-help"></p>
+  </section>
+  <button id="openNotebook" type="button" class="notebook-action" data-i18n="openNotebook">My word notebook →</button>
+  <p class="reading-help" data-i18n="notebookSummary">Save words, then add meanings and notes in your own words.</p>
+  <details id="advancedSettings">
+    <summary data-i18n="advancedSettings">Reading preferences & dictionary</summary>
   <div class="api-selection-container">
     <span class="section-label" data-i18n="transSource">Translation Source:</span>
     <div class="radio-group">
       <label class="radio-label">
         <input type="radio" name="apiChoice" value="google" checked>
         <span data-i18n="googleTrans">Google Translate</span>
-        <span class="shortcut-hint">Alt+G</span>
+        <span class="shortcut-hint" data-shortcut="google">Alt+G</span>
       </label>
       <label class="radio-label">
         <input type="radio" name="apiChoice" value="krdict">
         <span data-i18n="koreanDict">Korean Dictionary</span>
-        <span class="shortcut-hint">Alt+K</span>
+        <span class="shortcut-hint" data-shortcut="dict">Alt+K</span>
       </label>
     </div>
   </div>
@@ -309,11 +355,7 @@
       <input type="checkbox" id="autoFallbackToggle" checked>
       <span data-i18n="optAutoFallback">Use Auto-Fallback</span>
     </label>
-    <label class="checkbox-row">
-      <input type="checkbox" id="selectionTranslationToggle">
-      <span data-i18n="enableSelect">Enable selection translate</span>
-      <span class="shortcut-hint">Alt+S</span>
-    </label>
+
   </div>
 
   <div class="api-key-container">
@@ -328,6 +370,7 @@
   </div>
 
   <p class="helper-text" id="apiKeyStatus" role="status" aria-live="polite"></p>
+  </details>
   <p class="helper-text" data-i18n="privacyNotice">Translation sends text to your chosen provider. Editable fields are skipped. No usage data is uploaded.</p>
 
   <div id="macTip" data-i18n="macShortcutTip" style="display:none;margin:10px 0 12px;padding:10px;border-radius:8px;background:#ecfeff;border:1px solid #67e8f9;font-size:12px;color:#0f766e;">

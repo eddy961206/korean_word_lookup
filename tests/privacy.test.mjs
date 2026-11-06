@@ -39,7 +39,7 @@ async function setup({ duringStartup } = {}) {
     clearTimeout: id => timers.delete(id),
     chrome: {
       storage: { sync: { get: (_keys, callback) => callback({ selectionTranslationEnabled: true }) }, onChanged: { addListener(callback) { listeners.storage = callback; } } },
-      runtime: { sendMessage: async message => { messages.push(message); if (message.action === 'readUsageState') await duringStartup?.(listeners); return {}; }, onMessage: { addListener(callback) { listeners.message = callback; } } },
+      runtime: { sendMessage: async message => { messages.push(message); if (message.action === 'getSiteState') return { ok: true, supported: true, paused: false }; if (message.action === 'readUsageState') await duringStartup?.(listeners); return {}; }, onMessage: { addListener(callback) { listeners.message = callback; } } },
       i18n: { getMessage: key => key }
     }
   });

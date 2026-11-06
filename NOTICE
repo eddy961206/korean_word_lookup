@@ -7,3 +7,13 @@ providers and are not bundled with this repository. Korean dictionary data is
 provided by the National Institute of Korean Language's Basic Korean
 Dictionary (KRDICT). Google Translate and KRDICT content remain subject to
 their respective provider terms.
+
+Korean Basic Dictionary (KRDICT) text
+Dictionary text is provided by the National Institute of Korean Language.
+The provider states that text content is available under CC BY-SA 2.0 Korea:
+https://krdict.korean.go.kr/kor/openApi/openApiRegister
+https://creativecommons.org/licenses/by-sa/2.0/kr/
+Multimedia has separate licensing and is not included in this extension.
+Provider results remain transient; the notebook stores source words and user-authored notes.
+Google Translate results and any browser on-device translation are separately labeled.
+This extension is independent and does not claim endorsement by these providers.

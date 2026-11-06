@@ -1,3 +1,11 @@
+## 2.6.0 — 2026-11-06
+
+- Add English/Vietnamese result languages, deliberate Alt/Option-hover lookup, and local per-site pause.
+- Make the result panel interactive: pin, copy with source attribution, save source word, close, and edited-word retry.
+- Add a local user-authored vocabulary notebook with search, editing, recoverable deletion, CSV/TSV export and validated JSON backup import.
+- Keep provider results transient; notebook records source words and the user's own writing only.
+- Preserve all 2.5.3 privacy protections, memory-only dictionary keys, and disabled remote analytics.
+
 # Changelog
 
 ## 2.5.3 - Unreleased
