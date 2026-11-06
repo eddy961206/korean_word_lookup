@@ -2,7 +2,7 @@
 
 ## Automated checks run in the cloud
 
-- `npm run check`: source syntax/manifest/locale checks and 49 Node regression tests passed.
+- `npm run check`: source syntax/manifest/locale checks and 55 Node regression tests passed.
 - `git diff --check`: passed.
 - The tests use fake Chrome APIs and fake provider responses. They do not establish actual provider uptime, browser permission behavior, pixel layout, or Chrome Web Store acceptance.
 
@@ -11,25 +11,39 @@ provider transport, request bounds and timeout, synced-key migration, migration 
 trusted popup authorization, first-success deduplication, local analytics sanitization,
 and absence of the remote analytics sender/permission.
 
-## Browser checks not yet completed
+## Actual Chromium verification
 
-An isolated Chromium launch was attempted on the cloud runner. It failed before
-loading the extension because process sockets were denied (`EPERM`). The permitted
-escalation also failed in the execution environment wrapper. No actual extension
-browser pass or provider connectivity pass is claimed.
+The initial local cloud runner could not launch Chromium because process sockets
+were denied (`EPERM`), and the permitted escalation failed in the execution wrapper.
+The test was therefore moved to GitHub Actions with an isolated temporary Chromium
+profile, without using a personal computer or browser profile.
 
-`tests/browser-smoke.mjs` is an optional prepared smoke test, not a passed result.
-It uses an isolated temporary profile, real extension pages and messages, a local
-reading fixture, and explicitly mocked provider responses. It never needs a real
-API key. On a supported runner with Playwright and Chromium already available:
+[CI run 42165464451](https://github.com/eddy961206/korean_word_lookup/actions/runs/42165464451)
+passed both validation and actual Chromium smoke testing on commit
+`58f02db3a3788edb0b3bd3a3b5dd55684d82afbf`. The browser test verified popup Save/Clear,
+local-only key storage, normal hover, editable/password exclusions, selected-text
+translation, and worker transport against synthetic provider responses.
+
+The current smoke test also checks that the actual content-script isolated context
+cannot read trusted local key storage. A separate informational `LIVE_GOOGLE_PROBE`
+uses only the public test word 도서관 and reports its result explicitly; an unavailable
+probe is not counted as a passed live-provider check. The final PR head must pass
+CI again after any further edits.
+
+Two additional review regressions were fixed: a drag released outside the document
+could leave hover locked, and shared pending requests could suppress fallback for
+a newer valid caller. Unit tests now cover both, including all-stale cancellation.
+
+To reproduce with Playwright 1.62.1 and Chromium installed:
 
 ```sh
 CHROMIUM_PATH=/path/to/chromium node tests/browser-smoke.mjs
 ```
 
-If using Playwright's bundled Chromium, omit `CHROMIUM_PATH`. Do not use an existing
-personal profile. The test dependency is deliberately separate from the dependency-free
-CI suite. Inspect and run the test before treating it as verified.
+With Playwright's bundled Chromium, omit `CHROMIUM_PATH`. The workflow installs
+pinned test tooling independently from the dependency-free validation suite.
+Synthetic provider responses do not establish KRDICT uptime, provider accuracy,
+all-browser/platform behavior, or pixel-level visual acceptance.
 
 ## Manual release gates
 
@@ -54,5 +68,6 @@ CI suite. Inspect and run the test before treating it as verified.
 8. Capture authentic store screenshots and verify the final privacy-policy URL,
    permission explanations, localized listing, and ZIP before requesting publication.
 
-No merge, store submission, deployment, credential creation/revocation, or account
-security-setting change is part of these completed cloud checks.
+Store submission, deployment, credential creation/revocation and account
+security-setting changes remain outside these checks. PR review/merge status must
+be verified separately in GitHub.

@@ -315,6 +315,8 @@ function invalidateLookupCache() {
 }
 
 function scheduleLookup(event) {
+  // Mouseup can happen outside this document. Recover only when no button is held.
+  if (isSelecting && event.buttons === 0) isSelecting = false;
   clearHoverTimer();
   if (!isEnabled || !isInitialized || document.hidden || isSelecting
     || (selectionTranslationEnabled && selectionText)
@@ -591,17 +593,23 @@ async function lookupWord(word, isCurrent = () => true) {
 
   const pending = pendingRequests.get(cacheKey);
   if (pending) {
-    return pending;
+    pending.subscribers.add(isCurrent);
+    return pending.promise;
   }
 
   const generation = cacheGeneration;
+  const subscribers = new Set([isCurrent]);
+  // Shared work may continue for a newer caller, but never for stale contexts only.
+  const hasCurrentSubscriber = () => generation === cacheGeneration
+    && [...subscribers].some(check => check());
+  const entry = { subscribers, promise: null };
   const requestPromise = (async () => {
-    let result = await performLookup(word, api, isCurrent);
+    let result = await performLookup(word, api, hasCurrentSubscriber);
     
     // Fallback Logic
-    if (allowFallback && isCurrent() && result.type === 'error') {
+    if (allowFallback && hasCurrentSubscriber() && result.type === 'error') {
        const fallbackApi = api === 'google' ? 'krdict' : 'google';
-       const fallbackResult = await performLookup(word, fallbackApi, isCurrent);
+       const fallbackResult = await performLookup(word, fallbackApi, hasCurrentSubscriber);
        if (fallbackResult.type !== 'error') {
          // Mark as fallback for UI
          fallbackResult.isFallback = true;
@@ -611,14 +619,15 @@ async function lookupWord(word, isCurrent = () => true) {
     return result;
   })();
 
-  pendingRequests.set(cacheKey, requestPromise);
+  entry.promise = requestPromise;
+  pendingRequests.set(cacheKey, entry);
 
   try {
     const result = await requestPromise;
     if (generation === cacheGeneration) cacheResult(cacheKey, result);
     return result;
   } finally {
-    if (pendingRequests.get(cacheKey) === requestPromise) pendingRequests.delete(cacheKey);
+    if (pendingRequests.get(cacheKey) === entry) pendingRequests.delete(cacheKey);
   }
 }
 
@@ -655,13 +664,19 @@ async function lookupSelection(text, isCurrent = () => true) {
 
   const pending = pendingRequests.get(cacheKey);
   if (pending) {
-    return pending;
+    pending.subscribers.add(isCurrent);
+    return pending.promise;
   }
 
   const generation = cacheGeneration;
+  const subscribers = new Set([isCurrent]);
+  // Shared work may continue for a newer caller, but never for stale contexts only.
+  const hasCurrentSubscriber = () => generation === cacheGeneration
+    && [...subscribers].some(check => check());
+  const entry = { subscribers, promise: null };
   const requestPromise = (async () => {
     let translation = await translateText(text, 'selection');
-    if (!translation && isCurrent()) {
+    if (!translation && hasCurrentSubscriber()) {
       translation = await onDeviceTranslate(text);
     }
     if (translation) {
@@ -670,14 +685,15 @@ async function lookupSelection(text, isCurrent = () => true) {
     return buildErrorResult(chrome.i18n.getMessage('error') || 'Unable to translate selection');
   })();
 
-  pendingRequests.set(cacheKey, requestPromise);
+  entry.promise = requestPromise;
+  pendingRequests.set(cacheKey, entry);
 
   try {
     const result = await requestPromise;
     if (generation === cacheGeneration) cacheResult(cacheKey, result);
     return result;
   } finally {
-    if (pendingRequests.get(cacheKey) === requestPromise) pendingRequests.delete(cacheKey);
+    if (pendingRequests.get(cacheKey) === entry) pendingRequests.delete(cacheKey);
   }
 }
 

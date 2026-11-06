@@ -22,6 +22,7 @@ try {
   const id = new URL(worker.url()).host;
   await worker.evaluate(() => {
     globalThis.testRequests = [];
+    globalThis.realFetch = globalThis.fetch;
     globalThis.fetch = async (url, options) => {
       testRequests.push({ url: String(url), credentials: options.credentials, referrerPolicy: options.referrerPolicy });
       if (String(url).startsWith('https://translate.googleapis.com/')) {
@@ -48,6 +49,27 @@ try {
   const page = await context.newPage();
   await page.goto('http://127.0.0.1/reading');
   await page.locator('.kr-tooltip').waitFor({ state: 'attached' });
+  // 실제 콘텐츠 스크립트 격리 컨텍스트에서도 로컬 키 접근이 차단되어야 한다.
+  const cdp = await context.newCDPSession(page);
+  const executionContexts = [];
+  cdp.on('Runtime.executionContextCreated', event => executionContexts.push(event.context));
+  await cdp.send('Runtime.enable');
+  let privateStorageChecked = false;
+  for (const execution of executionContexts) {
+    const identity = await cdp.send('Runtime.evaluate', {
+      contextId: execution.id, expression: "typeof chrome === 'object' ? chrome.runtime?.id : ''", returnByValue: true
+    });
+    if (identity.result.value !== id) continue;
+    const access = await cdp.send('Runtime.evaluate', {
+      contextId: execution.id,
+      expression: "(async () => { try { await chrome.storage.local.get('krdictApiKey'); return false; } catch { return true; } })()",
+      awaitPromise: true, returnByValue: true
+    });
+    assert.equal(access.result.value, true, 'content script must not read local key storage');
+    privateStorageChecked = true;
+  }
+  assert.equal(privateStorageChecked, true, 'extension content execution context was inspected');
+  await cdp.detach();
   await page.locator('#word').hover();
   await page.locator('.kr-tooltip').filter({ hasText: 'library' }).waitFor({ state: 'visible' });
   const count = await worker.evaluate(() => testRequests.length);
@@ -76,6 +98,12 @@ try {
   const requests = await worker.evaluate(() => testRequests);
   assert.ok(requests.every(request => request.credentials === 'omit' && request.referrerPolicy === 'no-referrer'));
   assert.ok(requests.every(request => !request.url.includes('google-analytics')));
+  // 비밀값 없이 공개 예문으로만 실제 Google 경로를 확인한다. 외부 서비스 상태는 별도 보고한다.
+  const liveGoogle = await worker.evaluate(async () => {
+    globalThis.fetch = globalThis.realFetch;
+    return translateTextRequest('도서관');
+  });
+  console.log('LIVE_GOOGLE_PROBE:', liveGoogle.translation ? JSON.stringify(liveGoogle.translation) : 'UNAVAILABLE (not a passed provider check)');
   console.log('PASS: real Chromium popup save/clear, local-only key, normal hover, editable/password skip, selection, worker transport. Provider responses mocked.');
 } finally {
   await context.close();

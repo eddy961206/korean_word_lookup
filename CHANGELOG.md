@@ -27,7 +27,9 @@
 - Add privacy/security regression tests, multilingual store copy, privacy disclosures,
   and a consent-based analytics assessment without deploying a collector.
 - Chrome 102 or newer is required for trusted-context storage access control.
-- Store upload, live-browser/provider QA, final screenshots and publication remain separate gates.
+- Add real Chromium smoke testing to CI; provider responses are mocked, with a separate live Google probe.
+- Recover hover after dragging outside the document and preserve fallback for current callers sharing a request.
+- Store upload, real KRDICT validation, final screenshots and publication remain separate gates.
 
 ## 2.5.2 - 2026-10-02
 

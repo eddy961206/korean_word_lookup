@@ -201,3 +201,58 @@ test('selection requests are explicitly tagged for background settings enforceme
   await context.translateText('단어');
   assert.equal(messages.filter(message => message.action === 'translateText').at(-1).kind, 'word');
 });
+
+test('hover recovers after release outside the document without interrupting a held drag', async () => {
+  const { context, listeners, normal, timers } = await setup();
+  listeners.mousedown();
+  listeners.mouseleave();
+  context.scheduleLookup({ target: normal, clientX: 1, clientY: 1, buttons: 1 });
+  assert.equal(timers.size, 0);
+  assert.equal(vm.runInContext('isSelecting', context), true);
+  context.scheduleLookup({ target: normal, clientX: 1, clientY: 1, buttons: 0 });
+  assert.equal(vm.runInContext('isSelecting', context), false);
+  assert.equal(timers.size, 1);
+  for (const callback of [...timers.values()]) await callback();
+  assert.equal(context.requests.length, 1);
+});
+
+for (const kind of ['word', 'selection']) {
+  for (const currentSecond of [true, false]) {
+    test(`${kind} shared lookup permits fallback only with a current subscriber (${currentSecond})`, async () => {
+      const { context } = await setup();
+      vm.runInContext(`
+        globalThis.deviceCalls = 0; globalThis.dictionaryCalls = 0;
+        translateText = () => new Promise(resolve => { globalThis.finishPrimary = resolve; });
+        onDeviceTranslate = async () => { deviceCalls += 1; return ${kind === 'selection' ? "'Korean'" : 'null'}; };
+        getDictionaryMeaning = async () => { dictionaryCalls += 1; return { word: '한국어' }; };
+      `, context);
+      let firstCurrent = true;
+      const lookup = kind === 'word' ? context.originalLookupWord : context.originalLookupSelection;
+      const first = lookup('한국어', () => firstCurrent);
+      firstCurrent = false;
+      const second = lookup('한국어', () => currentSecond);
+      context.finishPrimary(null);
+      const [firstResult, secondResult] = await Promise.all([first, second]);
+      assert.equal(firstResult.type, secondResult.type);
+      assert.equal(secondResult.type, currentSecond ? (kind === 'word' ? 'dict' : 'selection') : 'error');
+      assert.equal(context.deviceCalls, currentSecond ? 1 : 0);
+      assert.equal(context.dictionaryCalls, currentSecond && kind === 'word' ? 1 : 0);
+      assert.equal(vm.runInContext('pendingRequests.size', context), 0);
+    });
+  }
+}
+
+test('cache invalidation prevents shared in-flight work from starting fallback', async () => {
+  const { context } = await setup();
+  vm.runInContext(`
+    globalThis.fallbackCalls = 0;
+    translateText = () => new Promise(resolve => { globalThis.finishPrimary = resolve; });
+    onDeviceTranslate = getDictionaryMeaning = async () => { fallbackCalls += 1; return null; };
+  `, context);
+  const first = context.originalLookupWord('한국어', () => true);
+  const second = context.originalLookupWord('한국어', () => true);
+  context.invalidateLookupCache();
+  context.finishPrimary(null);
+  await Promise.all([first, second]);
+  assert.equal(context.fallbackCalls, 0);
+});
