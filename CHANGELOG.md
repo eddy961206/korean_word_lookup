@@ -7,8 +7,9 @@
   shadow/slot ancestors, and selections crossing editable content.
 - Recheck delayed requests and suppress stale results after focus, navigation context,
   selection, settings, and source changes.
-- Migrate KRDICT keys from sync to trusted extension-local storage and remove the
-  legacy sync key only after a successful local write. Local storage is not encrypted.
+- Migrate legacy local/sync KRDICT keys to trusted, memory-only session storage
+  before removing persistent copies. Re-enter keys after restarting Chrome or
+  reloading/updating the extension; worker suspension preserves the current session.
 - Never return stored keys to content scripts or repopulate them in the popup.
   Add explicit Save/Clear controls and localized key/privacy notices.
 - Move provider requests to the service worker, validate text, omit cookies/referrers,

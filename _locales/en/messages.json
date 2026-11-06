@@ -1,6 +1,6 @@
 {
     "appName": {
-        "message": "Korean Word Lookup — Korean to English Translator & Dictionary"
+        "message": "Korean Word Lookup: Korean to English"
     },
     "appDesc": {
         "message": "Hover Korean words for English meanings. Select text to translate. Google Translate and KRDICT dictionary support."
@@ -57,7 +57,7 @@
         "message": "Paste your own KRDICT key"
     },
     "apiKeyHelper": {
-        "message": "Saved on this device, not synced. Not encrypted."
+        "message": "Kept only in memory for this browser session. Enter it again after Chrome restarts or the extension reloads/updates. Never synced."
     },
     "btnUseDefault": {
         "message": "Clear key"
@@ -297,7 +297,7 @@
         "message": "Save key"
     },
     "apiKeySaved": {
-        "message": "A key is saved on this device."
+        "message": "A key is saved for this browser session only."
     },
     "apiKeyNotSet": {
         "message": "No key saved. Google Translate works without one."

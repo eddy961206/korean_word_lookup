@@ -20,7 +20,7 @@ Korean Word Lookup shows translations or dictionary meanings in a tooltip when y
 - Google translation needs no user-supplied API key. KRDICT requires your own key.
 - Selection translation uses Google, including in KRDICT word mode.
 - No remote product analytics in this release candidate. Local usage state remains.
-- KRDICT keys are stored locally, not encrypted, and not synced by this version.
+- KRDICT keys stay only in memory for the current browser session. Enter them again after restarting Chrome or reloading/updating the extension.
 - Input and password fields, textareas, editable regions, and selections crossing editable content are skipped. Other page text may still be private.
 - Translation transmits lookup text to providers. Do not claim all data stays on-device or guaranteed offline operation.
 

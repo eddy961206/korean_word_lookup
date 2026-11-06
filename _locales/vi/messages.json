@@ -1,311 +1,311 @@
 {
-  "appName": {
-    "message": "Tra từ tiếng Hàn - Di chuột & Dịch khi chọn"
-  },
-  "appDesc": {
-    "message": "Di chuột lên từ tiếng Hàn để xem nghĩa tiếng Anh. Chọn văn bản để dịch. Hỗ trợ Google Dịch và từ điển KRDICT."
-  },
-  "cmdToggleTrans": {
-    "message": "Bật/Tắt dịch"
-  },
-  "cmdToggleGoogle": {
-    "message": "Chuyển sang Google Dịch"
-  },
-  "cmdToggleDict": {
-    "message": "Chuyển sang từ điển tiếng Hàn"
-  },
-  "cmdToggleSelect": {
-    "message": "Bật/Tắt dịch đoạn được chọn"
-  },
-  "popupEnable": {
-    "message": "Bật dịch từ"
-  },
-  "transSource": {
-    "message": "Nguồn dịch:"
-  },
-  "googleTrans": {
-    "message": "Google Dịch"
-  },
-  "koreanDict": {
-    "message": "Từ điển tiếng Hàn"
-  },
-  "tooltipSettings": {
-    "message": "Cài đặt tooltip"
-  },
-  "hoverDelay": {
-    "message": "Độ trễ khi di chuột"
-  },
-  "instant": {
-    "message": "Ngay lập tức"
-  },
-  "maxDefs": {
-    "message": "Số định nghĩa tối đa"
-  },
-  "showKrDefs": {
-    "message": "Hiển thị định nghĩa tiếng Hàn (từ điển)"
-  },
-  "compactMode": {
-    "message": "Tooltip gọn"
-  },
-  "enableSelect": {
-    "message": "Bật dịch đoạn được chọn"
-  },
-  "apiKeyTitle": {
-    "message": "Khóa API từ điển tiếng Hàn"
-  },
-  "apiKeyPlaceholder": {
-    "message": "Dán khóa KRDICT của riêng bạn"
-  },
-  "apiKeyHelper": {
-    "message": "Chỉ lưu trên thiết bị này, không đồng bộ. Không được mã hóa."
-  },
-  "btnUseDefault": {
-    "message": "Xóa khóa"
-  },
-  "statusHover": {
-    "message": "Di chuột lên văn bản tiếng Hàn để xem nghĩa tiếng Anh"
-  },
-  "statusDisabled": {
-    "message": "Tính năng dịch hiện đang tắt"
-  },
-  "reviewTitle": {
-    "message": "Chia sẻ trải nghiệm của bạn"
-  },
-  "reviewText": {
-    "message": "Hãy cho những người học tiếng Hàn khác biết trải nghiệm sử dụng tiện ích của bạn."
-  },
-  "btnRate": {
-    "message": "Viết đánh giá"
-  },
-  "btnLater": {
-    "message": "Để sau"
-  },
-  "btnNo": {
-    "message": "Không, cảm ơn"
-  },
-  "btnFeedback": {
-    "message": "Gửi phản hồi"
-  },
-  "btnManageShortcuts": {
-    "message": "Quản lý phím tắt"
-  },
-  "shortcutsHint": {
-    "message": "Phím tắt: $ALT_G$ (Google Dịch) | $ALT_K$ (Từ điển Hàn) | $ALT_T$ (Bật/Tắt dịch) | $ALT_S$ (Dịch đoạn chọn)",
-    "placeholders": {
-      "alt_g": {
-        "content": "$1"
-      },
-      "alt_k": {
-        "content": "$2"
-      },
-      "alt_t": {
-        "content": "$3"
-      },
-      "alt_s": {
-        "content": "$4"
-      }
+    "appName": {
+        "message": "Korean Word Lookup: Dịch Hàn-Anh"
+    },
+    "appDesc": {
+        "message": "Di chuột lên từ tiếng Hàn để xem nghĩa tiếng Anh. Chọn văn bản để dịch. Hỗ trợ Google Dịch và từ điển KRDICT."
+    },
+    "cmdToggleTrans": {
+        "message": "Bật/Tắt dịch"
+    },
+    "cmdToggleGoogle": {
+        "message": "Chuyển sang Google Dịch"
+    },
+    "cmdToggleDict": {
+        "message": "Chuyển sang từ điển tiếng Hàn"
+    },
+    "cmdToggleSelect": {
+        "message": "Bật/Tắt dịch đoạn được chọn"
+    },
+    "popupEnable": {
+        "message": "Bật dịch từ"
+    },
+    "transSource": {
+        "message": "Nguồn dịch:"
+    },
+    "googleTrans": {
+        "message": "Google Dịch"
+    },
+    "koreanDict": {
+        "message": "Từ điển tiếng Hàn"
+    },
+    "tooltipSettings": {
+        "message": "Cài đặt tooltip"
+    },
+    "hoverDelay": {
+        "message": "Độ trễ khi di chuột"
+    },
+    "instant": {
+        "message": "Ngay lập tức"
+    },
+    "maxDefs": {
+        "message": "Số định nghĩa tối đa"
+    },
+    "showKrDefs": {
+        "message": "Hiển thị định nghĩa tiếng Hàn (từ điển)"
+    },
+    "compactMode": {
+        "message": "Tooltip gọn"
+    },
+    "enableSelect": {
+        "message": "Bật dịch đoạn được chọn"
+    },
+    "apiKeyTitle": {
+        "message": "Khóa API từ điển tiếng Hàn"
+    },
+    "apiKeyPlaceholder": {
+        "message": "Dán khóa KRDICT của riêng bạn"
+    },
+    "apiKeyHelper": {
+        "message": "Khóa chỉ được giữ trong bộ nhớ cho phiên trình duyệt này. Nhập lại sau khi khởi động lại Chrome hoặc tải lại/cập nhật tiện ích. Khóa không được đồng bộ."
+    },
+    "btnUseDefault": {
+        "message": "Xóa khóa"
+    },
+    "statusHover": {
+        "message": "Di chuột lên văn bản tiếng Hàn để xem nghĩa tiếng Anh"
+    },
+    "statusDisabled": {
+        "message": "Tính năng dịch hiện đang tắt"
+    },
+    "reviewTitle": {
+        "message": "Chia sẻ trải nghiệm của bạn"
+    },
+    "reviewText": {
+        "message": "Hãy cho những người học tiếng Hàn khác biết trải nghiệm sử dụng tiện ích của bạn."
+    },
+    "btnRate": {
+        "message": "Viết đánh giá"
+    },
+    "btnLater": {
+        "message": "Để sau"
+    },
+    "btnNo": {
+        "message": "Không, cảm ơn"
+    },
+    "btnFeedback": {
+        "message": "Gửi phản hồi"
+    },
+    "btnManageShortcuts": {
+        "message": "Quản lý phím tắt"
+    },
+    "shortcutsHint": {
+        "message": "Phím tắt: $ALT_G$ (Google Dịch) | $ALT_K$ (Từ điển Hàn) | $ALT_T$ (Bật/Tắt dịch) | $ALT_S$ (Dịch đoạn chọn)",
+        "placeholders": {
+            "alt_g": {
+                "content": "$1"
+            },
+            "alt_k": {
+                "content": "$2"
+            },
+            "alt_t": {
+                "content": "$3"
+            },
+            "alt_s": {
+                "content": "$4"
+            }
+        }
+    },
+    "footerData": {
+        "message": "Dữ liệu từ điển được cung cấp bởi Từ điển tiếng Hàn cơ bản của Viện Quốc ngữ Quốc gia Hàn Quốc"
+    },
+    "footerLicense": {
+        "message": "Mã nguồn tiện ích được phát hành theo giấy phép MIT"
+    },
+    "footerContact": {
+        "message": "Nếu bạn có góp ý hoặc gặp vấn đề, vui lòng liên hệ:"
+    },
+    "msgTranslating": {
+        "message": "Đang dịch..."
+    },
+    "error": {
+        "message": "Không thể dịch"
+    },
+    "errorMissingKey": {
+        "message": "Thiếu khóa API từ điển. Hãy đặt khóa trong cửa sổ tiện ích."
+    },
+    "errorNotFound": {
+        "message": "Không tìm thấy từ trong từ điển"
+    },
+    "msgSelection": {
+        "message": "Đoạn đã chọn"
+    },
+    "optAutoFallback": {
+        "message": "Dùng tự động chuyển nguồn"
+    },
+    "optAutoFallbackDesc": {
+        "message": "Tự động thử nguồn khác nếu không tìm thấy"
+    },
+    "fallbackPrefix": {
+        "message": "(Tự động)"
+    },
+    "msgTranslatingSel": {
+        "message": "Đang dịch đoạn đã chọn..."
+    },
+    "msgTooLong": {
+        "message": "Đoạn chọn quá dài (tối đa $LIMIT$ ký tự).",
+        "placeholders": {
+            "limit": {
+                "content": "$1"
+            }
+        }
+    },
+    "headerEng": {
+        "message": "Định nghĩa tiếng Anh"
+    },
+    "headerKor": {
+        "message": "Định nghĩa tiếng Hàn"
+    },
+    "moreDefs": {
+        "message": "...và còn $COUNT$ mục",
+        "placeholders": {
+            "count": {
+                "content": "$1"
+            }
+        }
+    },
+    "noDef": {
+        "message": "Không có định nghĩa"
+    },
+    "welcomeTitle": {
+        "message": "Chào mừng đến với Korean Word Lookup!"
+    },
+    "welcomeSubtitle": {
+        "message": "Cảm ơn bạn đã cài đặt. Bắt đầu nhanh như sau."
+    },
+    "refreshNotice": {
+        "message": "Hãy tải lại các tab đã mở trước khi bạn cài đặt hoặc cập nhật tiện ích."
+    },
+    "featMain": {
+        "message": "🔍 Tính năng chính"
+    },
+    "feat1": {
+        "message": "Di chuột lên từ tiếng Hàn để xem bản dịch hoặc định nghĩa tiếng Anh"
+    },
+    "feat2": {
+        "message": "Chọn giữa Google Dịch và Từ điển tiếng Hàn"
+    },
+    "featAutoFallback": {
+        "message": "Tự động chuyển nguồn: tự động đổi sang Google Dịch nếu tra từ điển thất bại"
+    },
+    "feat3": {
+        "message": "Google Dịch - dịch từ nhanh"
+    },
+    "feat4": {
+        "message": "Từ điển tiếng Hàn - định nghĩa chi tiết"
+    },
+    "feat5": {
+        "message": "Dùng phím tắt để thao tác nhanh"
+    },
+    "feat6": {
+        "message": "Tùy chỉnh độ trễ hover, kích thước tooltip và số định nghĩa"
+    },
+    "feat7": {
+        "message": "Bôi đen câu tiếng Hàn để dịch ngay"
+    },
+    "shortcutTitle": {
+        "message": "⌨️ Phím tắt"
+    },
+    "startTitle": {
+        "message": "🚀 Bắt đầu"
+    },
+    "start1": {
+        "message": "Nhấn biểu tượng tiện ích trên thanh công cụ"
+    },
+    "start2": {
+        "message": "Ghim tiện ích để dễ thấy trạng thái bật/tắt"
+    },
+    "start3": {
+        "message": "Đảm bảo công tắc dịch đang bật"
+    },
+    "start4": {
+        "message": "Chọn nguồn dịch bạn muốn"
+    },
+    "start5": {
+        "message": "Di chuột lên bất kỳ văn bản tiếng Hàn nào để xem bản dịch!"
+    },
+    "creditsTitle": {
+        "message": "🔖 Nguồn API"
+    },
+    "credits1": {
+        "message": "Tiện ích này dùng hai nguồn dịch:"
+    },
+    "credits2": {
+        "message": "Cung cấp dịch từ nhanh"
+    },
+    "credits3": {
+        "message": "Được cung cấp bởi Từ điển tiếng Hàn cơ bản của Viện Quốc ngữ Quốc gia Hàn Quốc"
+    },
+    "credits4": {
+        "message": "Cung cấp định nghĩa và ví dụ chi tiết"
+    },
+    "quickStartTitle": {
+        "message": "⚡ Thử bản dịch đầu tiên"
+    },
+    "quickStartEnable": {
+        "message": "Mở biểu tượng tiện ích, bật dịch từ và chọn Google Dịch."
+    },
+    "quickStartOpen": {
+        "message": "Nhấn nút bên dưới để mở trang Wikipedia tiếng Hàn dùng thử."
+    },
+    "quickStartHover": {
+        "message": "Di chuột lên một từ tiếng Hàn trên trang đó để xem nghĩa tiếng Anh."
+    },
+    "btnOpenTestPage": {
+        "message": "Mở trang tiếng Hàn dùng thử"
+    },
+    "quickStartSelection": {
+        "message": "Để dịch câu, bật dịch đoạn được chọn trong cửa sổ tiện ích, rồi bôi đen văn bản tiếng Hàn."
+    },
+    "sourceKeyNotice": {
+        "message": "Google Dịch không cần khóa API. Từ điển tiếng Hàn (KRDICT) cần khóa API của riêng bạn."
+    },
+    "demoTitle": {
+        "message": "Ví dụ hiển thị tooltip"
+    },
+    "demoDisclaimer": {
+        "message": "Đây là ví dụ được lưu sẵn, không phải bản dịch trực tiếp. Hãy dùng trang thử ở trên để tra từ thật."
+    },
+    "demoHint": {
+        "message": "Di chuột, dùng bàn phím để chọn hoặc nhấp vào từ được tô sáng để xem ví dụ."
+    },
+    "supportedPagesHint": {
+        "message": "Dùng trên các trang web thông thường. Không hỗ trợ trang nội bộ Chrome, Chrome Web Store và trình xem PDF của Chrome."
+    },
+    "btnOpenGuide": {
+        "message": "Hướng dẫn · Bắt đầu nhanh"
+    },
+    "hoverDelayDefault": {
+        "message": "150ms (Mặc định)"
+    },
+    "macShortcutTip": {
+        "message": "Mac: Nếu phím tắt bị xung đột, mở Quản lý phím tắt và đặt ⌥⇧T / ⌥⇧G / ⌥⇧K / ⌥⇧S."
+    },
+    "selectionNudgeTitle": {
+        "message": "Mẹo nhanh: bật dịch câu"
+    },
+    "selectionNudgeText": {
+        "message": "Bật dịch đoạn được chọn để dịch các câu tiếng Hàn bạn bôi đen."
+    },
+    "btnEnableSelection": {
+        "message": "Bật ngay"
+    },
+    "btnDismiss": {
+        "message": "Đóng"
+    },
+    "btnSaveKey": {
+        "message": "Lưu khóa"
+    },
+    "apiKeySaved": {
+        "message": "Khóa chỉ được lưu cho phiên trình duyệt này."
+    },
+    "apiKeyNotSet": {
+        "message": "Chưa lưu khóa. Google Dịch không cần khóa."
+    },
+    "apiKeySaveError": {
+        "message": "Không thể lưu hoặc tải khóa. Hãy tải lại tiện ích và thử lại."
+    },
+    "privacyNotice": {
+        "message": "Văn bản cần dịch được gửi đến nhà cung cấp đã chọn; bản dịch vùng chọn dùng Google. Bỏ qua vùng nhập và chỉnh sửa. Không tải dữ liệu sử dụng lên."
     }
-  },
-  "footerData": {
-    "message": "Dữ liệu từ điển được cung cấp bởi Từ điển tiếng Hàn cơ bản của Viện Quốc ngữ Quốc gia Hàn Quốc"
-  },
-  "footerLicense": {
-    "message": "Mã nguồn tiện ích được phát hành theo giấy phép MIT"
-  },
-  "footerContact": {
-    "message": "Nếu bạn có góp ý hoặc gặp vấn đề, vui lòng liên hệ:"
-  },
-  "msgTranslating": {
-    "message": "Đang dịch..."
-  },
-  "error": {
-    "message": "Không thể dịch"
-  },
-  "errorMissingKey": {
-    "message": "Thiếu khóa API từ điển. Hãy đặt khóa trong cửa sổ tiện ích."
-  },
-  "errorNotFound": {
-    "message": "Không tìm thấy từ trong từ điển"
-  },
-  "msgSelection": {
-    "message": "Đoạn đã chọn"
-  },
-  "optAutoFallback": {
-    "message": "Dùng tự động chuyển nguồn"
-  },
-  "optAutoFallbackDesc": {
-    "message": "Tự động thử nguồn khác nếu không tìm thấy"
-  },
-  "fallbackPrefix": {
-    "message": "(Tự động)"
-  },
-  "msgTranslatingSel": {
-    "message": "Đang dịch đoạn đã chọn..."
-  },
-  "msgTooLong": {
-    "message": "Đoạn chọn quá dài (tối đa $LIMIT$ ký tự).",
-    "placeholders": {
-      "limit": {
-        "content": "$1"
-      }
-    }
-  },
-  "headerEng": {
-    "message": "Định nghĩa tiếng Anh"
-  },
-  "headerKor": {
-    "message": "Định nghĩa tiếng Hàn"
-  },
-  "moreDefs": {
-    "message": "...và còn $COUNT$ mục",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
-  "noDef": {
-    "message": "Không có định nghĩa"
-  },
-  "welcomeTitle": {
-    "message": "Chào mừng đến với Korean Word Lookup!"
-  },
-  "welcomeSubtitle": {
-    "message": "Cảm ơn bạn đã cài đặt. Bắt đầu nhanh như sau."
-  },
-  "refreshNotice": {
-    "message": "Hãy tải lại các tab đã mở trước khi bạn cài đặt hoặc cập nhật tiện ích."
-  },
-  "featMain": {
-    "message": "🔍 Tính năng chính"
-  },
-  "feat1": {
-    "message": "Di chuột lên từ tiếng Hàn để xem bản dịch hoặc định nghĩa tiếng Anh"
-  },
-  "feat2": {
-    "message": "Chọn giữa Google Dịch và Từ điển tiếng Hàn"
-  },
-  "featAutoFallback": {
-    "message": "Tự động chuyển nguồn: tự động đổi sang Google Dịch nếu tra từ điển thất bại"
-  },
-  "feat3": {
-    "message": "Google Dịch - dịch từ nhanh"
-  },
-  "feat4": {
-    "message": "Từ điển tiếng Hàn - định nghĩa chi tiết"
-  },
-  "feat5": {
-    "message": "Dùng phím tắt để thao tác nhanh"
-  },
-  "feat6": {
-    "message": "Tùy chỉnh độ trễ hover, kích thước tooltip và số định nghĩa"
-  },
-  "feat7": {
-    "message": "Bôi đen câu tiếng Hàn để dịch ngay"
-  },
-  "shortcutTitle": {
-    "message": "⌨️ Phím tắt"
-  },
-  "startTitle": {
-    "message": "🚀 Bắt đầu"
-  },
-  "start1": {
-    "message": "Nhấn biểu tượng tiện ích trên thanh công cụ"
-  },
-  "start2": {
-    "message": "Ghim tiện ích để dễ thấy trạng thái bật/tắt"
-  },
-  "start3": {
-    "message": "Đảm bảo công tắc dịch đang bật"
-  },
-  "start4": {
-    "message": "Chọn nguồn dịch bạn muốn"
-  },
-  "start5": {
-    "message": "Di chuột lên bất kỳ văn bản tiếng Hàn nào để xem bản dịch!"
-  },
-  "creditsTitle": {
-    "message": "🔖 Nguồn API"
-  },
-  "credits1": {
-    "message": "Tiện ích này dùng hai nguồn dịch:"
-  },
-  "credits2": {
-    "message": "Cung cấp dịch từ nhanh"
-  },
-  "credits3": {
-    "message": "Được cung cấp bởi Từ điển tiếng Hàn cơ bản của Viện Quốc ngữ Quốc gia Hàn Quốc"
-  },
-  "credits4": {
-    "message": "Cung cấp định nghĩa và ví dụ chi tiết"
-  },
-  "quickStartTitle": {
-    "message": "⚡ Thử bản dịch đầu tiên"
-  },
-  "quickStartEnable": {
-    "message": "Mở biểu tượng tiện ích, bật dịch từ và chọn Google Dịch."
-  },
-  "quickStartOpen": {
-    "message": "Nhấn nút bên dưới để mở trang Wikipedia tiếng Hàn dùng thử."
-  },
-  "quickStartHover": {
-    "message": "Di chuột lên một từ tiếng Hàn trên trang đó để xem nghĩa tiếng Anh."
-  },
-  "btnOpenTestPage": {
-    "message": "Mở trang tiếng Hàn dùng thử"
-  },
-  "quickStartSelection": {
-    "message": "Để dịch câu, bật dịch đoạn được chọn trong cửa sổ tiện ích, rồi bôi đen văn bản tiếng Hàn."
-  },
-  "sourceKeyNotice": {
-    "message": "Google Dịch không cần khóa API. Từ điển tiếng Hàn (KRDICT) cần khóa API của riêng bạn."
-  },
-  "demoTitle": {
-    "message": "Ví dụ hiển thị tooltip"
-  },
-  "demoDisclaimer": {
-    "message": "Đây là ví dụ được lưu sẵn, không phải bản dịch trực tiếp. Hãy dùng trang thử ở trên để tra từ thật."
-  },
-  "demoHint": {
-    "message": "Di chuột, dùng bàn phím để chọn hoặc nhấp vào từ được tô sáng để xem ví dụ."
-  },
-  "supportedPagesHint": {
-    "message": "Dùng trên các trang web thông thường. Không hỗ trợ trang nội bộ Chrome, Chrome Web Store và trình xem PDF của Chrome."
-  },
-  "btnOpenGuide": {
-    "message": "Hướng dẫn · Bắt đầu nhanh"
-  },
-  "hoverDelayDefault": {
-    "message": "150ms (Mặc định)"
-  },
-  "macShortcutTip": {
-    "message": "Mac: Nếu phím tắt bị xung đột, mở Quản lý phím tắt và đặt ⌥⇧T / ⌥⇧G / ⌥⇧K / ⌥⇧S."
-  },
-  "selectionNudgeTitle": {
-    "message": "Mẹo nhanh: bật dịch câu"
-  },
-  "selectionNudgeText": {
-    "message": "Bật dịch đoạn được chọn để dịch các câu tiếng Hàn bạn bôi đen."
-  },
-  "btnEnableSelection": {
-    "message": "Bật ngay"
-  },
-  "btnDismiss": {
-    "message": "Đóng"
-  },
-  "btnSaveKey": {
-    "message": "Lưu khóa"
-  },
-  "apiKeySaved": {
-    "message": "Đã lưu khóa trên thiết bị này."
-  },
-  "apiKeyNotSet": {
-    "message": "Chưa lưu khóa. Google Dịch không cần khóa."
-  },
-  "apiKeySaveError": {
-    "message": "Không thể lưu hoặc tải khóa. Hãy tải lại tiện ích và thử lại."
-  },
-  "privacyNotice": {
-    "message": "Văn bản cần dịch được gửi đến nhà cung cấp đã chọn; bản dịch vùng chọn dùng Google. Bỏ qua vùng nhập và chỉnh sửa. Không tải dữ liệu sử dụng lên."
-  }
 }

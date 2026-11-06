@@ -1,8 +1,6 @@
 # Korean Word Lookup privacy information
 
-Release candidate: 2.5.3. This document describes this repository version, not an
-older build currently installed from the Chrome Web Store. It is a proposed
-release disclosure, not confirmation of store publication.
+Applies to version 2.5.3. Older installed versions may behave differently until updated.
 
 ## Translation and dictionary requests
 
@@ -30,16 +28,20 @@ provider-side deletion or retention periods.
 
 ## API key and settings
 
-Your KRDICT key is saved in extension-local Chrome storage accessible only to
-trusted extension contexts. It is not encrypted and is not a password vault. It
-is used only for KRDICT requests, never sent to Google, and never returned to
-web-page content scripts. The popup shows whether a key exists, not the stored
-key itself. Use Save key to replace it or Clear key to remove it.
+Your KRDICT key is held only in memory in Chrome's `storage.session`, restricted
+to trusted extension contexts. This version does not write the key to persistent
+local or sync storage. Enter it again after restarting Chrome or reloading,
+disabling, or updating the extension. Service-worker suspension alone does not
+clear it. It is sent only to KRDICT, never to Google or web-page content scripts.
+The popup shows whether a key exists, never the stored key. Save key replaces it;
+Clear key removes the usable key from the session.
 
-On upgrade, a legacy Chrome-sync key is copied locally if no local key exists;
-the old sync value is removed after the local write succeeds. Because keys no
-longer sync, another browser/device may need its own key entered. Old versions
-on other devices can retain their previous behavior until updated.
+On upgrade, a legacy local or sync key is transferred to session storage before
+its persistent copies are removed. An existing session value takes precedence,
+then a local value, then a sync value. Failed transfers preserve the old copies
+and block key use until initialization succeeds. Old versions on other devices
+can retain their previous behavior until updated. This is not an encrypted
+vault and does not protect against a compromised browser or device.
 
 Ordinary settings, such as translation/source selection and tooltip preferences,
 use Chrome sync storage. Chrome may synchronize them if browser sync is enabled.

@@ -21,11 +21,11 @@ profile, without using a personal computer or browser profile.
 [CI run 42165464451](https://github.com/eddy961206/korean_word_lookup/actions/runs/42165464451)
 passed both validation and actual Chromium smoke testing on commit
 `58f02db3a3788edb0b3bd3a3b5dd55684d82afbf`. The browser test verified popup Save/Clear,
-local-only key storage, normal hover, editable/password exclusions, selected-text
+memory-only session key storage, normal hover, editable/password exclusions, selected-text
 translation, and worker transport against synthetic provider responses.
 
 The current smoke test also checks that the actual content-script isolated context
-cannot read trusted local key storage. A separate informational `LIVE_GOOGLE_PROBE`
+cannot read trusted session key storage. A separate informational `LIVE_GOOGLE_PROBE`
 uses only the public test word 도서관 and reports its result explicitly; an unavailable
 probe is not counted as a passed live-provider check. The final PR head must pass
 CI again after any further edits.
@@ -49,8 +49,8 @@ all-browser/platform behavior, or pixel-level visual acceptance.
 
 1. Load the unpacked release candidate in a disposable Chrome test profile. Confirm
    no service-worker errors, popup overflow, missing translations, or key status errors.
-2. Fresh install and upgrade: Google without a key; legacy sync key moves locally;
-   existing local key wins; key Save/Clear works; no raw key shown in popup or content messages.
+2. Fresh install and upgrade: Google without a key; legacy local/sync keys move to memory-only session storage;
+   existing session key wins, then local, then sync; key Save/Clear works; no raw key shown in popup or content messages.
 3. With an authorized test key, verify a real KRDICT lookup. Without one, verify
    missing-key behavior and Google fallback. Never fabricate a dictionary success.
 4. Verify real Google word and multi-sentence results on a normal page and a strict
@@ -71,3 +71,13 @@ all-browser/platform behavior, or pixel-level visual acceptance.
 Store submission, deployment, credential creation/revocation and account
 security-setting changes remain outside these checks. PR review/merge status must
 be verified separately in GitHub.
+
+## Session-key regression coverage
+
+Keys use trusted memory-only `storage.session`. Unit tests simulate legacy
+local/sync migration, failed writes, delayed initialization, service-worker
+restarts sharing a session, and a new browser session with no retained key.
+Browser smoke checks Save/Clear, absence of persistent copies, and denied
+content-script session access. Full browser restart and extension update/disable
+clearing behavior must also be verified manually before release; mocks do not
+prove Chrome lifecycle semantics.

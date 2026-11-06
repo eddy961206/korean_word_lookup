@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
       autoFallbackToggle.checked = changes.autoFallbackEnabled.newValue !== false;
     } else if (area === 'sync' && changes.selectionTranslationEnabled) {
       selectionTranslationToggle.checked = changes.selectionTranslationEnabled.newValue === true;
-    } else if (area === 'local' && changes.krdictApiKey) {
+    } else if (area === 'session' && changes.krdictApiKey) {
       showKeyStatus({ hasKey: Boolean(changes.krdictApiKey.newValue) });
     } else if (area === 'sync' && changes.translationEnabled) {
       const newStatus = changes.translationEnabled.newValue;

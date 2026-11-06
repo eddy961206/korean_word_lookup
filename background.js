@@ -29,8 +29,8 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
-// API 키는 신뢰된 확장 프로그램 컨텍스트의 로컬 저장소에서만 사용한다.
-// 이전 sync 키는 로컬 저장이 성공한 뒤 제거해 마이그레이션 중 유실을 막는다.
+// API 키는 신뢰된 컨텍스트의 메모리 전용 session 저장소에서만 사용한다.
+// 이전 영구 저장 키는 session 저장 성공 후에만 제거한다.
 const storageReady = initializePrivateStorage();
 storageReady.catch(() => {}); // 실패 시 키/번역 메시지는 안전하게 거절한다.
 let mutationQueue = Promise.resolve();
@@ -46,13 +46,19 @@ function storageCall(area, method, value) {
 
 async function initializePrivateStorage() {
   await chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' });
-  const [local, sync] = await Promise.all([
+  await chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' });
+  const [session, local, sync] = await Promise.all([
+    storageCall('session', 'get', ['krdictApiKey']),
     storageCall('local', 'get', ['krdictApiKey']),
     storageCall('sync', 'get', ['krdictApiKey'])
   ]);
-  if (!Object.hasOwn(local, 'krdictApiKey') && typeof sync.krdictApiKey === 'string') {
-    await storageCall('local', 'set', { krdictApiKey: sync.krdictApiKey.trim() });
+  if (!Object.hasOwn(session, 'krdictApiKey')) {
+    const legacy = Object.hasOwn(local, 'krdictApiKey') ? local.krdictApiKey : sync.krdictApiKey;
+    if (typeof legacy === 'string') {
+      await storageCall('session', 'set', { krdictApiKey: legacy.trim() });
+    }
   }
+  await storageCall('local', 'remove', 'krdictApiKey');
   await storageCall('sync', 'remove', 'krdictApiKey');
   // 원격 분석 경로를 폐기하며 과거의 로컬 식별자/설정을 함께 정리한다.
   await storageCall('local', 'remove', [
@@ -112,7 +118,7 @@ async function translateTextRequest(text) {
 }
 
 async function lookupDictionaryRequest(text) {
-  const local = await storageCall('local', 'get', ['krdictApiKey']);
+  const local = await storageCall('session', 'get', ['krdictApiKey']);
   const key = typeof local.krdictApiKey === 'string' ? local.krdictApiKey.trim() : '';
   if (!key) return { error: 'missing_key' };
   const params = new URLSearchParams({ key, q: text, translated: 'y', trans_lang: '1' });
@@ -128,7 +134,7 @@ async function handleRequest(request, sender) {
   switch (request.action) {
     case 'getDictionaryKeyStatus': {
       if (!isTrustedPopup(sender)) return { error: 'unauthorized' };
-      const local = await storageCall('local', 'get', ['krdictApiKey']);
+      const local = await storageCall('session', 'get', ['krdictApiKey']);
       return { hasKey: Boolean(local.krdictApiKey) };
     }
     case 'setDictionaryKey': {
@@ -137,7 +143,8 @@ async function handleRequest(request, sender) {
         return { error: 'invalid_key' };
       }
       await enqueueMutation(async () => {
-        await storageCall('local', 'set', { krdictApiKey: request.key.trim() });
+        await storageCall('session', 'set', { krdictApiKey: request.key.trim() });
+        await storageCall('local', 'remove', 'krdictApiKey');
         await storageCall('sync', 'remove', 'krdictApiKey');
       });
       // 키 원문 없이 캐시 무효화 신호만 모든 탭에 전달한다.
