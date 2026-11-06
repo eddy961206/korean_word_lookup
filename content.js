@@ -235,8 +235,8 @@ async function initializeExtension() {
   document.addEventListener('scroll', event => { if (!isTooltipNode(event?.target)) cancelPendingLookups(); }, true);
   document.addEventListener('visibilitychange', cancelPendingLookups);
   document.addEventListener('mouseleave', cancelPendingLookups);
-  document.addEventListener('selectionchange', () => {
-    if (isTooltipNode(document.activeElement) || isTooltipNode(window.getSelection?.()?.anchorNode)) return;
+  document.addEventListener('selectionchange', (event) => {
+    if (isTooltipNode(event?.target) || isTooltipNode(document.activeElement) || isTooltipNode(window.getSelection?.()?.anchorNode)) return;
     clearHoverTimer();
     activeRequestId += 1;
     if (!isSelecting) handleSelectionChange();

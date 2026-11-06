@@ -221,3 +221,25 @@ for (const rejects of [false, true]) {
     assert.equal(vm.runInContext('sitePaused', context), true);
   });
 }
+
+test('selectionchange from tooltip retry input does not invalidate the in-flight hover', async () => {
+  const { context, listeners, normal } = await setup();
+  const panel = vm.runInContext('tooltipElements', context);
+  // Fake DOM appendChild does not attach parents; model the real retry field ancestry.
+  panel.retryInput.parentNode = panel.tooltip;
+  vm.runInContext(`
+    lookupWord = () => new Promise(resolve => { globalThis.finishHover = resolve; });
+    renderLookupResult = originalRenderLookupResult;
+  `, context);
+  const pending = context.handleHover({ target: normal, clientX: 1, clientY: 1 });
+  const requestId = vm.runInContext('activeRequestId', context);
+  listeners.selectionchange({ target: panel.retryInput });
+  assert.equal(vm.runInContext('activeRequestId', context), requestId);
+  context.finishHover({ type: 'google', translation: 'Korean' });
+  await pending;
+  assert.equal(panel.body.textContent, 'Korean');
+  assert.equal(panel.tooltip.style.display, 'block');
+  // Genuine page selections still invalidate the previous hover request.
+  listeners.selectionchange({ target: normal });
+  assert.ok(vm.runInContext('activeRequestId', context) > requestId);
+});
