@@ -76,7 +76,8 @@ function enqueueMutation(operation) {
 }
 
 function isTrustedPopup(sender) {
-  return !sender.tab && sender.url === chrome.runtime.getURL('popup.html');
+  const popupUrl = chrome.runtime.getURL('popup.html');
+  return sender.url === popupUrl && (!sender.tab || sender.tab.url === popupUrl);
 }
 
 function isValidLookupText(text) {

@@ -27,6 +27,15 @@ async function poll(read, accepts, label, timeout = 10000) {
   throw new Error(`Timed out: ${label}; last value=${JSON.stringify(value)}`);
 }
 let context = await launch();
+let diagnosticsCDP = null;
+const diagnosticsWorlds = [];
+const runtimeErrors = [];
+context.on('page', page => {
+  page.on('pageerror', error => runtimeErrors.push({kind:'pageerror', message:error.message}));
+  page.on('console', message => {
+    if (message.type() === 'error' || message.type() === 'warning') runtimeErrors.push({kind:message.type(), message:message.text()});
+  });
+});
 try {
   const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
   const id = new URL(worker.url()).host;
@@ -64,8 +73,9 @@ try {
   await tip.waitFor({ state: 'attached' });
   // Tooltip DOM precedes async startup/site-state readiness; inspect, never override, the isolated world.
   await page.bringToFront();
-  const startupCDP = await context.newCDPSession(page);
-  const startupWorlds = [];
+  const startupCDP = diagnosticsCDP = await context.newCDPSession(page);
+  const startupWorlds = diagnosticsWorlds;
+  startupCDP.on('Runtime.exceptionThrown', event => runtimeErrors.push({kind:'isolated-exception', message:event.exceptionDetails.exception?.description || event.exceptionDetails.text}));
   startupCDP.on('Runtime.executionContextCreated', event => startupWorlds.push(event.context));
   await startupCDP.send('Runtime.enable');
   await poll(async () => {
@@ -79,7 +89,6 @@ try {
     }
     return false;
   }, Boolean, 'real content startup and unpaused site state');
-  await startupCDP.detach();
   await page.locator('#word').hover();
   await tip.filter({ hasText: 'SYNTHETIC en 도서관' }).waitFor({ state: 'visible' });
   await tip.getByRole('button', { name: 'Pin', exact: true }).click();
@@ -333,6 +342,42 @@ try {
   await restored.getByRole('button', { name: 'Edit: 도서관', exact: true }).waitFor();
   assert.equal(await restored.getByText('PRIVATE_NOTE_SENTINEL', { exact: true }).count(), 1);
   console.log('PASS: Chromium learning workspace: synthetic EN/VI, pin/copy/close/Esc, modifier, interrupted request, hostname pause, source-only repeated saves, private notebook boundary, own edits/search, safe CSV/TSV/JSON, strict preview/import/cancel/duplicate, storage failure, persistent delete/Undo + browser restart. Native toolbar popup and live-provider quality are not claimed.');
+} catch (error) {
+  // Synthetic fixture only: retain the assertion failure and log no storage values or keys.
+  console.error('WORKSPACE_RUNTIME_ERRORS', JSON.stringify(runtimeErrors));
+  for (const diagnosticPage of context.pages()) {
+    if (!diagnosticPage.url().endsWith('/workspace-reading')) continue;
+    try {
+      console.error('WORKSPACE_READING_STATE', JSON.stringify(await diagnosticPage.evaluate(() => ({
+        hidden: document.hidden,
+        panel: document.querySelector('.kr-tooltip')?.textContent,
+        display: document.querySelector('.kr-tooltip')?.style.display,
+        activeElement: document.activeElement?.id || document.activeElement?.tagName
+      }))));
+    } catch (diagnosticError) { console.error('WORKSPACE_PAGE_DIAGNOSTIC_FAILED', diagnosticError.message); }
+  }
+  if (diagnosticsCDP) for (const world of diagnosticsWorlds) {
+    try {
+      const result = await diagnosticsCDP.send('Runtime.evaluate', {
+        contextId:world.id, returnByValue:true,
+        expression:`typeof isInitialized === 'undefined' ? null : ({isInitialized,sitePaused,isEnabled,isSelecting,tooltipPinned,tooltipHovered,tooltipMode,targetLanguage,lastWord,activeRequestId,cacheGeneration,pendingCount:pendingRequests.size,lastPoint:lastHoverPoint?{x:lastHoverPoint.clientX,y:lastHoverPoint.clientY,target:lastHoverPoint.target?.id,pointHitsTooltip:isTooltipNode(document.elementFromPoint(lastHoverPoint.clientX,lastHoverPoint.clientY)),targetPrivate:isPrivateNode(lastHoverPoint.target),word:getKoreanWordAtPoint(lastHoverPoint.clientX,lastHoverPoint.clientY)}:null})`
+      });
+      if (result.result.value) console.error('WORKSPACE_ISOLATED_STATE', JSON.stringify(result.result.value));
+    } catch (diagnosticError) { console.error('WORKSPACE_CONTEXT_DIAGNOSTIC_FAILED', diagnosticError.message); }
+  }
+  const diagnosticWorker = context.serviceWorkers()[0];
+  if (diagnosticWorker) try {
+    console.error('WORKSPACE_WORKER_STATE', JSON.stringify(await diagnosticWorker.evaluate(async () => {
+      if (!Array.isArray(globalThis.syntheticRequests)) return {syntheticFixture:'not-installed',directProbe:'not-run'};
+      const requestsBeforeProbe = [...syntheticRequests];
+      const directProbe = await Promise.race([
+        handleRequest({action:'translateText',text:'도서관',targetLanguage:'en'}, {id:chrome.runtime.id,url:'http://127.0.0.1/workspace-reading',tab:{id:0}}),
+        new Promise(resolve => setTimeout(() => resolve({error:'diagnostic_timeout'}),2000))
+      ]);
+      return {requestsBeforeProbe,directProbe};
+    })));
+  } catch (diagnosticError) { console.error('WORKSPACE_WORKER_DIAGNOSTIC_FAILED', diagnosticError.message); }
+  throw error;
 } finally {
   await context.close();
   await rm(profile, { recursive: true, force: true });

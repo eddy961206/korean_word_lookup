@@ -141,3 +141,20 @@ test('site management fails closed when content is absent or returns an unbounde
   }
   assert.equal(state.local.pausedHostnames, undefined);
 });
+
+test('exact own popup tab is trusted but external, mismatched, and content senders are denied', async () => {
+  const state = await loadBackground();
+  const popupTab = { ...popup, tab: { id: 7, url: popup.url } };
+  assert.equal((await state.send({ action: 'getDictionaryKeyStatus' }, popup)).hasKey, false);
+  assert.equal((await state.send({ action: 'getDictionaryKeyStatus' }, popupTab)).hasKey, false);
+  assert.equal((await state.send({ action: 'setDictionaryKey', key: 'test-key' }, popupTab)).ok, true);
+  for (const sender of [content, { ...popupTab, id: 'another-extension' },
+    { ...popupTab, url: 'https://example.test/popup.html' },
+    { ...popupTab, tab: { id: 7, url: 'https://example.test/' } },
+    { ...popupTab, tab: { id: 7 } },
+    { ...popupTab, url: popup.url + '?forged=1' }]) {
+    assert.equal((await state.send({ action: 'getDictionaryKeyStatus' }, sender)).error, 'unauthorized');
+    assert.equal((await state.send({ action: 'setDictionaryKey', key: 'should-not-save' }, sender)).error, 'unauthorized');
+  }
+  assert.equal(state.session.krdictApiKey, 'test-key');
+});
