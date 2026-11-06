@@ -1,9 +1,9 @@
 {
     "appName": {
-        "message": "한국어 영어 번역 · Korean Word Lookup"
+        "message": "한국어 번역 · 내 단어장 | Korean Word Lookup"
     },
     "appDesc": {
-        "message": "한국어 단어에 마우스를 올려 영어 뜻을 확인하고, 선택한 문장을 번역하세요. Google 번역과 KRDICT 사전을 지원합니다."
+        "message": "한국어를 영어·베트남어로 확인하고 단어를 로컬 단어장에 저장하세요. 나만의 풀이와 메모를 적을 수 있습니다."
     },
     "cmdToggleTrans": {
         "message": "번역 기능 켜기/끄기"
@@ -63,7 +63,7 @@
         "message": "키 지우기"
     },
     "statusHover": {
-        "message": "한국어 텍스트 위에 마우스를 올려보세요"
+        "message": "한국어에 마우스를 올려 선택한 언어의 뜻을 확인하세요."
     },
     "statusDisabled": {
         "message": "번역 기능이 꺼져 있습니다"
@@ -237,7 +237,7 @@
         "message": "국립국어원 한국어기초사전 제공"
     },
     "credits4": {
-        "message": "자세한 단어 정의와 예문 제공"
+        "message": "한국어 사전 뜻풀이를 제공합니다"
     },
     "quickStartTitle": {
         "message": "⚡ 첫 번역을 시작해 보세요"
@@ -307,5 +307,92 @@
     },
     "privacyNotice": {
         "message": "번역할 텍스트는 선택한 제공업체로 전송되며, 선택 영역 번역은 Google을 사용합니다. 입력·편집 영역은 건너뜁니다. 사용 데이터는 업로드하지 않습니다."
+    },
+    "readingCompanion": {
+        "message": "읽고 · 이해하고 · 기억하기"
+    },
+    "targetLanguage": {
+        "message": "번역 결과 언어"
+    },
+    "lookupTrigger": {
+        "message": "단어 조회 방식"
+    },
+    "triggerHover": {
+        "message": "마우스 올리기"
+    },
+    "triggerModifier": {
+        "message": "Alt / Option + 마우스"
+    },
+    "selectionPrivacyHint": {
+        "message": "선택 번역을 켜면 선택한 한국어를 Google로 전송합니다. Alt / Option + Enter를 누르면 결과를 고정하고 결과창으로 이동합니다."
+    },
+    "pauseSite": {
+        "message": "이 사이트에서 일시중지"
+    },
+    "resumeAllSites": {
+        "message": "일시중지한 사이트 모두 재개"
+    },
+    "openNotebook": {
+        "message": "내 단어장 열기 →"
+    },
+    "notebookSummary": {
+        "message": "단어를 저장한 뒤 내 말로 풀이와 메모를 적어 보세요."
+    },
+    "advancedSettings": {
+        "message": "읽기 설정 · 사전"
+    },
+    "resumeSite": {
+        "message": "이 사이트에서 재개"
+    },
+    "siteUnavailable": {
+        "message": "이 페이지에서는 사이트 설정을 사용할 수 없습니다."
+    },
+    "sitePausedStatus": {
+        "message": "이 사이트는 일시중지 중입니다. 도메인은 이 브라우저에만 저장됩니다."
+    },
+    "siteActiveStatus": {
+        "message": "이 사이트에서 번역을 사용할 수 있습니다."
+    },
+    "settingError": {
+        "message": "설정을 바꾸지 못했습니다. 다시 시도해 주세요."
+    },
+    "tipPin": {
+        "message": "고정"
+    },
+    "tipUnpin": {
+        "message": "고정 해제"
+    },
+    "tipCopy": {
+        "message": "복사"
+    },
+    "tipCopied": {
+        "message": "복사됨"
+    },
+    "tipSaveWord": {
+        "message": "단어 저장"
+    },
+    "tipSavedWord": {
+        "message": "단어를 저장했어요. 단어장에서 직접 풀이를 적어 보세요."
+    },
+    "tipClose": {
+        "message": "닫기"
+    },
+    "tipRetry": {
+        "message": "다시 조회"
+    },
+    "tipRetryLabel": {
+        "message": "한국어 단어를 고쳐서 조회"
+    },
+    "tipOpenNotebook": {
+        "message": "단어장 열기"
+    },
+    "tipNoResult": {
+        "message": "결과가 없어요. 한국어 단어를 고쳐서 조회해 보세요."
+    },
+    "tipSavingError": {
+        "message": "저장하지 못했어요. 다시 시도해 주세요."
+    },
+    "tipMachineTranslation": {
+        "message": "기계 번역"
     }
 }

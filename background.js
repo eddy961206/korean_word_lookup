@@ -1,3 +1,4 @@
+if (typeof importScripts === 'function') importScripts('vocabulary-store.js');
 const REPO_ISSUE_URL = 'https://github.com/eddy961206/korean_word_lookup/issues/new';
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -34,6 +35,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 const storageReady = initializePrivateStorage();
 storageReady.catch(() => {}); // 실패 시 키/번역 메시지는 안전하게 거절한다.
 let mutationQueue = Promise.resolve();
+if (globalThis.KWLVocabulary) globalThis.KWLVocabulary.init({ storage: chrome.storage.local, enqueueMutation });
 
 function storageCall(area, method, value) {
   return new Promise((resolve, reject) => {
@@ -74,7 +76,8 @@ function enqueueMutation(operation) {
 }
 
 function isTrustedPopup(sender) {
-  return sender.url === chrome.runtime.getURL('popup.html');
+  const popupUrl = chrome.runtime.getURL('popup.html');
+  return sender.url === popupUrl && (!sender.tab || sender.tab.url === popupUrl);
 }
 
 function isValidLookupText(text) {
@@ -102,8 +105,8 @@ async function fetchProvider(url) {
   }
 }
 
-async function translateTextRequest(text) {
-  const params = new URLSearchParams({ client: 'gtx', sl: 'ko', tl: 'en', dt: 't', q: text });
+async function translateTextRequest(text, targetLanguage = 'en') {
+  const params = new URLSearchParams({ client: 'gtx', sl: 'ko', tl: targetLanguage, dt: 't', q: text });
   const body = await fetchProvider(`https://translate.googleapis.com/translate_a/single?${params}`);
   if (!body) return { translation: null };
   try {
@@ -117,21 +120,99 @@ async function translateTextRequest(text) {
   }
 }
 
-async function lookupDictionaryRequest(text) {
+async function lookupDictionaryRequest(text, targetLanguage = 'en') {
   const local = await storageCall('session', 'get', ['krdictApiKey']);
   const key = typeof local.krdictApiKey === 'string' ? local.krdictApiKey.trim() : '';
   if (!key) return { error: 'missing_key' };
-  const params = new URLSearchParams({ key, q: text, translated: 'y', trans_lang: '1' });
+  const params = new URLSearchParams({ key, q: text, translated: 'y', trans_lang: targetLanguage === 'vi' ? '7' : '1' });
   const xml = await fetchProvider(`https://krdict.korean.go.kr/api/search?${params}`);
   // 키가 공급자 오류 응답에 반사되더라도 페이지 컨텍스트로 전달하지 않는다.
   if (xml && (xml.includes(key) || xml.includes(encodeURIComponent(key)))) return { error: 'provider_error' };
   return xml ? { xml } : { error: 'provider_error' };
 }
 
+function isTrustedNotebook(sender) {
+  return !sender.tab && sender.url === chrome.runtime.getURL('notebook.html')
+    || sender.url === chrome.runtime.getURL('notebook.html') && sender.tab?.url === sender.url;
+}
+function hostnameFromUrl(url) {
+  try { const parsed = new URL(url); return ['http:', 'https:'].includes(parsed.protocol) ? parsed.hostname : null; }
+  catch { return null; }
+}
+async function pausedHostnames() {
+  const state = await storageCall('local', 'get', ['pausedHostnames']);
+  return Array.isArray(state.pausedHostnames) ? state.pausedHostnames.filter(host => typeof host === 'string').slice(0, 500) : [];
+}
+function activeTab() {
+  return new Promise(resolve => chrome.tabs.query({ active: true, currentWindow: true }, tabs => resolve(tabs?.[0] || null)));
+}
+function validSiteHostname(value) {
+  return typeof value === 'string' && value.length > 0 && value.length <= 253
+    && !/[\s/?#@:\\]/u.test(value) && hostnameFromUrl(`https://${value}/`) === value;
+}
+async function activeSiteHostname() {
+  const tab = await activeTab();
+  if (!Number.isInteger(tab?.id)) return null;
+  return new Promise(resolve => {
+    const timeout = setTimeout(() => resolve(null), 1500);
+    try { chrome.tabs.sendMessage(tab.id, { action: 'getCurrentSiteContext' }, { frameId: 0 }, response => {
+      clearTimeout(timeout);
+      if (chrome.runtime.lastError || response?.supported !== true || !validSiteHostname(response.hostname)) resolve(null);
+      else resolve(response.hostname);
+    }); } catch { clearTimeout(timeout); resolve(null); }
+  });
+}
+function notifySiteState(tabs) {
+  for (const tab of tabs) {
+    if (!Number.isInteger(tab.id)) continue;
+    chrome.tabs.sendMessage(tab.id, { action: 'siteStateChanged' }, () => { void chrome.runtime.lastError; });
+  }
+}
+
 async function handleRequest(request, sender) {
-  if (!request || sender.id !== chrome.runtime.id) return { error: 'unauthorized' };
+  if (!request || typeof request.action !== 'string' || sender.id !== chrome.runtime.id) return { error: 'unauthorized' };
   await storageReady;
+  if (request.action.startsWith('vocabulary')) {
+    const privileged = isTrustedPopup(sender) || isTrustedNotebook(sender);
+    if (!privileged && request.action !== 'vocabularySave') return { error: 'unauthorized' };
+    if (!privileged && (!sender.tab || !hostnameFromUrl(sender.url))) return { error: 'unauthorized' };
+    if (!globalThis.KWLVocabulary) return { error: 'unavailable' };
+    // Content scripts can submit only a bounded source term, never provider output.
+    if (!privileged && (typeof request.term !== 'string' || request.term.length > 100)) return { error: 'invalid_term' };
+    try {
+      const result = await globalThis.KWLVocabulary.handle(!privileged ? { action: 'vocabularySave', term: request.term } : request);
+      return privileged ? result : { ok: result.ok === true };
+    }
+    catch (error) { return { error: /^[A-Z_]+$/.test(error.message) ? error.message : 'unavailable' }; }
+  }
   switch (request.action) {
+    case 'openNotebook':
+      if (!isTrustedPopup(sender) && !isTrustedNotebook(sender) && !(Number.isInteger(sender.tab?.id) && hostnameFromUrl(sender.url))) return { error: 'unauthorized' };
+      await chrome.tabs.create({ url: chrome.runtime.getURL('notebook.html') });
+      return { ok: true };
+    case 'getSiteState': {
+      const hostname = isTrustedPopup(sender) ? await activeSiteHostname() : hostnameFromUrl(sender.url);
+      const hosts = await pausedHostnames();
+      return { ok: true, supported: Boolean(hostname), hostname, paused: Boolean(hostname && hosts.includes(hostname)), count: isTrustedPopup(sender) ? hosts.length : undefined };
+    }
+    case 'setSitePaused':
+    case 'clearPausedSites': {
+      if (!isTrustedPopup(sender)) return { error: 'unauthorized' };
+      if (request.action === 'setSitePaused' && typeof request.paused !== 'boolean') return { error: 'invalid_state' };
+      const hostname = await activeSiteHostname();
+      if (request.action === 'setSitePaused' && !hostname) return { error: 'unsupported_site' };
+      return enqueueMutation(async () => {
+        let hosts = await pausedHostnames();
+        if (request.action === 'clearPausedSites') hosts = [];
+        else if (request.paused && !hosts.includes(hostname)) {
+          if (hosts.length >= 500) return { error: 'site_limit' };
+          hosts.push(hostname);
+        } else if (!request.paused) hosts = hosts.filter(host => host !== hostname);
+        await storageCall('local', 'set', { pausedHostnames: hosts });
+        chrome.tabs.query({}, tabs => notifySiteState(tabs, hosts));
+        return { ok: true, supported: Boolean(hostname), hostname, paused: hosts.includes(hostname), count: hosts.length };
+      });
+    }
     case 'getDictionaryKeyStatus': {
       if (!isTrustedPopup(sender)) return { error: 'unauthorized' };
       const local = await storageCall('session', 'get', ['krdictApiKey']);
@@ -161,11 +242,14 @@ async function handleRequest(request, sender) {
     case 'translateText':
     case 'lookupDictionary': {
       if (!isValidLookupText(request.text)) return { error: 'invalid_text' };
-      const settings = await storageCall('sync', 'get', ['translationEnabled', 'selectionTranslationEnabled']);
+      const settings = await storageCall('sync', 'get', ['translationEnabled', 'selectionTranslationEnabled', 'targetLanguage']);
       if (settings.translationEnabled === false) return { error: 'disabled' };
       if (request.kind === 'selection' && settings.selectionTranslationEnabled !== true) return { error: 'disabled' };
+      if ((await pausedHostnames()).includes(hostnameFromUrl(sender.url))) return { error: 'site_paused' };
+      const targetLanguage = settings.targetLanguage === 'vi' ? 'vi' : 'en';
+      if (request.targetLanguage !== undefined && request.targetLanguage !== targetLanguage) return { error: 'settings_changed' };
       return request.action === 'translateText'
-        ? translateTextRequest(request.text) : lookupDictionaryRequest(request.text);
+        ? translateTextRequest(request.text, targetLanguage) : lookupDictionaryRequest(request.text, targetLanguage);
     }
     case 'readUsageState': {
       const local = await getLocal(['firstSuccessAt']);

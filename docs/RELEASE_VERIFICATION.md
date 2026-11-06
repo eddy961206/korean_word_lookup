@@ -1,3 +1,15 @@
+# 2.6.0 verification
+
+This release adds the reading workspace and user-authored local notebook. Run `npm run check`, `node tests/browser-smoke.mjs`, and `node tests/browser-workspace.mjs`. Browser tests require pinned Playwright1.62.1 and its Chromium in CI. Local cloud-container Chromium cannot launch; do not count a blocked local attempt as a pass.
+
+The workspace browser suite uses explicitly synthetic provider responses for repeatable interaction assertions. A separate live Google probe/capture demonstrates public example EN/VI requests; no real KRDICT credential is available, so live credentialed KRDICT remains unverified. KRDICT `trans_lang=7` for Vietnamese is verified against official documentation, and request mapping is unit-tested.
+
+Required release checks include the retained privacy/session-key regressions; notebook read authorization; source-term-only saves; pin/copy/close/retry; modifier and selected-text keyboard flows; target language/stale response handling; paused-site zero-request enforcement; notebook editing and failed save; strict preview/import/exports; persistent Undo and browser-restart retention. Inspect actual generated PNGs from the final source commit before using them in the store. Design mockups are not runtime proof.
+
+Exact successful CI runs and tested commit are recorded on the release PR. Until that run finishes, this section is a reproduction guide, not a completion claim.
+
+---
+
 # 2.5.3 release verification
 
 ## Automated checks run in the cloud

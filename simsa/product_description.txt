@@ -1,32 +1,31 @@
-Korean Word Lookup: Korean to English
+Korean Word Lookup: Translate & Save Words
 
-Read Korean web pages with English help right where you are reading.
+Meet a new Korean word. Understand it without losing your place.
 
-Korean Word Lookup shows translations or dictionary meanings in a tooltip when you hover over Korean words. Turn on selection translation to translate a phrase or sentence into English.
+Hover over Korean text for an English or Vietnamese translation right on the page. Pin a result while you read, copy it when you need it, or save the source word to your own vocabulary notebook.
 
-Choose how you look up words:
-- Google Translate: get English translations without entering an API key.
-- KRDICT: view entries from the National Institute of Korean Language's Basic Korean Dictionary using your own KRDICT API key.
-- Optional source fallback: try the other source if a word lookup has no usable result. Dictionary access still requires your key.
+Read your way
+- Choose English or Vietnamese as your result language, independently of the interface language.
+- Look up words by hovering, or use Alt / Option + hover for more deliberate control.
+- Turn on selection translation for Korean phrases and sentences up to 500 characters. It is off by default and uses Google.
+- Pin, unpin, or close the result panel. If a word form has no result, edit it and try again.
+- Adjust hover delay, compact mode, and the number of dictionary definitions.
 
-Make the tooltip fit your reading:
-- Adjust the hover delay.
-- Choose compact mode and the maximum number of definitions.
-- Show Korean definitions alongside dictionary results.
-- Use keyboard shortcuts to toggle translation, switch word sources, and turn selection translation on or off.
+Build your own word notebook
+- Save words you choose, then write your own meanings, examples, and notes.
+- Search and edit entries. Undo a deletion.
+- Export CSV or TSV for use in other study tools, or back up and restore with JSON. Import adds new words and keeps existing entries unchanged.
+- The notebook is local to this Chrome profile. There is no account or cloud notebook sync. Provider translations are not automatically saved or prefilled.
 
-The interface is available in English, Korean, and Vietnamese. Translation results are in English. Selected-text translation uses Google, even when KRDICT is selected for word lookups.
+Choose a lookup source
+Google Translate works without entering an API key. For Korean Basic Dictionary entries, use your own KRDICT key. The dictionary key stays only in memory for the current Chrome session; enter it again after a browser restart or extension reload/update. Optional source fallback can try the other provider when a word lookup has no usable result.
 
-Getting started:
-1. Open a regular Korean web page and hover over a word.
-2. Open the extension popup to adjust settings or enable selection translation.
-3. To use KRDICT, enter your own API key in the popup.
+Control what is sent
+Lookup text goes to the relevant translation or dictionary provider. Pause a site or turn translation off before reading text you do not want sent. Input/password fields, editable regions, and selections crossing editable content are skipped. Other page text may still be private. Paused hostnames are stored only locally.
 
-Privacy and availability:
-Words or selected text are sent to the relevant translation or dictionary provider to retrieve results. If source fallback is enabled, the other provider may also receive the word. Input and password fields, textareas, editable regions, and selections crossing editable content are skipped. Other page text can still be private; turn translation off before reading material you do not want a provider to receive.
+This version sends no remote product analytics. Ordinary reading settings can sync through Chrome; notebook entries and local feature counters do not. The notebook is not encrypted. Export a backup before uninstalling, and keep exported files private. See the privacy policy for data handling and retention details.
 
-This version does not send remote product analytics. Local usage information supports features such as onboarding and review prompts. Recent local diagnostics are limited to 200 events; events and daily buckets older than 30 days are removed when the next event is recorded. Installation state and aggregate usage counters can remain for the installation lifetime.
+Getting started
+Install, refresh a regular Korean web page, and hover over a word. Open the extension popup to choose a result language, change the lookup trigger, enable sentence selection, or open your notebook.
 
-Your KRDICT key is kept only in memory for the current browser session, not persistent or sync storage. Enter it again after restarting Chrome or reloading/updating the extension. It is sent only to KRDICT for dictionary requests and is not returned to page content scripts. Ordinary settings can sync through Chrome. See the privacy policy for details. Internet access and provider availability affect results; Chrome restricts extensions on some pages.
-
-This is an independent extension. Dictionary data is provided by the National Institute of Korean Language's Basic Korean Dictionary.
+The interface supports English, Korean, and Vietnamese. Online lookups require internet access and provider availability. Chrome restricts extensions on some pages. This is an independent extension, not a full-page translator, automatic grammar analyzer, or direct Anki integration. Dictionary text is provided by the National Institute of Korean Language under CC BY-SA 2.0 Korea.

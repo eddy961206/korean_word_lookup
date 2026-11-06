@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vocabulary notebook · Korean Word Lookup</title>
+  <link rel="stylesheet" href="notebook.css">
+  <script src="notebook.js" defer></script>
+</head>
+<body>
+  <main>
+    <header class="masthead"><a class="brand" href="welcome.html">가 <span>Korean Word Lookup</span></a><span class="local-badge" data-i18n="local">Stored on this browser</span></header>
+    <section class="intro"><p class="eyebrow" data-i18n="eyebrow">A little Korean, every day</p><h1 data-i18n="title">Your vocabulary notebook</h1><p data-i18n="subtitle">Keep the words you choose. Make their meaning your own.</p></section>
+    <aside class="privacy" data-i18n="privacy">Only words you save and notes you write are stored here. No page addresses or browsing history. This notebook is local to this browser profile, is not encrypted, and is removed if you uninstall the extension. Export a backup to keep a copy.</aside>
+    <section class="toolbar" aria-label="Notebook tools">
+      <label class="search"><span data-i18n="searchLabel">Search your words</span><input id="search" type="search" autocomplete="off" maxlength="200"></label>
+      <div class="exports"><button id="csv" type="button">CSV</button><button id="tsv" type="button">TSV</button><button id="backup" type="button" data-i18n="backup">Back up JSON</button><button id="import" type="button" data-i18n="import">Import JSON</button><input id="import-file" type="file" accept=".json,application/json" hidden></div>
+    </section>
+    <p class="export-hint" data-i18n="exportHint">Exports include all saved words and your notes, even while searching. Keep exported files private. Import merges new words and keeps existing entries unchanged.</p>
+    <form id="add-form" class="add-form"><label for="new-term" data-i18n="addLabel">Add a word</label><input id="new-term" maxlength="200" required autocomplete="off" lang="ko"><button class="primary" type="submit" data-i18n="add">Save word</button></form>
+    <div class="list-heading"><h2 data-i18n="words">Saved words</h2><span id="count"></span></div>
+    <div id="status" role="status" aria-live="polite"></div>
+    <div id="undo-bar" class="undo-bar" hidden><span data-i18n="deleted">Word deleted.</span><button id="undo" type="button" data-i18n="undo">Undo</button></div>
+    <div id="empty" class="empty" hidden><span class="empty-icon" aria-hidden="true">가</span><h2 id="empty-title"></h2><p id="empty-copy"></p></div>
+    <section id="entries" aria-label="Saved vocabulary"></section>
+    <footer data-i18n="footer">Dictionary results are for reading. This notebook saves source words and your own writing only.</footer>
+  </main>
+</body>
+</html>

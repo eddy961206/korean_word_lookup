@@ -14,7 +14,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 RUNTIME_FILES = (
     "manifest.json", "background.js", "content.js", "tooltip.css",
-    "popup.html", "popup.js", "welcome.html", "welcome.js", "LICENSE", "NOTICE",
+    "popup.html", "popup.js", "notebook.html", "notebook.css", "notebook.js", "vocabulary-store.js", "welcome.html", "welcome.js", "LICENSE", "NOTICE",
 )
 
 

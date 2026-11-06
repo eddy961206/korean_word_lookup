@@ -18,6 +18,8 @@ const launch = () => chromium.launchPersistentContext(profile, {
   args: [`--disable-extensions-except=${root}`, `--load-extension=${root}`]
 });
 let context = await launch();
+const pageErrors = [];
+context.on('page', page => page.on('pageerror', error => pageErrors.push({ message: error.message, stack: error.stack })));
 try {
   const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
   const id = new URL(worker.url()).host;
@@ -34,6 +36,7 @@ try {
   });
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${id}/popup.html`);
+  await popup.locator('#advancedSettings summary').click();
   await popup.locator('#apiKeyStatus').filter({ hasText: /No key|저장된 키|Chưa lưu/ }).waitFor();
   await popup.locator('#krdictApiKey').fill('fake-smoke-key');
   await popup.locator('#saveApiKey').click();
@@ -124,6 +127,7 @@ try {
   assert.equal(restartedId, id);
   const restartedPopup = await context.newPage();
   await restartedPopup.goto(`chrome-extension://${id}/popup.html`);
+  await restartedPopup.locator('#advancedSettings summary').click();
   // The popup status response waits for asynchronous private-storage initialization.
   await restartedPopup.locator('#apiKeyStatus').filter({ hasText: /No key|저장된 키|Chưa lưu/ }).waitFor();
   for (const area of ['session', 'local', 'sync']) {
@@ -132,6 +136,38 @@ try {
   assert.equal(await restartedWorker.evaluate(async () => (await chrome.storage.sync.get('hoverDelayMs')).hoverDelayMs), 450);
   assert.equal(await restartedWorker.evaluate(async () => (await chrome.storage.sync.get('selectionTranslationEnabled')).selectionTranslationEnabled), true);
   console.log('PASS: real Chromium popup save/clear, memory-only session key, browser restart clears key and preserves settings, normal hover, editable/password skip, selection, worker transport. Provider responses mocked.');
+} catch (error) {
+  // Diagnostics preserve the failure and avoid logging keys, storage values or provider URLs.
+  console.error('SMOKE_PAGE_ERRORS', JSON.stringify(pageErrors));
+  for (const diagnosticPage of context.pages()) {
+    if (!diagnosticPage.url().endsWith('/popup.html')) continue;
+    try {
+      console.error('SMOKE_POPUP_STATE', JSON.stringify(await diagnosticPage.evaluate(async () => ({
+        readyState: document.readyState,
+        detailsOpen: document.getElementById('advancedSettings')?.open,
+        keyStatus: document.getElementById('apiKeyStatus')?.textContent,
+        statusDisplay: document.getElementById('apiKeyStatus') ? getComputedStyle(document.getElementById('apiKeyStatus')).display : 'missing',
+        siteStatus: document.getElementById('siteStatus')?.textContent,
+        runtimeStatus: await Promise.race([
+          chrome.runtime.sendMessage({action:'getDictionaryKeyStatus'}).catch(error => ({error:String(error.message)})),
+          new Promise(resolve => setTimeout(() => resolve({error:'diagnostic_timeout'}), 2000))
+        ])
+      }))));
+    } catch (diagnosticError) { console.error('SMOKE_POPUP_DIAGNOSTIC_FAILED', diagnosticError.message); }
+  }
+  const diagnosticWorker = context.serviceWorkers()[0];
+  if (diagnosticWorker) {
+    try {
+      console.error('SMOKE_WORKER_STATE', JSON.stringify(await diagnosticWorker.evaluate(async () => ({
+        storageReadyState: await Promise.race([
+          storageReady.then(() => 'resolved', error => `rejected:${error.message}`),
+          new Promise(resolve => setTimeout(() => resolve('pending'), 2000))
+        ]),
+        handlerType: typeof handleRequest
+      }))));
+    } catch (diagnosticError) { console.error('SMOKE_WORKER_DIAGNOSTIC_FAILED', diagnosticError.message); }
+  }
+  throw error;
 } finally {
   await context.close();
   await rm(profile, { recursive: true, force: true });

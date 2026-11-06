@@ -13,7 +13,9 @@ const DEFAULT_SETTINGS = {
   showKoreanDefinitions: true,
   compactTooltip: false,
   autoFallbackEnabled: true,
-  selectionTranslationEnabled: false
+  selectionTranslationEnabled: false,
+  targetLanguage: 'en',
+  triggerMode: 'hover'
 };
 
 const CACHE_LIMIT = 200;
@@ -32,6 +34,17 @@ let compactTooltip = DEFAULT_SETTINGS.compactTooltip;
 let autoFallbackEnabled = DEFAULT_SETTINGS.autoFallbackEnabled;
 let selectionTranslationEnabled = DEFAULT_SETTINGS.selectionTranslationEnabled;
 
+let targetLanguage = 'en';
+let triggerMode = 'hover';
+let sitePaused = true;
+let siteStateGeneration = 0;
+let tooltipPinned = false;
+let tooltipHovered = false;
+let dismissTimer = null;
+let currentTerm = '';
+let copyText = '';
+let panelReturnFocus = null;
+let keyboardSelectionRequestId = null;
 let lastWord = '';
 let tooltipElements = null;
 let hoverTimer = null;
@@ -57,6 +70,24 @@ async function initializeExtension() {
 
   // 팝업으로부터 상태 변경 메시지를 수신
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'getCurrentSiteContext') {
+      if (sender.id !== chrome.runtime.id) return;
+      const supported = ['http:', 'https:'].includes(window.location?.protocol);
+      sendResponse({ supported, hostname: supported ? window.location.hostname : null });
+      return;
+    }
+    if (request.action === 'siteStateChanged') {
+      const generation = ++siteStateGeneration;
+      sitePaused = true;
+      invalidateLookupCache();
+      chrome.runtime.sendMessage({ action: 'getSiteState' }).then(state => {
+        if (generation !== siteStateGeneration) return;
+        sitePaused = !(state?.ok === true && state.supported === true && state.paused === false);
+        invalidateLookupCache();
+      }).catch(() => {});
+      sendResponse({ ok: true });
+      return true;
+    }
     if (request.action === 'invalidateDictionaryCache') {
       invalidateLookupCache();
       sendResponse({ status: 'success' });
@@ -66,7 +97,7 @@ async function initializeExtension() {
       if (!isInitialized) startupSettings.translationEnabled = request.enabled;
       isEnabled = request.enabled;
       if (!isEnabled) {
-        hideTooltip();
+        hideTooltip(true);
         lastWord = '';
         activeRequestId += 1;
         clearHoverTimer();
@@ -89,7 +120,7 @@ async function initializeExtension() {
     if (changes.translationEnabled) {
       isEnabled = changes.translationEnabled.newValue !== false;
       if (!isEnabled) {
-        hideTooltip();
+        hideTooltip(true);
         lastWord = '';
         activeRequestId += 1;
         clearHoverTimer();
@@ -98,6 +129,14 @@ async function initializeExtension() {
       }
     }
 
+    if (changes.targetLanguage) {
+      targetLanguage = changes.targetLanguage.newValue === 'vi' ? 'vi' : 'en';
+      invalidateLookupCache();
+    }
+    if (changes.triggerMode) {
+      triggerMode = changes.triggerMode.newValue === 'modifier' ? 'modifier' : 'hover';
+      cancelPendingLookups();
+    }
     if (changes.selectedApi) {
       selectedApi = changes.selectedApi.newValue || DEFAULT_SETTINGS.selectedApi;
       invalidateLookupCache();
@@ -150,39 +189,53 @@ async function initializeExtension() {
     'showKoreanDefinitions',
     'compactTooltip',
     'autoFallbackEnabled',
-    'selectionTranslationEnabled'
+    'selectionTranslationEnabled', 'targetLanguage', 'triggerMode'
   ]);
 
   // 로컬 사용 기록은 신뢰된 백그라운드에서만 읽고 쓴다.
   const localState = await chrome.runtime.sendMessage({ action: 'readUsageState' }).catch(() => ({}));
   hasTrackedFirstSuccess = Number.isFinite(localState?.firstSuccessAt);
 
+  const siteGeneration = siteStateGeneration;
+  const siteState = await chrome.runtime.sendMessage({ action: 'getSiteState' }).catch(() => ({}));
+  if (siteGeneration === siteStateGeneration) sitePaused = !(siteState?.ok === true && siteState.supported === true && siteState.paused === false);
   applySettings({ ...result, ...startupSettings });
 
   isInitialized = true; // 초기화 완료 표시
 
-  document.addEventListener('mousedown', () => {
+  document.addEventListener('mousedown', (event) => {
+    if (isTooltipNode(event?.target)) return;
     cancelPendingLookups();
     isSelecting = true;
   });
 
-  document.addEventListener('mouseup', () => {
+  document.addEventListener('mouseup', (event) => {
+    if (isTooltipNode(event?.target)) return;
     isSelecting = false;
     if (!selectionTranslationEnabled) return;
     handleSelectionChange();
   });
 
-  document.addEventListener('keyup', () => {
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') cancelPendingLookups(true);
+    if (event.key === 'Enter' && event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+      lookupSelectionFromKeyboard(event);
+    }
+  });
+  document.addEventListener('keyup', (event) => {
+    if (event.key === 'Alt' && triggerMode === 'modifier' && keyboardSelectionRequestId !== selectionRequestId && !tooltipPinned && !tooltipHovered) cancelPendingLookups();
+    if (isTooltipNode(event?.target)) return;
     if (!selectionTranslationEnabled) return;
     handleSelectionChange();
   });
 
   // 포커스/선택/화면 변화 뒤에는 이전 위치의 텍스트를 전송하지 않는다.
-  document.addEventListener('focusin', cancelPendingLookups, true);
-  document.addEventListener('scroll', cancelPendingLookups, true);
+  document.addEventListener('focusin', event => { if (!isTooltipNode(event?.target)) cancelPendingLookups(); }, true);
+  document.addEventListener('scroll', event => { if (!isTooltipNode(event?.target)) cancelPendingLookups(); }, true);
   document.addEventListener('visibilitychange', cancelPendingLookups);
   document.addEventListener('mouseleave', cancelPendingLookups);
-  document.addEventListener('selectionchange', () => {
+  document.addEventListener('selectionchange', (event) => {
+    if (isTooltipNode(event?.target) || isTooltipNode(document.activeElement) || isTooltipNode(window.getSelection?.()?.anchorNode)) return;
     clearHoverTimer();
     activeRequestId += 1;
     if (!isSelecting) handleSelectionChange();
@@ -245,11 +298,22 @@ function applySettings(result) {
   compactTooltip = result.compactTooltip === true;
   autoFallbackEnabled = result.autoFallbackEnabled !== false; // Default true
   selectionTranslationEnabled = result.selectionTranslationEnabled === true;
+  targetLanguage = result.targetLanguage === 'vi' ? 'vi' : 'en';
+  triggerMode = result.triggerMode === 'modifier' ? 'modifier' : 'hover';
+}
+
+function tooltipLabel(key, fallback) {
+  return chrome.i18n?.getMessage?.(key) || fallback;
 }
 
 function createTooltip() {
   const tooltip = document.createElement('div');
   tooltip.className = 'kr-tooltip';
+  tooltip.setAttribute?.('role', 'dialog');
+  tooltip.tabIndex = -1;
+  tooltip.setAttribute?.('aria-label', 'Korean word lookup');
+  tooltip.addEventListener?.('pointerenter', () => { tooltipHovered = true; clearTimeout(dismissTimer); clearHoverTimer(); });
+  tooltip.addEventListener?.('pointerleave', () => { tooltipHovered = false; dismissTooltipSoon(); });
 
   const header = document.createElement('div');
   header.className = 'kr-tooltip__header';
@@ -269,9 +333,79 @@ function createTooltip() {
   tooltip.appendChild(header);
   tooltip.appendChild(body);
 
+  body.setAttribute?.('aria-live', 'polite');
+  const languages = document.createElement('div');
+  languages.className = 'kr-tooltip__languages';
+  tooltip.appendChild(languages);
+  const actions = document.createElement('div');
+  actions.className = 'kr-tooltip__actions';
+  const button = (label, handler) => {
+    const element = document.createElement('button');
+    element.type = 'button'; element.textContent = label;
+    element.addEventListener?.('click', handler); actions.appendChild(element); return element;
+  };
+  const pin = button(tooltipLabel('tipPin', 'Pin'), () => {
+    tooltipPinned = !tooltipPinned;
+    pin.textContent = tooltipPinned ? tooltipLabel('tipUnpin', 'Unpin') : tooltipLabel('tipPin', 'Pin');
+    pin.setAttribute?.('aria-pressed', String(tooltipPinned));
+  });
+  pin.setAttribute?.('aria-pressed', 'false');
+  const copy = button(tooltipLabel('tipCopy', 'Copy'), async () => {
+    try { await navigator.clipboard.writeText(copyText); status.textContent = tooltipLabel('tipCopied', 'Copied'); }
+    catch { status.textContent = 'Copy unavailable. Select the result and copy it manually.'; }
+  });
+  const save = button(tooltipLabel('tipSaveWord', 'Save word'), async () => {
+    save.disabled = true;
+    try {
+      const result = await chrome.runtime.sendMessage({ action: 'vocabularySave', term: currentTerm });
+      openNotebook.hidden = !result?.ok;
+      status.textContent = result?.ok ? tooltipLabel('tipSavedWord', 'Word saved. Add your own meaning in the notebook.') : tooltipLabel('tipSavingError', 'Could not save this word.');
+    } catch { status.textContent = tooltipLabel('tipSavingError', 'Could not save this word.'); }
+    save.disabled = false;
+  });
+  const openNotebook = button(tooltipLabel('tipOpenNotebook', 'Open notebook'), () => {
+    chrome.runtime.sendMessage({ action: 'openNotebook' }).catch(() => {});
+  });
+  openNotebook.hidden = true;
+  button(tooltipLabel('tipClose', 'Close'), () => cancelPendingLookups(true));
+  tooltip.appendChild(actions);
+  const retryForm = document.createElement('form');
+  retryForm.className = 'kr-tooltip__retry'; retryForm.hidden = true;
+  const retryInput = document.createElement('input');
+  retryInput.type = 'text'; retryInput.maxLength = 100;
+  retryInput.setAttribute?.('aria-label', tooltipLabel('tipRetryLabel', 'Edit Korean word to retry'));
+  const retryButton = document.createElement('button');
+  retryButton.type = 'submit'; retryButton.textContent = tooltipLabel('tipRetry', 'Try this word');
+  retryForm.appendChild(retryInput); retryForm.appendChild(retryButton);
+  retryForm.addEventListener?.('submit', async event => {
+    event.preventDefault();
+    const term = retryInput.value.trim();
+    if (!term || term.length > 100 || !containsKorean(term) || !isEnabled || sitePaused) return;
+    tooltipPinned = true; pin.textContent = tooltipLabel('tipUnpin', 'Unpin'); pin.setAttribute?.('aria-pressed', 'true');
+    const requestId = ++activeRequestId;
+    renderLoadingState(term);
+    const result = await lookupWord(term, () => requestId === activeRequestId && isEnabled && !sitePaused);
+    if (requestId === activeRequestId && isEnabled && !sitePaused) renderLookupResult(term, result);
+  });
+  tooltip.appendChild(retryForm);
+  const status = document.createElement('div'); status.setAttribute?.('role', 'status');
+  tooltip.appendChild(status);
   document.body.appendChild(tooltip);
+  return { tooltip, word, meta, body, languages, pin, copy, save, retryForm, retryInput, status, openNotebook };
 
-  return { tooltip, word, meta, body };
+}
+
+function isTooltipNode(node) {
+  for (let current = node; current; current = composedParent(current)) {
+    if (current === tooltipElements?.tooltip) return true;
+  }
+  return false;
+}
+function dismissTooltipSoon() {
+  clearTimeout(dismissTimer);
+  dismissTimer = setTimeout(() => {
+    if (!tooltipPinned && !tooltipHovered && !isTooltipNode(document.activeElement)) cancelPendingLookups();
+  }, 400);
 }
 
 function clearHoverTimer() {
@@ -299,16 +433,16 @@ function isPrivateNode(node) {
   return document.designMode?.toLowerCase() === 'on';
 }
 
-function cancelPendingLookups() {
+function cancelPendingLookups(force = false) {
   clearHoverTimer();
   lastHoverPoint = null;
   activeRequestId += 1;
   clearSelectionTranslation();
-  hideTooltip();
+  hideTooltip(force === true);
 }
 
 function invalidateLookupCache() {
-  cancelPendingLookups();
+  cancelPendingLookups(true);
   cacheGeneration += 1;
   translationCache.clear();
   pendingRequests.clear();
@@ -318,7 +452,9 @@ function scheduleLookup(event) {
   // Mouseup can happen outside this document. Recover only when no button is held.
   if (isSelecting && event.buttons === 0) isSelecting = false;
   clearHoverTimer();
-  if (!isEnabled || !isInitialized || document.hidden || isSelecting
+  if (keyboardSelectionRequestId === selectionRequestId || isTooltipNode(event?.target) || isTooltipNode(document.activeElement) || tooltipPinned || tooltipHovered) return;
+  if (triggerMode === 'modifier' && (!event.altKey || isPrivateNode(document.activeElement))) { cancelPendingLookups(); return; }
+  if (!isEnabled || sitePaused || !isInitialized || document.hidden || isSelecting
     || (selectionTranslationEnabled && selectionText)
     || (event.composedPath?.() || [event.target]).some(isPrivateNode)) {
     cancelPendingLookups();
@@ -326,6 +462,8 @@ function scheduleLookup(event) {
   }
   const point = { clientX: event.clientX, clientY: event.clientY, target: event.target };
   lastHoverPoint = point;
+  if (!getKoreanWordAtPoint(point.clientX, point.clientY)) { dismissTooltipSoon(); return; }
+  clearTimeout(dismissTimer);
   // 이미 표시한 같은 단어는 위치만 갱신하고 사용 횟수를 다시 기록하지 않는다.
   if (lastWord && getKoreanWordAtPoint(point.clientX, point.clientY) === lastWord) return;
   // 다른 단어로 이동하면 진행 중인 응답도 이전 위치에 표시하지 않는다.
@@ -342,21 +480,7 @@ function scheduleLookup(event) {
 }
 
 function schedulePositionUpdate(event) {
-  if (!tooltipElements || tooltipElements.tooltip.style.display !== 'block') {
-    return;
-  }
-  if (tooltipMode === 'selection') {
-    return;
-  }
-
-  lastHoverPoint = { clientX: event.clientX, clientY: event.clientY };
-
-  if (positionFrame) return;
-  positionFrame = requestAnimationFrame(() => {
-    positionFrame = null;
-    if (!lastHoverPoint) return;
-    updateTooltipPosition(lastHoverPoint);
-  });
+  // Keep the result stationary so the pointer can reach its controls.
 }
 
 function clearSelectionTimer() {
@@ -376,7 +500,8 @@ function clearSelectionTranslation() {
 }
 
 function handleSelectionChange() {
-  if (!isEnabled || !selectionTranslationEnabled) {
+  if (tooltipPinned) { clearSelectionTranslation(); return; }
+  if (!isEnabled || sitePaused || !selectionTranslationEnabled) {
     clearSelectionTranslation();
     return;
   }
@@ -433,6 +558,31 @@ function handleSelectionChange() {
       console.error('Selection translation error:', error);
     });
   }, delay);
+}
+
+async function lookupSelectionFromKeyboard(event) {
+  if (!isInitialized || !isEnabled || sitePaused || document.hidden || !selectionTranslationEnabled
+    || !['http:', 'https:'].includes(window.location?.protocol) || isPrivateNode(event.target)) return;
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed || isEditableSelection(selection)) return;
+  const text = normalizeSelectionText(selection.toString());
+  if (!containsKorean(text) || text.length > MAX_SELECTION_CHARS) return;
+  event.preventDefault();
+  cancelPendingLookups(true);
+  panelReturnFocus = document.activeElement;
+  selectionText = text;
+  const requestId = ++selectionRequestId;
+  keyboardSelectionRequestId = requestId;
+  try { await translateSelection(text, requestId); }
+  finally {
+    if (keyboardSelectionRequestId === requestId) keyboardSelectionRequestId = null;
+  }
+  if (requestId !== selectionRequestId || !isEnabled || sitePaused || document.hidden
+    || tooltipElements.tooltip.style.display !== 'block') return;
+  tooltipPinned = true;
+  tooltipElements.pin.textContent = tooltipLabel('tipUnpin', 'Unpin');
+  tooltipElements.pin.setAttribute?.('aria-pressed', 'true');
+  tooltipElements.tooltip.focus?.({ preventScroll: true });
 }
 
 function isEditableSelection(selection) {
@@ -499,7 +649,7 @@ function updateTooltipPositionFromRect(rect) {
 }
 
 async function translateSelection(text, requestId) {
-  if (requestId !== selectionRequestId || !isEnabled || !selectionTranslationEnabled || document.hidden) return;
+  if (requestId !== selectionRequestId || !isEnabled || sitePaused || !selectionTranslationEnabled || document.hidden) return;
 
   const selection = window.getSelection();
   if (!selection || selection.isCollapsed || isEditableSelection(selection)) {
@@ -524,13 +674,13 @@ async function translateSelection(text, requestId) {
 
   const result = await lookupSelection(text, () => {
     const current = window.getSelection();
-    return requestId === selectionRequestId && isEnabled && selectionTranslationEnabled
+    return requestId === selectionRequestId && isEnabled && !sitePaused && selectionTranslationEnabled
       && !document.hidden && current && !current.isCollapsed && !isEditableSelection(current)
       && normalizeSelectionText(current.toString()) === text;
   });
 
   const currentSelection = window.getSelection();
-  if (requestId !== selectionRequestId || !isEnabled || !selectionTranslationEnabled
+  if (requestId !== selectionRequestId || !isEnabled || sitePaused || !selectionTranslationEnabled
     || document.hidden || !currentSelection || currentSelection.isCollapsed
     || isEditableSelection(currentSelection)
     || normalizeSelectionText(currentSelection.toString()) !== text) return;
@@ -542,7 +692,7 @@ async function translateSelection(text, requestId) {
 }
 
 async function handleHover(point) {
-  if (!isEnabled || !isInitialized || document.hidden || isSelecting || isPrivateNode(point.target)
+  if (!isEnabled || sitePaused || !isInitialized || document.hidden || isSelecting || isPrivateNode(point.target)
     || (selectionTranslationEnabled && selectionText)) {
     return;
   }
@@ -583,9 +733,10 @@ async function handleHover(point) {
 }
 
 async function lookupWord(word, isCurrent = () => true) {
+  if (sitePaused) return buildErrorResult('Lookup is paused on this site.');
   const api = selectedApi;
   const allowFallback = autoFallbackEnabled;
-  const cacheKey = `${selectedApi}:${word}:${autoFallbackEnabled}`;
+  const cacheKey = `${selectedApi}:${targetLanguage}:${word}:${autoFallbackEnabled}`;
   const cached = getCacheEntry(cacheKey);
   if (cached) {
     return cached;
@@ -634,13 +785,15 @@ async function lookupWord(word, isCurrent = () => true) {
 async function performLookup(word, api, isCurrent = () => true) {
     if (api === 'google') {
       let translation = await translateText(word);
+      let onDevice = false;
       if (!translation && isCurrent()) {
         // Fallback to the on-device Chrome Translator API when the
         // remote endpoint is unreachable (Chrome 138+).
-        translation = await onDeviceTranslate(word);
+        translation = await onDeviceTranslate(word, isCurrent);
+        onDevice = Boolean(translation);
       }
       if (translation) {
-        return { type: 'google', translation };
+        return { type: 'google', translation, onDevice };
       }
       return buildErrorResult(chrome.i18n.getMessage('error') || 'Unable to translate');
     }
@@ -656,7 +809,8 @@ async function performLookup(word, api, isCurrent = () => true) {
 }
 
 async function lookupSelection(text, isCurrent = () => true) {
-  const cacheKey = `selection:${text}`;
+  if (sitePaused) return buildErrorResult('Lookup is paused on this site.');
+  const cacheKey = `selection:${targetLanguage}:${text}`;
   const cached = getCacheEntry(cacheKey);
   if (cached) {
     return cached;
@@ -676,11 +830,13 @@ async function lookupSelection(text, isCurrent = () => true) {
   const entry = { subscribers, promise: null };
   const requestPromise = (async () => {
     let translation = await translateText(text, 'selection');
+    let onDevice = false;
     if (!translation && hasCurrentSubscriber()) {
-      translation = await onDeviceTranslate(text);
+      translation = await onDeviceTranslate(text, hasCurrentSubscriber);
+      onDevice = Boolean(translation);
     }
     if (translation) {
-      return { type: 'selection', translation };
+      return { type: 'selection', translation, onDevice };
     }
     return buildErrorResult(chrome.i18n.getMessage('error') || 'Unable to translate selection');
   })();
@@ -698,10 +854,11 @@ async function lookupSelection(text, isCurrent = () => true) {
 }
 
 function renderLookupResult(word, result) {
+  if (sitePaused) return;
   const fallbackPrefix = result.isFallback ? (chrome.i18n.getMessage('fallbackPrefix') || '(Auto)') + ' ' : '';
   
   if (result.type === 'google') {
-    renderGoogleResult(word, result.translation, fallbackPrefix);
+    renderGoogleResult(word, result.translation, fallbackPrefix, result.onDevice);
   } else if (result.type === 'dict') {
     renderDictionaryResult(result.data, fallbackPrefix);
   } else {
@@ -710,8 +867,9 @@ function renderLookupResult(word, result) {
 }
 
 function renderSelectionResult(text, result) {
+  if (sitePaused) return;
   if (result.type === 'selection') {
-    renderSelectionSuccess(text, result.translation);
+    renderSelectionSuccess(text, result.translation, result.onDevice);
   } else {
     renderSelectionError(text, result.message);
   }
@@ -759,10 +917,17 @@ function showTooltip() {
   tooltipElements.tooltip.style.display = 'block';
 }
 
-function hideTooltip() {
-  if (!tooltipElements) return;
+function hideTooltip(force = false) {
+  if (!tooltipElements || (tooltipPinned && force !== true)) return;
+  clearTimeout(dismissTimer);
+  tooltipPinned = false; tooltipHovered = false;
+  tooltipElements.pin.textContent = tooltipLabel('tipPin', 'Pin');
+  tooltipElements.pin.setAttribute?.('aria-pressed', 'false');
   tooltipElements.tooltip.style.display = 'none';
   tooltipMode = null;
+  const returnFocus = panelReturnFocus;
+  panelReturnFocus = null;
+  if (returnFocus?.isConnected && isTooltipNode(document.activeElement)) returnFocus.focus?.({ preventScroll: true });
 }
 
 function updateTooltipPosition(event) {
@@ -799,17 +964,26 @@ function setTooltipMode(mode) {
 
 function setTooltipState(state) {
   const tooltip = tooltipElements.tooltip;
+  tooltipElements.copy.disabled = state !== 'idle';
+  tooltipElements.save.disabled = state !== 'idle' || tooltipMode === 'selection';
+  tooltipElements.retryForm.hidden = state !== 'error' || tooltipMode === 'selection';
+  tooltipElements.status.textContent = '';
+  tooltipElements.openNotebook.hidden = true;
   tooltip.classList.toggle('kr-tooltip--loading', state === 'loading');
   tooltip.classList.toggle('kr-tooltip--error', state === 'error');
   tooltip.classList.toggle('kr-tooltip--compact', compactTooltip);
 }
 
 function setTooltipHeader(wordText, metaText) {
+  currentTerm = wordText || '';
+  tooltipElements.retryInput.value = currentTerm;
+  tooltipElements.languages.textContent = `Korean → ${targetLanguage === 'vi' ? 'Vietnamese' : 'English'}`;
   tooltipElements.word.textContent = wordText || '';
   tooltipElements.meta.textContent = metaText || '';
 }
 
 function setTooltipBody(text) {
+  copyText = text || '';
   tooltipElements.body.textContent = text || '';
 }
 
@@ -847,12 +1021,15 @@ function renderSelectionLoading(text) {
   showTooltip();
 }
 
-function renderSelectionSuccess(text, translation) {
+function renderSelectionSuccess(text, translation, onDevice = false) {
+  const provider = onDevice ? 'Chrome on-device translation' : 'Google Translate';
   setTooltipMode('selection');
   setTooltipState('idle');
   setTooltipHeader(formatSelectionHeader(text), chrome.i18n.getMessage('msgSelection'));
   clearTooltipBody();
   setTooltipBody(translation);
+  tooltipElements.meta.textContent = `${provider} · ${tooltipLabel('tipMachineTranslation', 'Machine translation')}`;
+  copyText = `${translation}\n${provider} · ${tooltipLabel('tipMachineTranslation', 'Machine translation')}`;
   showTooltip();
   trackUsage('selection');
   markFirstSuccess('selection');
@@ -896,12 +1073,15 @@ function renderErrorState(word, message) {
   trackEvent('lookup_error', { source: selectedApi, message });
 }
 
-function renderGoogleResult(word, translation, prefix = '') {
+function renderGoogleResult(word, translation, prefix = '', onDevice = false) {
+  const provider = onDevice ? 'Chrome on-device translation' : 'Google Translate';
   setTooltipMode('word');
   setTooltipState('idle');
-  setTooltipHeader(word, prefix + chrome.i18n.getMessage('googleTrans'));
+  setTooltipHeader(word, prefix + provider);
   clearTooltipBody();
   setTooltipBody(translation);
+  tooltipElements.meta.textContent = `${prefix}${provider} · ${tooltipLabel('tipMachineTranslation', 'Machine translation')}`;
+  copyText = `${translation}\n${provider} · ${tooltipLabel('tipMachineTranslation', 'Machine translation')}`;
   showTooltip();
   trackUsage('word');
   markFirstSuccess('word_google');
@@ -931,7 +1111,7 @@ function renderDictionaryResult(result, prefix = '') {
     setTooltipBody(compactLine);
   } else {
     const englishDefs = limitDefinitions(result.englishDefs, maxDefinitions);
-    appendSection(chrome.i18n.getMessage('headerEng'), englishDefs);
+    appendSection(targetLanguage === 'vi' ? 'Vietnamese' : chrome.i18n.getMessage('headerEng'), englishDefs);
 
     if (showKoreanDefinitions) {
       const koreanDefs = limitDefinitions(result.koreanDefs, maxDefinitions);
@@ -939,6 +1119,15 @@ function renderDictionaryResult(result, prefix = '') {
     }
   }
 
+  const attribution = 'National Institute of Korean Language · Basic Korean Dictionary · CC BY-SA 2.0 KR';
+  appendSection('Source', [attribution]);
+  for (const [label, href] of [['Korean Basic Dictionary', 'https://krdict.korean.go.kr'], ['CC BY-SA 2.0 KR', 'https://creativecommons.org/licenses/by-sa/2.0/kr/']]) {
+    const link = document.createElement('a');
+    link.textContent = label; link.href = href; link.target = '_blank'; link.rel = 'noopener noreferrer';
+    link.className = 'kr-tooltip__source-link';
+    tooltipElements.body.appendChild(link);
+  }
+  copyText = [result.word, ...result.englishDefs, ...(showKoreanDefinitions ? result.koreanDefs : []), attribution, 'https://krdict.korean.go.kr', 'https://creativecommons.org/licenses/by-sa/2.0/kr/'].join('\n');
   showTooltip();
   trackUsage('word');
   markFirstSuccess('word_dict');
@@ -1025,7 +1214,7 @@ function getKoreanWordAtPoint(x, y) {
 // 공급자 요청은 서비스 워커에서 실행해 페이지 CORS와 자격 증명 노출을 피한다.
 async function translateText(text, kind = 'word') {
   try {
-    const response = await chrome.runtime.sendMessage({ action: 'translateText', text, kind });
+    const response = await chrome.runtime.sendMessage({ action: 'translateText', text, kind, targetLanguage });
     return typeof response?.translation === 'string' ? response.translation : null;
   } catch {
     return null;
@@ -1034,45 +1223,40 @@ async function translateText(text, kind = 'word') {
 
 // On-device translation via the built-in Chrome Translator API.
 // Returns null when the API is unavailable so callers can fall back gracefully.
-let onDeviceTranslatorPromise = null;
+const ON_DEVICE_TIMEOUT_MS = 2500;
 
-async function getOnDeviceTranslator() {
-  if (!('Translator' in self)) {
-    return null;
-  }
-  if (onDeviceTranslatorPromise) {
-    return onDeviceTranslatorPromise;
-  }
-  onDeviceTranslatorPromise = (async () => {
-    try {
-      const options = { sourceLanguage: 'ko', targetLanguage: 'en' };
-      const availability = await Translator.availability(options);
-      if (availability === 'unavailable') {
-        return null;
-      }
-      return await Translator.create(options);
-    } catch (error) {
-      console.warn('On-device translator unavailable:', error);
-      return null;
-    }
-  })();
-  const translator = await onDeviceTranslatorPromise;
-  // 모델 다운로드/활성화 전 실패를 페이지 수명 전체에 캐시하지 않는다.
-  if (!translator) onDeviceTranslatorPromise = null;
-  return translator;
-}
-
-async function onDeviceTranslate(text) {
+async function onDeviceTranslate(text, isCurrent = () => true) {
+  if (sitePaused || !('Translator' in self)) return null;
+  const generation = cacheGeneration;
+  const language = targetLanguage;
+  const controller = new AbortController();
+  let translator = null;
+  let finished = false;
+  let timeout;
+  const current = () => !finished && !sitePaused && isEnabled && !document.hidden
+    && generation === cacheGeneration && language === targetLanguage && isCurrent();
+  const destroy = instance => { try { instance?.destroy?.(); } catch {} };
+  const work = (async () => {
+    const options = { sourceLanguage: 'ko', targetLanguage: language };
+    const availability = await Translator.availability(options);
+    // Do not initiate or wait for a model download from an automatic hover.
+    if (!current() || availability !== 'available') return null;
+    const instance = await Translator.create({ ...options, signal: controller.signal });
+    if (!current()) { destroy(instance); return null; }
+    translator = instance;
+    const translated = await translator.translate(text, { signal: controller.signal });
+    return current() && typeof translated === 'string' ? translated || null : null;
+  })().catch(() => null);
   try {
-    const translator = await getOnDeviceTranslator();
-    if (!translator) {
-      return null;
-    }
-    const translated = await translator.translate(text);
-    return translated || null;
-  } catch (error) {
-    console.warn('On-device translation error:', error);
-    return null;
+    return await Promise.race([work, new Promise(resolve => {
+      timeout = setTimeout(() => resolve(null), ON_DEVICE_TIMEOUT_MS);
+    })]);
+  } finally {
+    finished = true;
+    clearTimeout(timeout);
+    controller.abort();
+    destroy(translator);
+    // No translator or pending promise survives this request or a timeout.
   }
 }
 
@@ -1101,7 +1285,7 @@ function translatePos(koreanPos) {
 // 국립국어원 사전 API 사용
 async function getDictionaryMeaning(word) {
   try {
-    const response = await chrome.runtime.sendMessage({ action: 'lookupDictionary', text: word });
+    const response = await chrome.runtime.sendMessage({ action: 'lookupDictionary', text: word, targetLanguage });
     if (response?.error === 'missing_key') return { error: 'missing_key' };
     if (typeof response?.xml !== 'string') return null;
     const xmlText = response.xml;

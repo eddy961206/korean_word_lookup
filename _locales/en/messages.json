@@ -1,9 +1,9 @@
 {
     "appName": {
-        "message": "Korean Word Lookup: Korean to English"
+        "message": "Korean Word Lookup: Translate & Save Words"
     },
     "appDesc": {
-        "message": "Hover Korean words for English meanings. Select text to translate. Google Translate and KRDICT dictionary support."
+        "message": "Read Korean with English or Vietnamese translations. Save words locally and add your own meanings and notes."
     },
     "cmdToggleTrans": {
         "message": "Toggle Translation On/Off"
@@ -63,7 +63,7 @@
         "message": "Clear key"
     },
     "statusHover": {
-        "message": "Hover over Korean text to see English definitions"
+        "message": "Hover over Korean text for a result in your chosen language."
     },
     "statusDisabled": {
         "message": "Translation is currently disabled"
@@ -237,7 +237,7 @@
         "message": "Provided by National Institute of Korean Language's Basic Korean Dictionary"
     },
     "credits4": {
-        "message": "Offers detailed word definitions and examples"
+        "message": "Offers Korean dictionary definitions"
     },
     "quickStartTitle": {
         "message": "⚡ Try your first translation"
@@ -307,5 +307,92 @@
     },
     "privacyNotice": {
         "message": "Translation sends text to the selected provider; selection translation uses Google. Editable fields are skipped. No usage data is uploaded."
+    },
+    "readingCompanion": {
+        "message": "Read · understand · remember"
+    },
+    "targetLanguage": {
+        "message": "Translate into"
+    },
+    "lookupTrigger": {
+        "message": "Look up words"
+    },
+    "triggerHover": {
+        "message": "Hover"
+    },
+    "triggerModifier": {
+        "message": "Alt / Option + hover"
+    },
+    "selectionPrivacyHint": {
+        "message": "Enable selection translation to send selected Korean text to Google. Alt / Option + Enter pins the result and moves focus to it."
+    },
+    "pauseSite": {
+        "message": "Pause on this site"
+    },
+    "resumeAllSites": {
+        "message": "Resume all paused sites"
+    },
+    "openNotebook": {
+        "message": "My word notebook →"
+    },
+    "notebookSummary": {
+        "message": "Save words, then add meanings and notes in your own words."
+    },
+    "advancedSettings": {
+        "message": "Reading preferences & dictionary"
+    },
+    "resumeSite": {
+        "message": "Resume on this site"
+    },
+    "siteUnavailable": {
+        "message": "This page cannot be paused here."
+    },
+    "sitePausedStatus": {
+        "message": "Paused on this site. Its hostname is stored only in this browser."
+    },
+    "siteActiveStatus": {
+        "message": "Translation is available on this site."
+    },
+    "settingError": {
+        "message": "Could not update this setting. Try again."
+    },
+    "tipPin": {
+        "message": "Pin"
+    },
+    "tipUnpin": {
+        "message": "Unpin"
+    },
+    "tipCopy": {
+        "message": "Copy"
+    },
+    "tipCopied": {
+        "message": "Copied"
+    },
+    "tipSaveWord": {
+        "message": "Save word"
+    },
+    "tipSavedWord": {
+        "message": "Word saved. Add your own meaning in the notebook."
+    },
+    "tipClose": {
+        "message": "Close"
+    },
+    "tipRetry": {
+        "message": "Try this word"
+    },
+    "tipRetryLabel": {
+        "message": "Edit Korean word to retry"
+    },
+    "tipOpenNotebook": {
+        "message": "Open notebook"
+    },
+    "tipNoResult": {
+        "message": "No result. Try editing the Korean word."
+    },
+    "tipSavingError": {
+        "message": "Could not save. Try again."
+    },
+    "tipMachineTranslation": {
+        "message": "Machine translation"
     }
 }

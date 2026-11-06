@@ -39,7 +39,7 @@ async function setup({ duringStartup } = {}) {
     clearTimeout: id => timers.delete(id),
     chrome: {
       storage: { sync: { get: (_keys, callback) => callback({ selectionTranslationEnabled: true }) }, onChanged: { addListener(callback) { listeners.storage = callback; } } },
-      runtime: { sendMessage: async message => { messages.push(message); if (message.action === 'readUsageState') await duringStartup?.(listeners); return {}; }, onMessage: { addListener(callback) { listeners.message = callback; } } },
+      runtime: { sendMessage: async message => { messages.push(message); if (message.action === 'getSiteState') return { ok: true, supported: true, paused: false }; if (message.action === 'readUsageState') await duringStartup?.(listeners); return {}; }, onMessage: { addListener(callback) { listeners.message = callback; } } },
       i18n: { getMessage: key => key }
     }
   });
@@ -127,12 +127,13 @@ test('on-device initialization retries after a transient failure', async () => {
   const { context } = await setup();
   let attempts = 0;
   context.self.Translator = true;
+  context.AbortController = AbortController;
   context.Translator = {
     availability: async () => 'available',
-    create: async () => { if (++attempts === 1) throw new Error('not ready'); return { translate() {} }; }
+    create: async () => { if (++attempts === 1) throw new Error('not ready'); return { translate: async () => 'Korean' }; }
   };
-  assert.equal(await context.getOnDeviceTranslator(), null);
-  assert.ok(await context.getOnDeviceTranslator());
+  assert.equal(await context.onDeviceTranslate('한국어'), null);
+  assert.equal(await context.onDeviceTranslate('한국어'), 'Korean');
   assert.equal(attempts, 2);
 });
 
