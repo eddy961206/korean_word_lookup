@@ -12,7 +12,10 @@ other provider. KRDICT needs your own API key. In Alt / Option + hover mode, the
 
 Selection translation is off by default. When enabled, selecting Korean text
 (up to 500 characters) sends the selection to Google for English or Vietnamese translation in your selected result language,
-including when KRDICT is selected for word lookups. No whole-page upload occurs.
+including when KRDICT is selected for word lookups. With selection translation enabled,
+Alt / Option + Enter looks up the current Korean selection, pins the result, and moves focus to it.
+The shortcut does not work when selection translation is off. Both selection paths require
+the extension to be enabled and the site not to be paused. No whole-page upload occurs.
 
 Input/password fields, textareas, editable regions, and selections crossing
 editable content are skipped. Other page text can still be private. Turn the

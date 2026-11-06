@@ -5,7 +5,7 @@ Read Korean with English or Vietnamese results. Pin a lookup, save a word, and a
 ## Reading workspace
 
 - The popup separates result language from interface language and offers automatic hover or Alt/Option-hover.
-- Selection translation remains independently opt-in and limited to 500 characters.
+- Selection translation is off by default. When enabled, selecting Korean text sends it to Google (up to 500 characters). With this setting enabled, Alt/Option+Enter looks up the current selection, pins the result, and moves focus to it.
 - Pause a current site locally. Only its hostname is stored, not browsing paths or visit history.
 - Results can be pinned, copied with attribution, closed, or retried with an edited Korean word. This is not a morphology engine.
 - Save word stores only the source term. Notebook meanings, context and notes are user-authored; provider results are not prefilled or persisted.

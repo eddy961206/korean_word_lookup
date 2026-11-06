@@ -62,6 +62,24 @@ try {
   await page.goto(readingURL);
   const tip = page.locator('.kr-tooltip');
   await tip.waitFor({ state: 'attached' });
+  // Tooltip DOM precedes async startup/site-state readiness; inspect, never override, the isolated world.
+  await page.bringToFront();
+  const startupCDP = await context.newCDPSession(page);
+  const startupWorlds = [];
+  startupCDP.on('Runtime.executionContextCreated', event => startupWorlds.push(event.context));
+  await startupCDP.send('Runtime.enable');
+  await poll(async () => {
+    for (const world of startupWorlds) {
+      const result = await startupCDP.send('Runtime.evaluate', {
+        contextId: world.id,
+        expression: `globalThis.chrome?.runtime?.id === ${JSON.stringify(id)} && typeof isInitialized !== 'undefined' && isInitialized && !sitePaused`,
+        returnByValue: true
+      });
+      if (result.result.value === true) return true;
+    }
+    return false;
+  }, Boolean, 'real content startup and unpaused site state');
+  await startupCDP.detach();
   await page.locator('#word').hover();
   await tip.filter({ hasText: 'SYNTHETIC en 도서관' }).waitFor({ state: 'visible' });
   await tip.getByRole('button', { name: 'Pin', exact: true }).click();

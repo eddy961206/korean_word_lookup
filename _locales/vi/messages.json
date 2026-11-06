@@ -324,7 +324,7 @@
         "message": "Alt / Option + di chuột"
     },
     "selectionPrivacyHint": {
-        "message": "Khi bật, phần chọn được gửi đến Google. Chọn tiếng Hàn rồi nhấn Alt / Option + Enter để chuyển đến kết quả."
+        "message": "Bật dịch vùng chọn để gửi văn bản tiếng Hàn đã chọn đến Google. Alt / Option + Enter ghim kết quả và chuyển tiêu điểm đến đó."
     },
     "pauseSite": {
         "message": "Tạm dừng trên trang này"

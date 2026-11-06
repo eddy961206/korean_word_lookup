@@ -34,4 +34,5 @@ jobs:
       - name: Test actual extension runtime with synthetic provider responses
         run: node tests/browser-smoke.mjs
       - name: Test learning workspace in actual Chromium (synthetic provider responses)
+        if: ${{ !cancelled() }}
         run: node tests/browser-workspace.mjs

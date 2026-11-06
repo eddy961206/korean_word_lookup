@@ -324,7 +324,7 @@
         "message": "Alt / Option + hover"
     },
     "selectionPrivacyHint": {
-        "message": "Selection translation sends selected text to Google when enabled. Select Korean text, then press Alt / Option + Enter to focus its result."
+        "message": "Enable selection translation to send selected Korean text to Google. Alt / Option + Enter pins the result and moves focus to it."
     },
     "pauseSite": {
         "message": "Pause on this site"
