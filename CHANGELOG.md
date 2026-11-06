@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.5.3 - Unreleased
+
+### Privacy and API keys
+- Skip hover/selection lookups inside inputs, password fields, editable areas,
+  shadow/slot ancestors, and selections crossing editable content.
+- Recheck delayed requests and suppress stale results after focus, navigation context,
+  selection, settings, and source changes.
+- Migrate KRDICT keys from sync to trusted extension-local storage and remove the
+  legacy sync key only after a successful local write. Local storage is not encrypted.
+- Never return stored keys to content scripts or repopulate them in the popup.
+  Add explicit Save/Clear controls and localized key/privacy notices.
+- Move provider requests to the service worker, validate text, omit cookies/referrers,
+  reject redirects, and apply an eight-second request/body timeout.
+- Remove the GA4 sender and host permission. Clean up old telemetry credentials and
+  identifiers; keep strict, local-only diagnostic enums with bounded recent history.
+
+### First-use reliability
+- Do not cache transient lookup errors; retry failed on-device initialization.
+- Invalidate fallback caches when a key changes, including pending older requests.
+- Preserve settings changed during startup, and enforce selection enablement in the worker.
+- Avoid repeated usage counting while moving within the same translated word and
+  serialize first-success/usage writes across tabs.
+
+### Release preparation
+- Add privacy/security regression tests, multilingual store copy, privacy disclosures,
+  and a consent-based analytics assessment without deploying a collector.
+- Chrome 102 or newer is required for trusted-context storage access control.
+- Store upload, live-browser/provider QA, final screenshots and publication remain separate gates.
+
 ## 2.5.2 - 2026-10-02
 
 ### Translation and settings

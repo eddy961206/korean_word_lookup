@@ -3,7 +3,7 @@
     "message": "Tra từ tiếng Hàn - Di chuột & Dịch khi chọn"
   },
   "appDesc": {
-    "message": "Công cụ dịch & từ điển tiếng Hàn: di chuột lên từ để xem nghĩa, hoặc bôi đen câu để dịch ngay."
+    "message": "Di chuột lên từ tiếng Hàn để xem nghĩa tiếng Anh. Chọn văn bản để dịch. Hỗ trợ Google Dịch và từ điển KRDICT."
   },
   "cmdToggleTrans": {
     "message": "Bật/Tắt dịch"
@@ -57,7 +57,7 @@
     "message": "Dán khóa KRDICT của riêng bạn"
   },
   "apiKeyHelper": {
-    "message": "Không có khóa đi kèm. Khóa của bạn được lưu trong bộ nhớ đồng bộ của Chrome."
+    "message": "Chỉ lưu trên thiết bị này, không đồng bộ. Không được mã hóa."
   },
   "btnUseDefault": {
     "message": "Xóa khóa"
@@ -292,5 +292,20 @@
   },
   "btnDismiss": {
     "message": "Đóng"
+  },
+  "btnSaveKey": {
+    "message": "Lưu khóa"
+  },
+  "apiKeySaved": {
+    "message": "Đã lưu khóa trên thiết bị này."
+  },
+  "apiKeyNotSet": {
+    "message": "Chưa lưu khóa. Google Dịch không cần khóa."
+  },
+  "apiKeySaveError": {
+    "message": "Không thể lưu hoặc tải khóa. Hãy tải lại tiện ích và thử lại."
+  },
+  "privacyNotice": {
+    "message": "Văn bản cần dịch được gửi đến nhà cung cấp đã chọn; bản dịch vùng chọn dùng Google. Bỏ qua vùng nhập và chỉnh sửa. Không tải dữ liệu sử dụng lên."
   }
 }

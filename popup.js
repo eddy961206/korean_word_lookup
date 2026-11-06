@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectionTranslationToggle = document.getElementById('selectionTranslationToggle');
   const krdictApiKeyInput = document.getElementById('krdictApiKey');
   const clearApiKeyButton = document.getElementById('clearApiKey');
+  const saveApiKeyButton = document.getElementById('saveApiKey');
+  const apiKeyStatus = document.getElementById('apiKeyStatus');
   const reviewPrompt = document.getElementById('reviewPrompt');
   const rateButton = document.getElementById('rateButton');
   const rateLaterButton = document.getElementById('rateLaterButton');
@@ -82,8 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'showKoreanDefinitions',
     'compactTooltip',
     'autoFallbackEnabled',
-    'selectionTranslationEnabled',
-    'krdictApiKey'
+    'selectionTranslationEnabled'
   ], (result) => {
     toggleSwitch.checked = result.translationEnabled !== false;
     updateStatusMessage(toggleSwitch.checked);
@@ -104,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const compactTooltipValue = result.compactTooltip === true;
     const autoFallbackValue = result.autoFallbackEnabled !== false; // Default true
     const selectionTranslationValue = result.selectionTranslationEnabled === true;
-    const apiKeyValue = (result.krdictApiKey || '').trim();
 
     hoverDelaySelect.value = String(hoverDelayValue);
     maxDefinitionsSelect.value = String(maxDefinitionsValue);
@@ -112,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
     compactTooltipToggle.checked = compactTooltipValue;
     autoFallbackToggle.checked = autoFallbackValue;
     selectionTranslationToggle.checked = selectionTranslationValue;
-    krdictApiKeyInput.value = apiKeyValue;
     applyShortcutHints();
     maybeShowReviewPrompt().catch(() => {});
     maybeShowOnboardingNudge(result).catch(() => {});
@@ -149,15 +148,36 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.set({ selectionTranslationEnabled: e.target.checked });
   });
 
-  krdictApiKeyInput.addEventListener('input', (e) => {
-    chrome.storage.sync.set({ krdictApiKey: e.target.value.trim() });
+  function showKeyStatus(response) {
+    const message = response?.error ? 'apiKeySaveError' : response?.hasKey ? 'apiKeySaved' : 'apiKeyNotSet';
+    apiKeyStatus.textContent = chrome.i18n.getMessage(message);
+  }
+
+  chrome.runtime.sendMessage({ action: 'getDictionaryKeyStatus' }, response => {
+    showKeyStatus(chrome.runtime.lastError ? { error: true } : response);
   });
 
-  clearApiKeyButton.addEventListener('click', () => {
-    chrome.storage.sync.set({ krdictApiKey: '' }, () => {
+  // 저장 버튼을 누를 때만 키를 전달한다. 저장된 원문 키는 UI로 다시 읽지 않는다.
+  function saveDictionaryKey(key) {
+    saveApiKeyButton.disabled = true;
+    clearApiKeyButton.disabled = true;
+    chrome.runtime.sendMessage({ action: 'setDictionaryKey', key }, response => {
+      saveApiKeyButton.disabled = false;
+      clearApiKeyButton.disabled = false;
+      if (chrome.runtime.lastError || !response?.ok) {
+        showKeyStatus({ error: true });
+        return;
+      }
       krdictApiKeyInput.value = '';
+      showKeyStatus(response);
     });
+  }
+  saveApiKeyButton.addEventListener('click', () => {
+    const key = krdictApiKeyInput.value.trim();
+    if (!key) return;
+    saveDictionaryKey(key);
   });
+  clearApiKeyButton.addEventListener('click', () => saveDictionaryKey(''));
 
   rateButton.addEventListener('click', () => {
     trackEvent('review_prompt_rate_click');
@@ -419,8 +439,8 @@ document.addEventListener('DOMContentLoaded', () => {
       autoFallbackToggle.checked = changes.autoFallbackEnabled.newValue !== false;
     } else if (area === 'sync' && changes.selectionTranslationEnabled) {
       selectionTranslationToggle.checked = changes.selectionTranslationEnabled.newValue === true;
-    } else if (area === 'sync' && changes.krdictApiKey) {
-      krdictApiKeyInput.value = (changes.krdictApiKey.newValue || '').trim();
+    } else if (area === 'local' && changes.krdictApiKey) {
+      showKeyStatus({ hasKey: Boolean(changes.krdictApiKey.newValue) });
     } else if (area === 'sync' && changes.translationEnabled) {
       const newStatus = changes.translationEnabled.newValue;
       toggleSwitch.checked = newStatus !== false;

@@ -1,36 +1,45 @@
 ASO Pack (Chrome Web Store)
+Unpublished copy for the 2.5.3 release candidate. Verify final build and dashboard limits before submission.
 
-1) Title (current suggestion)
-- Korean Word Lookup - Hover & Select Translate
+1) Titles
+EN: Korean Word Lookup: Korean to English
+KO: Korean Word Lookup: 한국어를 영어로
+VI: Korean Word Lookup: Dịch tiếng Hàn sang tiếng Anh
 
-2) Short description (manifest suggestion)
-- Korean translator & dictionary: hover words for definitions, or select sentences to translate instantly.
+2) Short descriptions
+EN: Hover Korean words for English meanings. Select text to translate. Google Translate and KRDICT dictionary support.
+KO: 한국어 단어에 마우스를 올려 영어 뜻을 확인하고, 선택한 문장을 번역하세요. Google 번역과 KRDICT 사전을 지원합니다.
+VI: Di chuột lên từ tiếng Hàn để xem nghĩa tiếng Anh. Chọn văn bản để dịch. Hỗ trợ Google Dịch và từ điển KRDICT.
 
-3) First 2–3 sentences (snippet-optimized)
-- Korean Word Lookup is a Korean translator + Korean dictionary extension for Chrome.
-- Hover Hangul (Korean) words for instant English meaning, or select a sentence to translate it in one shot.
+3) English opening
+Read Korean web pages with English help right where you are reading.
+Korean Word Lookup shows translations or dictionary meanings in a tooltip when you hover over Korean words. Turn on selection translation to translate a phrase or sentence into English.
 
-4) Keyword ideas (mix & match, avoid stuffing)
-- korean translator
-- korean dictionary
-- hangul translator
-- korean hover translate
-- selection translate
-- translate korean on hover
-- korean learning
-- korean vocabulary
-- krdict
+4) Accurate positioning
+- English translation results; English, Korean, and Vietnamese interface languages.
+- Google translation needs no user-supplied API key. KRDICT requires your own key.
+- Selection translation uses Google, including in KRDICT word mode.
+- No remote product analytics in this release candidate. Local usage state remains.
+- KRDICT keys are stored locally, not encrypted, and not synced by this version.
+- Input and password fields, textareas, editable regions, and selections crossing editable content are skipped. Other page text may still be private.
+- Translation transmits lookup text to providers. Do not claim all data stays on-device or guaranteed offline operation.
 
-5) Screenshot plan (5 images)
-- 1: Hover translate (word → meaning) on a real website
-- 2: Switch source (Google ↔ KRDICT) + show definitions
-- 3: Selection translate (sentence selection → translation)
-- 4: Keyboard shortcuts (Alt+T/G/K/S) + quick workflow
-- 5: Tooltip settings (hover delay / compact / max definitions)
+5) Screenshot order
+1. Hover a Korean word. See its English meaning.
+2. Select a sentence for more context.
+3. Choose translation or dictionary lookup. Google: no key needed. KRDICT: bring your own key.
+4. Make the tooltip fit your reading.
+5. Keep reading with keyboard shortcuts.
+Use actual release-candidate captures. See docs/STORE_RELEASE_KIT.md for capture instructions and limitations.
 
-6) 15s demo video script
-- 0–3s: “Hover a Korean word → instant meaning”
-- 3–7s: “Switch to dictionary → detailed definitions”
-- 7–12s: “Select a sentence → translate instantly”
-- 12–15s: “Shortcuts + settings” + store CTA
+6) Suggested 15-second demo (not recorded)
+0–3s: Hover a Korean word and show an actual English result.
+3–7s: Show source selection with the KRDICT key requirement visible; never expose a key.
+7–12s: Enable selection translation and show an actual sentence result.
+12–15s: Show tooltip settings and platform-correct shortcuts.
+Do not fake provider responses, badges, ratings, adoption metrics, or publication status.
 
+7) Full descriptions
+Use product_description.txt, product_description_ko.txt, and product_description_vi.txt.
+These files mirror the full listing text in docs/STORE_RELEASE_KIT.md.
+The public privacy-policy URL and final screenshots still require verification before submission.

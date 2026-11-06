@@ -3,7 +3,7 @@
         "message": "Korean Word Lookup — Korean to English Translator & Dictionary"
     },
     "appDesc": {
-        "message": "Translate Korean to English instantly: hover words or select sentences. Google Translate + official KRDICT dictionary."
+        "message": "Hover Korean words for English meanings. Select text to translate. Google Translate and KRDICT dictionary support."
     },
     "cmdToggleTrans": {
         "message": "Toggle Translation On/Off"
@@ -57,7 +57,7 @@
         "message": "Paste your own KRDICT key"
     },
     "apiKeyHelper": {
-        "message": "No key is included. Your key is saved in Chrome sync storage."
+        "message": "Saved on this device, not synced. Not encrypted."
     },
     "btnUseDefault": {
         "message": "Clear key"
@@ -292,5 +292,20 @@
     },
     "btnDismiss": {
         "message": "Dismiss"
+    },
+    "btnSaveKey": {
+        "message": "Save key"
+    },
+    "apiKeySaved": {
+        "message": "A key is saved on this device."
+    },
+    "apiKeyNotSet": {
+        "message": "No key saved. Google Translate works without one."
+    },
+    "apiKeySaveError": {
+        "message": "Could not save or load the key. Reload the extension and try again."
+    },
+    "privacyNotice": {
+        "message": "Translation sends text to the selected provider; selection translation uses Google. Editable fields are skipped. No usage data is uploaded."
     }
 }

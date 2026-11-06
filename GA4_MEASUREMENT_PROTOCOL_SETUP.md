@@ -1,47 +1,17 @@
-# GA4 Measurement Protocol Setup (for extension product analytics)
+# GA4 product telemetry: retired in 2.5.3
 
-This extension now supports **optional** GA4 product-event sending from the background service worker.
+The extension no longer sends GA4 product events, accepts telemetry credentials,
+or requests access to google-analytics.com. Old local GA4 settings and identifiers
+are removed when the service worker starts. The helper in
+`scripts/set_ga4_telemetry.js` only removes legacy configuration.
 
-## Why
-- CWS-connected GA4 gives listing/install insight
-- Product retention needs in-extension events (first value, feature use, errors)
+Do not embed a Measurement Protocol secret in a public extension or copy historical
+DevTools enablement recipes. A config flag is not informed user consent.
 
-## Safety / privacy defaults
-- Disabled by default (`ga4TelemetryEnabled !== true`)
-- No raw hovered/selected text is sent
-- Payload is allowlisted and truncated
-- No Measurement Protocol secret is bundled in source or extension packages
-- Create credentials locally and rotate them immediately if they are ever committed
+The extension still uses local feature counters for local UI behavior. These do not
+provide a maintainer dashboard. Chrome Web Store acquisition reporting is separate
+and is not changed by this code release.
 
-## Storage keys (chrome.storage.local)
-Set these keys to enable telemetry:
-- `ga4TelemetryEnabled` = `true`
-- `ga4MeasurementId` = `G-XXXXXXXXXX`
-- `ga4ApiSecret` = GA4 Measurement Protocol API secret
-
-Optional:
-- `analyticsSessionId` (auto-created if missing)
-- `analyticsClientId` (auto-created if missing)
-
-## Example (DevTools on extension page)
-```js
-chrome.storage.local.set({
-  ga4TelemetryEnabled: true,
-  ga4MeasurementId: 'G-XXXXXXXXXX',
-  ga4ApiSecret: 'YOUR_SECRET'
-})
-```
-
-## Events currently sent (if enabled)
-- install, update
-- welcome_view, onboarding_demo_success, onboarding_start
-- popup_open
-- feature_use, first_success
-- lookup_error
-- review_prompt_* events
-- onboarding_nudge_* events
-- enable_extension / disable_extension
-
-## Recommended architecture
-- Keep CWS listing GA4 property separate from product event GA4 property
-- Weekly dashboard split: acquisition vs activation/retention
+See [the privacy and analytics plan](docs/PRIVACY_ANALYTICS_PLAN.md) for a future
+consent-based design and its explicit deployment, retention, and verification gates.
+No collector, credentials, account settings, or analytics deployment were created.
