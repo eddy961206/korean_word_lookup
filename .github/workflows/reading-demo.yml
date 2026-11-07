@@ -1,0 +1,30 @@
+name: Record reading demo
+on:
+  push:
+    branches: [demo/reading-video-2.6]
+permissions:
+  contents: read
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+      - run: npm install --no-save --package-lock=false playwright@1.62.1
+      - run: npx playwright install --with-deps chromium
+      - run: node marketing/capture/reading-demo.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: korean-reading-demo-2.6
+          path: |
+            reading-demo/reading-demo.webm
+            reading-demo/hover-result.png
+            reading-demo/sentence-result.png
+            reading-demo/evidence.json
+          if-no-files-found: error
