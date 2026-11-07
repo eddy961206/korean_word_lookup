@@ -45,4 +45,10 @@ try{
  if(evidence.requests.some(r=>r.target!=='en'||!['도서관','좋은 책을 읽고 싶어요.'].includes(r.text)))throw Error('Unexpected lookup: '+JSON.stringify(evidence.requests));
  await page.close();await video.saveAs(path.join(out,'reading-demo.webm'));evidence.actionTimelineMs=evidence.events.at(-1).elapsedMs;
  await writeFile(path.join(out,'evidence.json'),JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence));
+}catch(error){
+ evidence.error=String(error);
+ evidence.failurePanel=page?await page.locator('.kr-tooltip').evaluate(el=>({text:el.textContent,inner:el.innerText,classes:el.className,style:el.getAttribute('style')})).catch(()=>null):null;
+ await writeFile(path.join(out,'evidence.json'),JSON.stringify(evidence,null,2));console.error(JSON.stringify(evidence));
+ if(page&&!page.isClosed()){await page.screenshot({path:path.join(out,'failure.png')});await page.close();if(video)await video.saveAs(path.join(out,'reading-demo.webm'));}
+ throw error;
 }finally{await context.close();await rm(profile,{recursive:true,force:true});}

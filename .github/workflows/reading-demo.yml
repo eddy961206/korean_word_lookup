@@ -20,6 +20,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node marketing/capture/reading-demo.mjs
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: korean-reading-demo-2.6
           path: |
@@ -27,4 +28,5 @@ jobs:
             reading-demo/hover-result.png
             reading-demo/sentence-result.png
             reading-demo/evidence.json
+            reading-demo/failure.png
           if-no-files-found: error
